@@ -1,0 +1,8 @@
+# Build Result
+bin/
+obj/
+
+# Rider Project Files
+.idea/
+*.sln.iml
+
