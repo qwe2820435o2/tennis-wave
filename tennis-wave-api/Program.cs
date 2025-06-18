@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Serilog;
 using tennis_wave_api.Data;
+using tennis_wave_api.Extensions;
 
 
 // Serilog Config
@@ -21,6 +22,9 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 
 // Add Controllers
 builder.Services.AddControllers();
+
+// Add Services
+builder.Services.AddApplicationServices();
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
