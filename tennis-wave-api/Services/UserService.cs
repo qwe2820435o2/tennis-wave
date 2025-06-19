@@ -1,4 +1,6 @@
+using AutoMapper;
 using tennis_wave_api.Data.Interfaces;
+using tennis_wave_api.Models.DTOs;
 using tennis_wave_api.Models.Entities;
 using tennis_wave_api.Services.Interfaces;
 
@@ -7,36 +9,39 @@ namespace tennis_wave_api.Services;
 public class UserService : IUserService
 {
     private readonly IUserRepository _userRepository;
+    private readonly IMapper _mapper;
 
-    public UserService(IUserRepository userRepository)
+    public UserService(IUserRepository userRepository, IMapper mapper)
     {
         _userRepository = userRepository;
+        _mapper = mapper;
     }
 
-    public async Task<string> GetUserNameAsync(string userId)
+    public async Task<IEnumerable<UserDto>> GetAllUsersAsync()
+    {
+        var users = await _userRepository.GetAllUsersAsync();
+        return _mapper.Map<IEnumerable<UserDto>>(users);
+    }
+
+    public async Task<UserDto> GetUserByIdAsync(string userId)
     {
         var user = await _userRepository.GetUserByIdAsync(userId);
-        return user.UserName;
+        return _mapper.Map<UserDto>(user);
     }
 
-    public async Task<User> GetUserByIdAsync(string userId)
+    public async Task<UserDto> CreateUserAsync(CreateUserDto createUserDto)
     {
-        return await _userRepository.GetUserByIdAsync(userId);
+        var user = _mapper.Map<User>(createUserDto);
+        var createdUser = await _userRepository.CreateUserAsync(user);
+        return _mapper.Map<UserDto>(createdUser);
     }
 
-    public async Task<IEnumerable<User>> GetAllUsersAsync()
+    public async Task<UserDto> UpdateUserAsync(string userId, UpdateUserDto updateUserDto)
     {
-        return await _userRepository.GetAllUsersAsync();
-    }
-
-    public async Task<User> CreateUserAsync(User user)
-    {
-        return await _userRepository.CreateUserAsync(user);
-    }
-
-    public async Task<User> UpdateUserAsync(User user)
-    {
-        return await _userRepository.UpdateUserAsync(user);
+        var existingUser = await _userRepository.GetUserByIdAsync(userId);
+        _mapper.Map(updateUserDto, existingUser);
+        var updatedUser = await _userRepository.UpdateUserAsync(existingUser);
+        return _mapper.Map<UserDto>(updatedUser);
     }
 
     public async Task DeleteUserAsync(string userId)

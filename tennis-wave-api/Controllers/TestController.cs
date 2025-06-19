@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using tennis_wave_api.Models.DTOs;
 using tennis_wave_api.Models.Entities;
 using tennis_wave_api.Services.Interfaces;
 
@@ -16,14 +17,14 @@ public class UserController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<User>>> GetAllUsers()
+    public async Task<ActionResult<IEnumerable<UserDto>>> GetAllUsers()
     {
         var users = await _userService.GetAllUsersAsync();
         return Ok(users);
     }
 
     [HttpGet("{id}")]
-    public async Task<ActionResult<User>> GetUserById(string id)
+    public async Task<ActionResult<UserDto>> GetUserById(string id)
     {
         try
         {
@@ -37,23 +38,18 @@ public class UserController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<ActionResult<User>> CreateUser(User user)
+    public async Task<ActionResult<UserDto>> CreateUser(CreateUserDto createUserDto)
     {
-        var createdUser = await _userService.CreateUserAsync(user);
+        var createdUser = await _userService.CreateUserAsync(createUserDto);
         return CreatedAtAction(nameof(GetUserById), new { id = createdUser.Id }, createdUser);
     }
 
     [HttpPut("{id}")]
-    public async Task<ActionResult<User>> UpdateUser(string id, User user)
+    public async Task<ActionResult<UserDto>> UpdateUser(string id, UpdateUserDto updateUserDto)
     {
-        if (id != user.Id)
-        {
-            return BadRequest();
-        }
-
         try
         {
-            var updatedUser = await _userService.UpdateUserAsync(user);
+            var updatedUser = await _userService.UpdateUserAsync(id, updateUserDto);
             return Ok(updatedUser);
         }
         catch (KeyNotFoundException)

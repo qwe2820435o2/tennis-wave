@@ -9,9 +9,9 @@ using tennis_wave_api.Extensions;
 using tennis_wave_api.Models;
 
 
-// Serilog Config
 var builder = WebApplication.CreateBuilder(args);
 
+// Serilog Config
 Log.Logger = new LoggerConfiguration()
     .ReadFrom.Configuration(builder.Configuration)
     .Enrich.FromLogContext()
@@ -102,6 +102,9 @@ builder.Services.AddApplicationServices();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+// Register AutoMapper
+builder.Services.AddAutoMapper(typeof(MappingProfile));
 
 
 var app = builder.Build();
