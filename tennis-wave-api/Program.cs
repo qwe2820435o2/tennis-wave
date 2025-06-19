@@ -111,8 +111,15 @@ var app = builder.Build();
 
 // Show current info
 var env = builder.Environment.EnvironmentName;
-var appName = builder.Configuration["AppSettings:AppName"];
-Console.WriteLine($"----------- Starting {appName} in {env} mode -----------------");
+var appName = builder.Configuration["AppSettings:AppName"] ?? "Tennis Wave API";
+var version = builder.Configuration["AppSettings:Version"] ?? "1.0.0";
+
+Console.WriteLine("=".PadRight(60, '='));
+Console.WriteLine($"Starting {appName} v{version}");
+Console.WriteLine($"Environment: {env}");
+Console.WriteLine($"Database: {builder.Configuration.GetConnectionString("DefaultConnection")?.Split(';').FirstOrDefault()?.Split('=').LastOrDefault() ?? "Not configured"}");
+Console.WriteLine($"Log Level: {builder.Configuration["Logging:LogLevel:Default"] ?? "Information"}");
+Console.WriteLine("=".PadRight(60, '='));
 
 
 // Configure the HTTP request pipeline.
@@ -125,6 +132,10 @@ if (app.Environment.IsDevelopment())
         c.DocumentTitle = "Tennis Wave API Documentation";
     });
     app.UseDeveloperExceptionPage();
+}
+else
+{   
+    app.UseMiddleware<ExceptionHandlerMiddleware>();
 }
 
 app.UseHttpsRedirection();

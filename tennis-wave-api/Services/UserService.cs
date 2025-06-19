@@ -1,5 +1,6 @@
 using AutoMapper;
 using tennis_wave_api.Data.Interfaces;
+using tennis_wave_api.Extensions;
 using tennis_wave_api.Models.DTOs;
 using tennis_wave_api.Models.Entities;
 using tennis_wave_api.Services.Interfaces;
@@ -25,8 +26,15 @@ public class UserService : IUserService
 
     public async Task<UserDto> GetUserByIdAsync(string userId)
     {
-        var user = await _userRepository.GetUserByIdAsync(userId);
-        return _mapper.Map<UserDto>(user);
+        try
+        {
+            var user = await _userRepository.GetUserByIdAsync(userId);
+            return _mapper.Map<UserDto>(user);
+        }
+        catch (KeyNotFoundException)
+        {
+            throw new BusinessException($"User {userId} is not exist", "USER_NOT_FOUND");
+        }
     }
 
     public async Task<UserDto> CreateUserAsync(CreateUserDto createUserDto)
