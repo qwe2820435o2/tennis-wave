@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using tennis_wave_api.Helpers;
 using tennis_wave_api.Models.DTOs;
 using tennis_wave_api.Models.Entities;
 using tennis_wave_api.Services.Interfaces;
@@ -20,7 +21,7 @@ public class UserController : ControllerBase
     public async Task<ActionResult<IEnumerable<UserDto>>> GetAllUsers()
     {
         var users = await _userService.GetAllUsersAsync();
-        return Ok(users);
+        return Ok(ApiResponseHelper.Success(users));
     }
 
     [HttpGet("{id}")]
@@ -29,11 +30,11 @@ public class UserController : ControllerBase
         try
         {
             var user = await _userService.GetUserByIdAsync(id);
-            return Ok(user);
+            return Ok(ApiResponseHelper.Success(user));
         }
         catch (KeyNotFoundException)
         {
-            return NotFound();
+            return Ok(ApiResponseHelper.Fail<UserDto>("User not found", 404));
         }
     }
 
@@ -41,7 +42,7 @@ public class UserController : ControllerBase
     public async Task<ActionResult<UserDto>> CreateUser(CreateUserDto createUserDto)
     {
         var createdUser = await _userService.CreateUserAsync(createUserDto);
-        return CreatedAtAction(nameof(GetUserById), new { id = createdUser.Id }, createdUser);
+        return Ok(ApiResponseHelper.Success(createdUser, "User created successfully"));
     }
 
     [HttpPut("{id}")]
@@ -50,11 +51,11 @@ public class UserController : ControllerBase
         try
         {
             var updatedUser = await _userService.UpdateUserAsync(id, updateUserDto);
-            return Ok(updatedUser);
+            return Ok(ApiResponseHelper.Success(updatedUser, "User updated successfully"));
         }
         catch (KeyNotFoundException)
         {
-            return NotFound();
+            return Ok(ApiResponseHelper.Fail<UserDto>("User not found", 404));
         }
     }
 
@@ -64,11 +65,11 @@ public class UserController : ControllerBase
         try
         {
             await _userService.DeleteUserAsync(id);
-            return NoContent();
+            return Ok(ApiResponseHelper.Success<object>(null, "User deleted successfully"));
         }
         catch (KeyNotFoundException)
         {
-            return NotFound();
+            return Ok(ApiResponseHelper.Fail<object>("User not found", 404));
         }
     }
 }

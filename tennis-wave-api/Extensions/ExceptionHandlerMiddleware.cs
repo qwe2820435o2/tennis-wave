@@ -1,5 +1,6 @@
 using System.Net;
 using System.Text.Json;
+using tennis_wave_api.Models;
 
 namespace tennis_wave_api.Extensions;
 
@@ -30,17 +31,12 @@ public class ExceptionHandlerMiddleware
     private static async Task HandleExceptionAsync(HttpContext context, Exception exception)
     {
         context.Response.ContentType = "application/json";
-        
-        var response = new
+
+        var response = new ApiResponse<object>
         {
-            Success = false,
+            Code = GetBusinessCode(exception),
             Message = GetUserFriendlyMessage(exception),
-            Error = new
-            {
-                Type = exception.GetType().Name,
-                Details = GetExceptionDetails(exception)
-            },
-            Timestamp = DateTime.UtcNow
+            Data = null
         };
 
         context.Response.StatusCode = GetStatusCode(exception);
@@ -67,12 +63,17 @@ public class ExceptionHandlerMiddleware
         };
     }
 
-    private static object GetExceptionDetails(Exception exception)
+    private static int GetBusinessCode(Exception exception)
     {
-        return new
+        return exception switch
         {
-            Message = exception.Message,
-            StackTrace = exception.StackTrace
+            BusinessException => 1001,
+            ValidationException => 1002,
+            KeyNotFoundException => 404,
+            ArgumentException => 1003,
+            UnauthorizedAccessException => 401,
+            InvalidOperationException => 1004,
+            _ => 1
         };
     }
 
@@ -89,6 +90,4 @@ public class ExceptionHandlerMiddleware
             _ => (int)HttpStatusCode.InternalServerError
         };
     }
-    
-    
 }
