@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using tennis_wave_api.Helpers;
 using tennis_wave_api.Models.DTOs;
@@ -18,6 +19,7 @@ public class UserController : ControllerBase
     }
 
     [HttpGet]
+    [Authorize] 
     public async Task<ActionResult<IEnumerable<UserDto>>> GetAllUsers()
     {
         var users = await _userService.GetAllUsersAsync();
@@ -25,7 +27,7 @@ public class UserController : ControllerBase
     }
 
     [HttpGet("{id}")]
-    public async Task<ActionResult<UserDto>> GetUserById(string id)
+    public async Task<ActionResult<UserDto>> GetUserById(int id)
     {
         try
         {
@@ -46,7 +48,7 @@ public class UserController : ControllerBase
     }
 
     [HttpPut("{id}")]
-    public async Task<ActionResult<UserDto>> UpdateUser(string id, UpdateUserDto updateUserDto)
+    public async Task<ActionResult<UserDto>> UpdateUser(int id, UpdateUserDto updateUserDto)
     {
         try
         {
@@ -60,7 +62,7 @@ public class UserController : ControllerBase
     }
 
     [HttpDelete("{id}")]
-    public async Task<ActionResult> DeleteUser(string id)
+    public async Task<ActionResult> DeleteUser(int id)
     {
         try
         {

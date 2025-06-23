@@ -22,5 +22,10 @@ public class MappingProfile : Profile
             .ForMember(dest => dest.UpdatedAt, opt => opt.MapFrom(src => DateTime.UtcNow))
             .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null)); // ignore null
 
+        CreateMap<User, AuthResponseDto>()
+            .ForMember(
+                dest => dest.UserId, // The destination property (in AuthResponseDto)
+                opt => opt.MapFrom(src => src.Id) // The source property (in User)
+            );
     }
 }

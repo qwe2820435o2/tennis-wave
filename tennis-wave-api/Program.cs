@@ -49,28 +49,21 @@ builder.Services.AddSwaggerGen(c =>
     {
         Title = "Tennis Wave API",
         Version = "v1.0.0",
-        Description = "A social platform for tennis players to find partners and organize matches",
-        Contact = new OpenApiContact
-        {
-            Name = "Tennis Wave Team",
-            Email = "support@tenniswave.com"
-        },
-        License = new OpenApiLicense
-        {
-            Name = "MIT License",
-            Url = new Uri("https://opensource.org/licenses/MIT")
-        }
     });
 
-    // Set up JWT Auth
     c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
+        // A short description for the authentication scheme.
+        Description = "JWT Authorization header using the Bearer scheme. Example: \"Authorization: Bearer {token}\"",
+        // The name of the header that will contain the JWT.
         Name = "Authorization",
-        Type = SecuritySchemeType.ApiKey,
-        Scheme = "Bearer",
-        BearerFormat = "JWT",
+        // The location of the API key.
         In = ParameterLocation.Header,
-        Description = "Enter JWT token. Example: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+        // The type of the security scheme.
+        Type = SecuritySchemeType.Http, 
+        // The name of the HTTP authorization scheme.
+        Scheme = "bearer", 
+        BearerFormat = "JWT"
     });
 
     c.AddSecurityRequirement(new OpenApiSecurityRequirement
@@ -98,10 +91,6 @@ builder.Services.AddControllers();
 
 // Add Services
 builder.Services.AddApplicationServices();
-
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
 
 // Register AutoMapper
 builder.Services.AddAutoMapper(typeof(MappingProfile));

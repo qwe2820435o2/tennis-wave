@@ -24,7 +24,7 @@ public class UserService : IUserService
         return _mapper.Map<IEnumerable<UserDto>>(users);
     }
 
-    public async Task<UserDto> GetUserByIdAsync(string userId)
+    public async Task<UserDto> GetUserByIdAsync(int userId)
     {
         try
         {
@@ -44,7 +44,7 @@ public class UserService : IUserService
         return _mapper.Map<UserDto>(createdUser);
     }
 
-    public async Task<UserDto> UpdateUserAsync(string userId, UpdateUserDto updateUserDto)
+    public async Task<UserDto> UpdateUserAsync(int userId, UpdateUserDto updateUserDto)
     {
         var existingUser = await _userRepository.GetUserByIdAsync(userId);
         _mapper.Map(updateUserDto, existingUser);
@@ -52,7 +52,7 @@ public class UserService : IUserService
         return _mapper.Map<UserDto>(updatedUser);
     }
 
-    public async Task DeleteUserAsync(string userId)
+    public async Task DeleteUserAsync(int userId)
     {
         await _userRepository.DeleteUserAsync(userId);
     }

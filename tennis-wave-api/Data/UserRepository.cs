@@ -13,12 +13,12 @@ public class UserRepository : IUserRepository
         _context = context;
     }
 
-    public async Task<bool> ExistsAsync(string userId)
+    public async Task<bool> ExistsAsync(int userId)
     {
         return await _context.Users.AnyAsync(u => u.Id == userId);
     }
 
-    public async Task<string> GetUserNameAsync(string userId)
+    public async Task<string> GetUserNameAsync(int userId)
     {
         var user = await _context.Users
             .FirstOrDefaultAsync(u => u.Id == userId);
@@ -26,7 +26,7 @@ public class UserRepository : IUserRepository
         return user?.UserName ?? throw new KeyNotFoundException($"User with ID {userId} not found");
     }
 
-    public async Task<User> GetUserByIdAsync(string userId)
+    public async Task<User> GetUserByIdAsync(int userId)
     {
         var user = await _context.Users
             .FirstOrDefaultAsync(u => u.Id == userId);
@@ -53,7 +53,7 @@ public class UserRepository : IUserRepository
         return user;
     }
 
-    public async Task DeleteUserAsync(string userId)
+    public async Task DeleteUserAsync(int userId)
     {
         var user = await _context.Users.FindAsync(userId);
         if (user != null)
@@ -61,5 +61,11 @@ public class UserRepository : IUserRepository
             _context.Users.Remove(user);
             await _context.SaveChangesAsync();
         }
+    }
+
+    public async Task<User?> GetByEmailAsync(string email)
+    {
+        // Finds the first user matching the given email address.
+        return await _context.Users.FirstOrDefaultAsync(u => u.Email.ToLower() == email.ToLower());
     }
 }
