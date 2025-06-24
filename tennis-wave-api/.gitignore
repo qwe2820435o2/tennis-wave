@@ -6,3 +6,7 @@ obj/
 .idea/
 *.sln.iml
 
+# Logs and user setting
+Logs/
+*.DotSettings.user
+
