@@ -1,3 +1,5 @@
+using System.Security.Cryptography;
+using System.Text;
 using AutoMapper;
 using tennis_wave_api.Data.Interfaces;
 using tennis_wave_api.Extensions;
@@ -56,4 +58,67 @@ public class UserService : IUserService
     {
         await _userRepository.DeleteUserAsync(userId);
     }
+
+    public async Task<UserProfileDto> GetUserProfileAsync(int userId)
+    {
+        try
+        {
+            var user = await _userRepository.GetUserByIdAsync(userId);
+            return _mapper.Map<UserProfileDto>(user);
+        }
+        catch (KeyNotFoundException)
+        {
+            throw new BusinessException($"User {userId} is not exist", "USER_NOT_FOUND");
+        }
+    }
+
+    public async Task<UserProfileDto> UpdateUserProfileAsync(int userId, UpdateUserProfileDto updateDto)
+    {
+        var existingUser = await _userRepository.GetUserByIdAsync(userId);
+    
+        // Check if username is being changed and if it's unique
+        if (!string.IsNullOrEmpty(updateDto.UserName) && 
+            updateDto.UserName != existingUser.UserName &&
+            !await IsUserNameUniqueAsync(updateDto.UserName, userId))
+        {
+            throw new BusinessException("Username already exists", "USERNAME_ALREADY_EXISTS");
+        }
+
+        // Use AutoMapper to mapper
+        _mapper.Map(updateDto, existingUser);
+
+        existingUser.UpdatedAt = DateTime.UtcNow;
+    
+        var updatedUser = await _userRepository.UpdateUserAsync(existingUser);
+        return _mapper.Map<UserProfileDto>(updatedUser);
+    }
+
+    public async Task<bool> ChangePasswordAsync(int userId, ChangePasswordDto changePasswordDto)
+    {
+        var user = await _userRepository.GetUserByIdAsync(userId);
+    
+        // Verify current password using BCrypt
+        if (!BCrypt.Net.BCrypt.Verify(changePasswordDto.CurrentPassword, user.PasswordHash))
+        {
+            throw new BusinessException("Current password is incorrect", "INVALID_CURRENT_PASSWORD");
+        }
+
+        // Hash new password using BCrypt
+        user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(changePasswordDto.NewPassword);
+        user.UpdatedAt = DateTime.UtcNow;
+    
+        await _userRepository.UpdateUserAsync(user);
+        return true;
+    }
+
+    public async Task<bool> IsEmailUniqueAsync(string email, int? excludeUserId = null)
+    {
+        return await _userRepository.IsEmailUniqueAsync(email, excludeUserId);
+    }
+
+    public async Task<bool> IsUserNameUniqueAsync(string userName, int? excludeUserId = null)
+    {
+        return await _userRepository.IsUserNameUniqueAsync(userName, excludeUserId);
+    }
+    
 }

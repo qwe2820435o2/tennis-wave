@@ -1,4 +1,6 @@
 // Controllers/AuthController.cs
+
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using tennis_wave_api.Extensions;
 using tennis_wave_api.Models.DTOs;

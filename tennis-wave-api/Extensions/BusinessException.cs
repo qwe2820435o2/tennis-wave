@@ -1,3 +1,6 @@
+using System;
+using System.Collections.Generic;
+
 namespace tennis_wave_api.Extensions;
 
 public class BusinessException : Exception

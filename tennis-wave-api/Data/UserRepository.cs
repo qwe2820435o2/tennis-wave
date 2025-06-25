@@ -68,4 +68,28 @@ public class UserRepository : IUserRepository
         // Finds the first user matching the given email address.
         return await _context.Users.FirstOrDefaultAsync(u => u.Email.ToLower() == email.ToLower());
     }
+
+    public async Task<bool> IsEmailUniqueAsync(string email, int? excludeUserId = null)
+    {
+        var query = _context.Users.Where(u => u.Email.ToLower() == email.ToLower());
+    
+        if (excludeUserId.HasValue)
+        {
+            query = query.Where(u => u.Id != excludeUserId.Value);
+        }
+    
+        return !await query.AnyAsync();
+    }
+
+    public async Task<bool> IsUserNameUniqueAsync(string userName, int? excludeUserId = null)
+    {
+        var query = _context.Users.Where(u => u.UserName.ToLower() == userName.ToLower());
+    
+        if (excludeUserId.HasValue)
+        {
+            query = query.Where(u => u.Id != excludeUserId.Value);
+        }
+    
+        return !await query.AnyAsync();
+    }
 }

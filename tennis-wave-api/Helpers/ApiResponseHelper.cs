@@ -23,4 +23,14 @@ public static class ApiResponseHelper
             Data = data,
         };
     }
+    
+    public static ApiResponse<T> Error<T>(string message, int code = 1, T? data = default)
+    {
+        return Fail<T>(message, code, data);
+    }
+
+    public static ApiResponse<object> Error(string message, int code = 1)
+    {
+        return Error<object>(message, code, null);
+    }
 }

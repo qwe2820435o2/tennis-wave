@@ -1,3 +1,5 @@
+using System;
+
 namespace tennis_wave_api.Models.DTOs;
 
 public class UserDto
