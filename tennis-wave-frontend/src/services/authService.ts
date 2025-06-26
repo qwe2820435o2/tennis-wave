@@ -1,4 +1,5 @@
 import axios from "axios";
+import {ApiResponse} from "@/types/api";
 
 export interface LoginRequest {
     email: string;
@@ -26,17 +27,17 @@ export interface RegisterResponse {
 
 export async function login(data: LoginRequest): Promise<LoginResponse> {
     // Note：this url should match with backend
-    const response = await axios.post<LoginResponse>(
-        "http://localhost:5161/api/Auth/login",
-        data
-    );
-    return response.data;
+    const response = await axios.post<ApiResponse<LoginResponse>>("http://localhost:5161/api/Auth/login", data);
+    if (response.data.code !== 0) {
+        throw new Error(response.data.message);
+    }
+    return response.data.data;
 }
 
 export async function register(data: RegisterRequest): Promise<RegisterResponse> {
-    const response = await axios.post<RegisterResponse>(
-        "http://localhost:5161/api/Auth/register",
-        data
-    );
-    return response.data;
+    const response = await axios.post<ApiResponse<RegisterResponse>>("http://localhost:5161/api/Auth/register", data);
+    if (response.data.code !== 0) {
+        throw new Error(response.data.message);
+    }
+    return response.data.data;
 }

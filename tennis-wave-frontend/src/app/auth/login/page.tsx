@@ -47,7 +47,7 @@ export default function LoginPage() {
             toast.success("Login Successful", {
                 description: `Welcome back, ${result.userName}!`,
             });
-            router.push("/profile"); // 跳转到个人中心或首页
+            router.push("/profile");
         } catch (error: unknown) {
             let errorMessage = "Please check your email and password";
             if (error && typeof error === "object" && "isAxiosError" in error) {
