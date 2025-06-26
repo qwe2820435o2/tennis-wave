@@ -8,7 +8,7 @@ using tennis_wave_api.Data;
 using tennis_wave_api.Extensions;
 using tennis_wave_api.Models;
 
-
+var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
 var builder = WebApplication.CreateBuilder(args);
 
 // Serilog Config
@@ -95,6 +95,18 @@ builder.Services.AddApplicationServices();
 // Register AutoMapper
 builder.Services.AddAutoMapper(typeof(MappingProfile));
 
+// Cors
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy(name: MyAllowSpecificOrigins,
+        policy =>
+        {
+            policy.WithOrigins("http://localhost:3000") // 允许前端地址
+                .AllowAnyHeader()
+                .AllowAnyMethod();
+        });
+});
+
 
 var app = builder.Build();
 
@@ -126,6 +138,10 @@ else
 {   
     app.UseMiddleware<ExceptionHandlerMiddleware>();
 }
+
+
+// Cors
+app.UseCors(MyAllowSpecificOrigins);
 
 app.UseHttpsRedirection();
 
