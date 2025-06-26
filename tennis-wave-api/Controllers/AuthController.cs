@@ -3,6 +3,7 @@
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using tennis_wave_api.Extensions;
+using tennis_wave_api.Helpers;
 using tennis_wave_api.Models.DTOs;
 using tennis_wave_api.Services.Interfaces;
 
@@ -31,12 +32,11 @@ public class AuthController : ControllerBase
         try
         {
             var response = await _authService.RegisterAsync(registerDto);
-            return Ok(response);
+            return Ok(ApiResponseHelper.Success(response, "Registration successful"));
         }
         catch (BusinessException ex)
         {
-            // Return a 400 Bad Request for known business rule violations.
-            return BadRequest(new { message = ex.Message, code = ex.ErrorCode });
+            return BadRequest(ApiResponseHelper.Fail<AuthResponseDto>(ex.Message));
         }
     }
 
@@ -49,12 +49,11 @@ public class AuthController : ControllerBase
         try
         {
             var response = await _authService.LoginAsync(loginDto);
-            return Ok(response);
+            return Ok(ApiResponseHelper.Success(response, "Login successful"));
         }
         catch (BusinessException ex)
         {
-            // Return a 400 Bad Request for failed login attempts.
-            return BadRequest(new { message = ex.Message });
+            return BadRequest(ApiResponseHelper.Fail<AuthResponseDto>(ex.Message));
         }
     }
 }
