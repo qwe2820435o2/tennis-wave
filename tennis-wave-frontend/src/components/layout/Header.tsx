@@ -1,41 +1,31 @@
 "use client";
 
-import { useState, useEffect } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Volleyball, User, LogOut } from "lucide-react";
 import { toast } from "sonner";
-
-interface User {
-    userId: number;
-    userName: string;
-    email: string;
-}
+import { useDispatch, useSelector } from "react-redux";
+import { clearUser } from "@/store/slices/userSlice";
+import type { RootState } from "@/store";
+import { useState } from "react";
 
 export default function Header() {
-    const [user, setUser] = useState<User | null>(null);
+    const user = useSelector((state: RootState) => state.user);
     const [isMenuOpen, setIsMenuOpen] = useState(false);
-
-    useEffect(() => {
-        // Check if user is logged in
-        const userStr = localStorage.getItem("user");
-        if (userStr) {
-            try {
-                setUser(JSON.parse(userStr));
-            } catch {
-                localStorage.removeItem("user");
-                localStorage.removeItem("token");
-            }
-        }
-    }, []);
+    const dispatch = useDispatch();
 
     const handleLogout = () => {
         localStorage.removeItem("user");
         localStorage.removeItem("token");
-        setUser(null);
+        dispatch(clearUser());
         toast.success("Logged out successfully");
         window.location.href = "/";
     };
+
+    if (!user.isHydrated) {
+        // 你可以返回 null 或 loading 占位
+        return null;
+    }
 
     return (
         <header className="bg-white/80 backdrop-blur-md border-b border-gray-200 sticky top-0 z-50">
@@ -64,7 +54,7 @@ export default function Header() {
 
                     {/* User Actions */}
                     <div className="flex items-center space-x-4">
-                        {user ? (
+                        {user && user.userId ? (
                             <div className="relative">
                                 <Button
                                     variant="ghost"
@@ -74,8 +64,6 @@ export default function Header() {
                                     <User className="w-4 h-4" />
                                     <span>{user.userName}</span>
                                 </Button>
-
-                                {/* Dropdown Menu */}
                                 {isMenuOpen && (
                                     <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg border border-gray-200 py-1">
                                         <Link

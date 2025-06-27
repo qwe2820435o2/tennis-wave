@@ -1,8 +1,12 @@
-import type { Metadata } from "next";
+"use client";
+
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import {Toaster} from "sonner";
 import Header from "@/components/layout/Header";
+import {Provider} from "react-redux";
+import {store} from "@/store";
+import UserBootstrap from "@/components/common/UserBootstrap";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -14,11 +18,6 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-export const metadata: Metadata = {
-    title: "Tennis Wave",
-    description: "Connect with tennis enthusiasts, start your tennis journey",
-};
-
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -29,13 +28,16 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-          <Header />
-          <main>{children}</main>
-          <Toaster
-              position="top-center"
-              richColors
-              closeButton
-          />
+          <Provider store={store}>
+              <UserBootstrap />
+              <Header />
+              <main>{children}</main>
+              <Toaster
+                  position="top-center"
+                  richColors
+                  closeButton
+              />
+          </Provider>
       </body>
     </html>
   );

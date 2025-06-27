@@ -11,6 +11,8 @@ import { toast } from "sonner";
 import { Eye, EyeOff, Mail, Lock, Volleyball } from "lucide-react";
 import {login} from "@/services/authService";
 import {AxiosError} from "axios";
+import {setUser} from "@/store/slices/userSlice";
+import {useDispatch} from "react-redux";
 
 export default function LoginPage() {
     const [isLoading, setIsLoading] = useState(false);
@@ -21,6 +23,7 @@ export default function LoginPage() {
     });
 
     const router = useRouter();
+    const dispatch = useDispatch();
 
     // Handle input field changes
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -47,7 +50,15 @@ export default function LoginPage() {
             toast.success("Login Successful", {
                 description: `Welcome back, ${result.userName}!`,
             });
-            router.push("/profile");
+            //  Update Redux
+            dispatch(setUser({
+                userId: result.userId,
+                userName: result.userName,
+                email: result.email,
+                token: result.token,
+            }));
+            // Jump to homepage
+            router.push("/");
         } catch (error: unknown) {
             let errorMessage = "Please check your email and password";
             if (error && typeof error === "object" && "isAxiosError" in error) {
