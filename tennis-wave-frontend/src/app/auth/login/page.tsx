@@ -12,7 +12,8 @@ import { Eye, EyeOff, Mail, Lock, Volleyball } from "lucide-react";
 import {login} from "@/services/authService";
 import {AxiosError} from "axios";
 import {setUser} from "@/store/slices/userSlice";
-import {useDispatch} from "react-redux";
+import { useDispatch } from "react-redux";
+import { showLoading, hideLoading } from "@/store/slices/loadingSlice";
 
 export default function LoginPage() {
     const [isLoading, setIsLoading] = useState(false);
@@ -37,6 +38,7 @@ export default function LoginPage() {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setIsLoading(true);
+        dispatch(showLoading());
 
         try {
             const result = await login(formData);
@@ -72,6 +74,7 @@ export default function LoginPage() {
             });
         } finally {
             setIsLoading(false);
+            dispatch(hideLoading());
         }
     };
 

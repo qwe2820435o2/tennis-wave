@@ -8,12 +8,15 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { format } from "date-fns";
+import { useDispatch } from "react-redux";
+import { showLoading, hideLoading } from "@/store/slices/loadingSlice";
 
 export default function ProfilePage() {
     const [profile, setProfile] = useState<UserProfile | null>(null);
     const [editMode, setEditMode] = useState(false);
     const [formData, setFormData] = useState<Partial<UserProfile>>({});
     const [isLoading, setIsLoading] = useState(false);
+    const dispatch = useDispatch();
 
     // Fetch user profile on mount
     useEffect(() => {
@@ -41,6 +44,7 @@ export default function ProfilePage() {
     // Handle save
     const handleSave = async () => {
         setIsLoading(true);
+        dispatch(showLoading());
         try {
             const updated = await updateUserProfile(formData);
             setProfile(updated);
@@ -50,6 +54,7 @@ export default function ProfilePage() {
             toast.error("Failed to update profile");
         } finally {
             setIsLoading(false);
+            dispatch(hideLoading());
         }
     };
 

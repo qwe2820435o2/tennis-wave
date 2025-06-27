@@ -7,6 +7,7 @@ import Header from "@/components/layout/Header";
 import {Provider} from "react-redux";
 import {store} from "@/store";
 import UserBootstrap from "@/components/common/UserBootstrap";
+import GlobalLoading from "@/components/common/GlobalLoading";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -30,6 +31,7 @@ export default function RootLayout({
       >
           <Provider store={store}>
               <UserBootstrap />
+              <GlobalLoading />
               <Header />
               <main>{children}</main>
               <Toaster

@@ -11,6 +11,8 @@ import { toast } from "sonner";
 import {AxiosError} from "axios";
 import {Volleyball} from "lucide-react";
 import {register} from "@/services/authService";
+import { useDispatch } from "react-redux";
+import { showLoading, hideLoading } from "@/store/slices/loadingSlice";
 
 export default function RegisterPage() {
     const [isLoading, setIsLoading] = useState(false);
@@ -22,6 +24,7 @@ export default function RegisterPage() {
     });
 
     const router = useRouter();
+    const dispatch = useDispatch();
 
     // Handle input field changes
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -35,6 +38,8 @@ export default function RegisterPage() {
     // Handle form submission
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+        setIsLoading(true);
+        dispatch(showLoading());
 
         // Simple validation
         if (formData.password !== formData.confirmPassword) {
@@ -42,7 +47,6 @@ export default function RegisterPage() {
             return;
         }
 
-        setIsLoading(true);
 
         try {
             // Call register API
@@ -68,6 +72,7 @@ export default function RegisterPage() {
             });
         } finally {
             setIsLoading(false);
+            dispatch(hideLoading());
         }
     };
 
