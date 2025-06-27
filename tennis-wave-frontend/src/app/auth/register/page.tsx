@@ -67,9 +67,16 @@ export default function RegisterPage() {
                     errorMessage = axiosError.response.data.message;
                 }
             }
-            toast.error("Registration Failed", {
-                description: errorMessage,
-            });
+
+            if (error && typeof error === "object" && "isAxiosError" in error) {
+                const axiosError = error as AxiosError;
+                if (axiosError.response?.status !== 401) {
+                    toast.error("Registration Failed", {
+                        description: errorMessage,
+                    });
+                }
+            }
+
         } finally {
             setIsLoading(false);
             dispatch(hideLoading());

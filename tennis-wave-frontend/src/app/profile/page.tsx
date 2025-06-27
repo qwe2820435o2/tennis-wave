@@ -10,6 +10,8 @@ import { toast } from "sonner";
 import { format } from "date-fns";
 import { useDispatch } from "react-redux";
 import { showLoading, hideLoading } from "@/store/slices/loadingSlice";
+import {AxiosError} from "axios";
+import {unknown} from "zod";
 
 export default function ProfilePage() {
     const [profile, setProfile] = useState<UserProfile | null>(null);
@@ -25,8 +27,13 @@ export default function ProfilePage() {
                 const data = await getUserProfile();
                 setProfile(data);
                 setFormData(data);
-            } catch {
-                toast.error("Failed to load profile");
+            } catch(error: unknown) {
+                if (error && typeof error === "object" && "isAxiosError" in error) {
+                    const axiosError = error as AxiosError;
+                    if (axiosError.response?.status !== 401) {
+                        toast.error("Failed to load profile");
+                    }
+                }
             }
         }
         fetchProfile();
@@ -50,8 +57,14 @@ export default function ProfilePage() {
             setProfile(updated);
             setEditMode(false);
             toast.success("Profile updated successfully");
-        } catch {
-            toast.error("Failed to update profile");
+        } catch(error: unknown) {
+
+            if (error && typeof error === "object" && "isAxiosError" in error) {
+                const axiosError = error as AxiosError;
+                if (axiosError.response?.status !== 401) {
+                    toast.error("Failed to update profile");
+                }
+            }
         } finally {
             setIsLoading(false);
             dispatch(hideLoading());
