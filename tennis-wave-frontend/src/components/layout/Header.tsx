@@ -44,6 +44,9 @@ export default function Header() {
                         <Link href="/matches" className="text-gray-600 hover:text-green-600 transition-colors">
                             Find Matches
                         </Link>
+                        <Link href="/my-matches" className="text-gray-600 hover:text-green-600 transition-colors">
+                            My Matches
+                        </Link>
                         <Link href="/about" className="text-gray-600 hover:text-green-600 transition-colors">
                             About
                         </Link>
@@ -51,6 +54,7 @@ export default function Header() {
                             Contact
                         </Link>
                     </nav>
+
 
                     {/* User Actions */}
                     <div className="flex items-center space-x-4">

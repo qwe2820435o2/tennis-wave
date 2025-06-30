@@ -28,7 +28,7 @@ export interface RegisterResponse {
 
 export async function login(data: LoginRequest): Promise<LoginResponse> {
     // Note：this url should match with backend
-    const response = await axiosInstance.post<ApiResponse<LoginResponse>>("http://localhost:5161/api/Auth/login", data);
+    const response = await axiosInstance.post<ApiResponse<LoginResponse>>("/api/Auth/login", data);
     if (response.data.code !== 0) {
         throw new Error(response.data.message);
     }
@@ -36,7 +36,7 @@ export async function login(data: LoginRequest): Promise<LoginResponse> {
 }
 
 export async function register(data: RegisterRequest): Promise<RegisterResponse> {
-    const response = await axiosInstance.post<ApiResponse<RegisterResponse>>("http://localhost:5161/api/Auth/register", data);
+    const response = await axiosInstance.post<ApiResponse<RegisterResponse>>("/api/Auth/register", data);
     if (response.data.code !== 0) {
         throw new Error(response.data.message);
     }
