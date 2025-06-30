@@ -7,6 +7,7 @@ using Serilog;
 using tennis_wave_api.Data;
 using tennis_wave_api.Extensions;
 using tennis_wave_api.Models;
+using tennis_wave_api.Models.Entities;
 
 var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
 var builder = WebApplication.CreateBuilder(args);

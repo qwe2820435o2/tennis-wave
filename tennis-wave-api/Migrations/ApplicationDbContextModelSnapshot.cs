@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using tennis_wave_api.Data;
+using tennis_wave_api.Models.Entities;
 
 #nullable disable
 
