@@ -37,20 +37,12 @@ public class TennisMatchService : ITennisMatchService
 
     public async Task<TennisMatchDto> CreateMatchAsync(CreateTennisMatchDto createDto, int creatorId)
     {
-        var match = new TennisMatch
-        {
-            Title = createDto.Title,
-            Description = createDto.Description,
-            MatchTime = createDto.MatchTime,
-            Location = createDto.Location,
-            Latitude = createDto.Latitude,
-            Longitude = createDto.Longitude,
-            MatchType = createDto.MatchType,
-            SkillLevel = createDto.SkillLevel,
-            MaxParticipants = createDto.MaxParticipants,
-            CreatorId = creatorId,
-            CurrentParticipants = 1
-        };
+        // Use AutoMapper to map CreateTennisMatchDto to TennisMatch
+        var match = _mapper.Map<TennisMatch>(createDto);
+        match.CreatorId = creatorId;
+        match.CurrentParticipants = 1;
+        match.Status = "Active";
+        match.CreatedAt = DateTime.UtcNow;
 
         var createdMatch = await _tennisMatchRepository.CreateAsync(match);
 
@@ -76,16 +68,8 @@ public class TennisMatchService : ITennisMatchService
         if (match.CreatorId != userId)
             throw new Exception("Only the creator can update this match");
 
-        match.Title = updateDto.Title;
-        match.Description = updateDto.Description;
-        match.MatchTime = updateDto.MatchTime;
-        match.Location = updateDto.Location;
-        match.Latitude = updateDto.Latitude;
-        match.Longitude = updateDto.Longitude;
-        match.MatchType = updateDto.MatchType;
-        match.SkillLevel = updateDto.SkillLevel;
-        match.MaxParticipants = updateDto.MaxParticipants;
-        match.Status = updateDto.Status;
+        // Use AutoMapper to update the match entity
+        _mapper.Map(updateDto, match);
         match.UpdatedAt = DateTime.UtcNow;
 
         var updatedMatch = await _tennisMatchRepository.UpdateAsync(match);
