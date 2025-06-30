@@ -17,17 +17,11 @@ export interface UserProfile {
 }
 
 export async function getUserProfile(): Promise<UserProfile> {
-    const token = localStorage.getItem("token");
-    const response: AxiosResponse<ApiResponse<UserProfile>> = await axiosInstance.get("http://localhost:5161/api/UserProfile/me", {
-        headers: { Authorization: `Bearer ${token}` }
-    });
+    const response: AxiosResponse<ApiResponse<UserProfile>> = await axiosInstance.get("/api/UserProfile/me");
     return response.data.data;
 }
 
 export async function updateUserProfile(data: Partial<UserProfile>): Promise<UserProfile> {
-    const token = localStorage.getItem("token");
-    const response: AxiosResponse<ApiResponse<UserProfile>> = await axiosInstance.put("http://localhost:5161/api/UserProfile/me", data, {
-        headers: { Authorization: `Bearer ${token}` }
-    });
+    const response: AxiosResponse<ApiResponse<UserProfile>> = await axiosInstance.put("/api/UserProfile/me", data);
     return response.data.data;
 }
