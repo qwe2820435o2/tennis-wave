@@ -15,16 +15,34 @@ import { showLoading, hideLoading } from "@/store/slices/loadingSlice";
 import { RootState } from "@/store";
 import { toast } from "sonner";
 import {AxiosError} from "axios";
+import {Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle} from "@/components/ui/dialog";
 
 export default function MyMatchesPage() {
     const [matches, setMatches] = useState<TennisMatch[]>([]);
     const [activeTab, setActiveTab] = useState("organized");
+    const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+    const [pendingDeleteId, setPendingDeleteId] = useState<number | null>(null);
+
     const dispatch = useDispatch();
     const user = useSelector((state: RootState) => state.user);
 
     useEffect(() => {
         loadMatches();
     }, []);
+
+    // open Dialog
+    const openDeleteDialog = (matchId: number) => {
+        setPendingDeleteId(matchId);
+        setDeleteDialogOpen(true);
+    };
+
+    // delte
+    const confirmDelete = async () => {
+        if (pendingDeleteId == null) return;
+        await handleDeleteMatch(pendingDeleteId);
+        setDeleteDialogOpen(false);
+        setPendingDeleteId(null);
+    };
 
     const loadMatches = async () => {
         try {
@@ -45,24 +63,19 @@ export default function MyMatchesPage() {
     };
 
     const handleDeleteMatch = async (matchId: number) => {
-        if (!confirm("Are you sure you want to delete this match?")) {
-            return;
-        }
-
         try {
             dispatch(showLoading());
             await tennisMatchService.deleteMatch(matchId);
             toast.success("Match deleted successfully");
             loadMatches();
         } catch(error: unknown) {
-
             if (error && typeof error === "object" && "isAxiosError" in error) {
                 const axiosError = error as AxiosError;
                 if (axiosError.response?.status !== 401) {
                     toast.error("Failed to delete match");
                 }
             }
-        }finally {
+        } finally {
             dispatch(hideLoading());
         }
     };
@@ -120,7 +133,7 @@ export default function MyMatchesPage() {
                                 <Button
                                     variant="outline"
                                     size="sm"
-                                    onClick={() => handleDeleteMatch(match.id)}
+                                    onClick={() => openDeleteDialog(match.id)}
                                     className="text-red-600 hover:text-red-700"
                                 >
                                     <Trash2 className="w-4 h-4" />
@@ -149,75 +162,97 @@ export default function MyMatchesPage() {
                     </div>
                 </div>
             </CardContent>
+
         </Card>
     );
 
     return (
-        <div className="min-h-screen bg-gray-50 py-8">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                {/* Header */}
-                <div className="mb-8">
-                    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                        <div>
-                            <h1 className="text-3xl font-bold text-gray-900">My Matches</h1>
-                            <p className="text-gray-600 mt-2">Manage your organized and participated matches</p>
+        <>
+            <div className="min-h-screen bg-gray-50 py-8">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    {/* Header */}
+                    <div className="mb-8">
+                        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                            <div>
+                                <h1 className="text-3xl font-bold text-gray-900">My Matches</h1>
+                                <p className="text-gray-600 mt-2">Manage your organized and participated matches</p>
+                            </div>
+                            <Link href="/matches/create">
+                                <Button className="bg-green-600 hover:bg-green-700">
+                                    Create New Match
+                                </Button>
+                            </Link>
                         </div>
-                        <Link href="/matches/create">
-                            <Button className="bg-green-600 hover:bg-green-700">
-                                Create New Match
-                            </Button>
-                        </Link>
                     </div>
+
+                    {/* Tabs */}
+                    <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+                        <TabsList className="grid w-full grid-cols-2">
+                            <TabsTrigger value="organized">
+                                Organized ({organizedMatches.length})
+                            </TabsTrigger>
+                            <TabsTrigger value="participated">
+                                Participated ({participatedMatches.length})
+                            </TabsTrigger>
+                        </TabsList>
+
+                        <TabsContent value="organized" className="space-y-6">
+                            {organizedMatches.length > 0 ? (
+                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                    {organizedMatches.map(match => renderMatchCard(match, true))}
+                                </div>
+                            ) : (
+                                <div className="text-center py-12">
+                                    <p className="text-gray-500 text-lg">You have not organized any matches yet</p>
+                                    <p className="text-gray-400 mt-2">Create your first match to get started</p>
+                                    <Link href="/matches/create" className="mt-4 inline-block">
+                                        <Button className="bg-green-600 hover:bg-green-700">
+                                            Create Match
+                                        </Button>
+                                    </Link>
+                                </div>
+                            )}
+                        </TabsContent>
+
+                        <TabsContent value="participated" className="space-y-6">
+                            {participatedMatches.length > 0 ? (
+                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                    {participatedMatches.map(match => renderMatchCard(match, false))}
+                                </div>
+                            ) : (
+                                <div className="text-center py-12">
+                                    <p className="text-gray-500 text-lg">You have not joined any matches yet</p>
+                                    <p className="text-gray-400 mt-2">Browse available matches to join</p>
+                                    <Link href="/matches" className="mt-4 inline-block">
+                                        <Button className="bg-green-600 hover:bg-green-700">
+                                            Browse Matches
+                                        </Button>
+                                    </Link>
+                                </div>
+                            )}
+                        </TabsContent>
+                    </Tabs>
                 </div>
-
-                {/* Tabs */}
-                <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-                    <TabsList className="grid w-full grid-cols-2">
-                        <TabsTrigger value="organized">
-                            Organized ({organizedMatches.length})
-                        </TabsTrigger>
-                        <TabsTrigger value="participated">
-                            Participated ({participatedMatches.length})
-                        </TabsTrigger>
-                    </TabsList>
-
-                    <TabsContent value="organized" className="space-y-6">
-                        {organizedMatches.length > 0 ? (
-                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                                {organizedMatches.map(match => renderMatchCard(match, true))}
-                            </div>
-                        ) : (
-                            <div className="text-center py-12">
-                                <p className="text-gray-500 text-lg">You have not organized any matches yet</p>
-                                <p className="text-gray-400 mt-2">Create your first match to get started</p>
-                                <Link href="/matches/create" className="mt-4 inline-block">
-                                    <Button className="bg-green-600 hover:bg-green-700">
-                                        Create Match
-                                    </Button>
-                                </Link>
-                            </div>
-                        )}
-                    </TabsContent>
-
-                    <TabsContent value="participated" className="space-y-6">
-                        {participatedMatches.length > 0 ? (
-                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                                {participatedMatches.map(match => renderMatchCard(match, false))}
-                            </div>
-                        ) : (
-                            <div className="text-center py-12">
-                                <p className="text-gray-500 text-lg">You have not joined any matches yet</p>
-                                <p className="text-gray-400 mt-2">Browse available matches to join</p>
-                                <Link href="/matches" className="mt-4 inline-block">
-                                    <Button className="bg-green-600 hover:bg-green-700">
-                                        Browse Matches
-                                    </Button>
-                                </Link>
-                            </div>
-                        )}
-                    </TabsContent>
-                </Tabs>
             </div>
-        </div>
+
+            <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle>Confirm Delete</DialogTitle>
+                    </DialogHeader>
+                    <div>
+                        Are you sure you want to delete this match?
+                    </div>
+                    <DialogFooter>
+                        <Button variant="outline" onClick={() => setDeleteDialogOpen(false)}>
+                            Cancel
+                        </Button>
+                        <Button variant="destructive" onClick={confirmDelete}>
+                            Delete
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
+        </>
     );
 }

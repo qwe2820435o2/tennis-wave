@@ -8,7 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Calendar, Clock, MapPin, Users, Plus, Search } from "lucide-react";
+import { Calendar, MapPin, Users, Plus, Search } from "lucide-react";
 import { tennisMatchService } from "@/services/tennisMatchService";
 import { TennisMatch } from "@/types/tennisMatch";
 import { useDispatch } from "react-redux";
@@ -133,9 +133,6 @@ export default function MatchesPage() {
                                 <SelectItem value="Mixed">Mixed</SelectItem>
                             </SelectContent>
                         </Select>
-                        <Button variant="outline" onClick={loadMatches}>
-                            Refresh
-                        </Button>
                     </div>
                 </div>
 

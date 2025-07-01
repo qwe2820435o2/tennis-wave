@@ -15,10 +15,12 @@ import { showLoading, hideLoading } from "@/store/slices/loadingSlice";
 import { RootState } from "@/store";
 import { toast } from "sonner";
 import {AxiosError} from "axios";
+import {Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle} from "@/components/ui/dialog";
 
 export default function MatchDetailPage() {
     const [match, setMatch] = useState<TennisMatch | null>(null);
     const [isJoining, setIsJoining] = useState(false);
+    const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
     const params = useParams();
     const router = useRouter();
     const dispatch = useDispatch();
@@ -75,25 +77,27 @@ export default function MatchDetailPage() {
         }
     };
 
-    const handleDeleteMatch = async () => {
-        if (!confirm("Are you sure you want to delete this match?")) {
-            return;
-        }
+    const openDeleteDialog = () => setDeleteDialogOpen(true);
 
+    const confirmDelete = async () => {
+        await handleDeleteMatch();
+        setDeleteDialogOpen(false);
+    };
+
+    const handleDeleteMatch = async () => {
         try {
             dispatch(showLoading());
             await tennisMatchService.deleteMatch(matchId);
             toast.success("Match deleted successfully");
             router.push("/my-matches");
         } catch(error: unknown) {
-
             if (error && typeof error === "object" && "isAxiosError" in error) {
                 const axiosError = error as AxiosError;
                 if (axiosError.response?.status !== 401) {
                     toast.error("Failed to delete match");
                 }
             }
-        }finally {
+        } finally {
             dispatch(hideLoading());
         }
     };
@@ -131,7 +135,7 @@ export default function MatchDetailPage() {
                 {/* Back Button */}
                 <Button
                     variant="ghost"
-                    onClick={() => router.back()}
+                    onClick={() => router.push("/matches")}
                     className="mb-6"
                 >
                     <ArrowLeft className="w-4 h-4 mr-2" />
@@ -164,7 +168,7 @@ export default function MatchDetailPage() {
                                     <Button
                                         variant="outline"
                                         size="sm"
-                                        onClick={handleDeleteMatch}
+                                        onClick={openDeleteDialog}
                                         className="text-red-600 hover:text-red-700"
                                     >
                                         <Trash2 className="w-4 h-4 mr-2" />
@@ -261,6 +265,24 @@ export default function MatchDetailPage() {
                 </Card>
                 */}
             </div>
+            <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle>Confirm Delete</DialogTitle>
+                    </DialogHeader>
+                    <div>
+                        Are you sure you want to delete this match?
+                    </div>
+                    <DialogFooter>
+                        <Button variant="outline" onClick={() => setDeleteDialogOpen(false)}>
+                            Cancel
+                        </Button>
+                        <Button variant="destructive" onClick={confirmDelete}>
+                            Delete
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
         </div>
     );
 }
