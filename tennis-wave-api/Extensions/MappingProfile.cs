@@ -65,5 +65,31 @@ public class MappingProfile : Profile
             .ForMember(dest => dest.Creator, opt => opt.Ignore())
             .ForMember(dest => dest.Participants, opt => opt.Ignore())
             .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null)); // ignore null
+
+        // Chat mappings
+        CreateMap<Conversation, ConversationDto>()
+            .ForMember(dest => dest.User1Name, opt => opt.MapFrom(src => src.User1.UserName))
+            .ForMember(dest => dest.User2Name, opt => opt.MapFrom(src => src.User2.UserName))
+            .ForMember(dest => dest.User1Avatar, opt => opt.MapFrom(src => src.User1.Avatar))
+            .ForMember(dest => dest.User2Avatar, opt => opt.MapFrom(src => src.User2.Avatar))
+            .ForMember(dest => dest.LastMessage, opt => opt.MapFrom(src => src.Messages.OrderByDescending(m => m.CreatedAt).FirstOrDefault().Content))
+            .ForMember(dest => dest.OtherUserId, opt => opt.Ignore()) // Will be set manually
+            .ForMember(dest => dest.OtherUserName, opt => opt.Ignore()) // Will be set manually
+            .ForMember(dest => dest.OtherUserAvatar, opt => opt.Ignore()) // Will be set manually
+            .ForMember(dest => dest.UnreadCount, opt => opt.Ignore()); // Will be set manually
+
+        CreateMap<Message, MessageDto>()
+            .ForMember(dest => dest.SenderName, opt => opt.MapFrom(src => src.Sender.UserName))
+            .ForMember(dest => dest.SenderAvatar, opt => opt.MapFrom(src => src.Sender.Avatar))
+            .ForMember(dest => dest.IsFromCurrentUser, opt => opt.Ignore()); // Will be set manually
+
+        CreateMap<SendMessageDto, Message>()
+            .ForMember(dest => dest.Id, opt => opt.Ignore())
+            .ForMember(dest => dest.ConversationId, opt => opt.Ignore())
+            .ForMember(dest => dest.SenderId, opt => opt.Ignore())
+            .ForMember(dest => dest.IsRead, opt => opt.MapFrom(src => false))
+            .ForMember(dest => dest.CreatedAt, opt => opt.MapFrom(src => DateTime.UtcNow))
+            .ForMember(dest => dest.Conversation, opt => opt.Ignore())
+            .ForMember(dest => dest.Sender, opt => opt.Ignore());
     }
 }

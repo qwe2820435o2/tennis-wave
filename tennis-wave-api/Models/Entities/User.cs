@@ -1,4 +1,6 @@
-﻿
+﻿using System;
+using System.Collections.Generic;
+
 namespace tennis_wave_api.Models.Entities;
 
 public partial class User
@@ -22,4 +24,10 @@ public partial class User
     public DateTime? UpdatedAt { get; set; }
 
     public string? Bio { get; set; }
+
+    public virtual ICollection<Conversation> ConversationUser1s { get; set; } = new List<Conversation>();
+
+    public virtual ICollection<Conversation> ConversationUser2s { get; set; } = new List<Conversation>();
+
+    public virtual ICollection<Message> Messages { get; set; } = new List<Message>();
 }
