@@ -13,15 +13,13 @@ namespace tennis_wave_api.Data
             _context = context;
         }
 
+        // MessageRepository.cs
         public async Task<List<Message>> GetConversationMessagesAsync(int conversationId, int skip = 0, int take = 20)
         {
             return await _context.Messages
                 .Where(m => m.ConversationId == conversationId)
                 .Include(m => m.Sender)
-                .OrderByDescending(m => m.CreatedAt)
-                .Skip(skip)
-                .Take(take)
-                .OrderBy(m => m.CreatedAt) // Reorder by creation time ascending
+                .OrderBy(m => m.CreatedAt)
                 .ToListAsync();
         }
 
