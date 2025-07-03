@@ -24,7 +24,8 @@ const chatSlice = createSlice({
             state,
             action: PayloadAction<{ conversationId: number; messages: MessageDto[] }>
         ) {
-            state.messages[action.payload.conversationId] = action.payload.messages;
+            const key = Number(action.payload.conversationId);
+            state.messages[key] = action.payload.messages;
         },
         setUnreadCounts(
             state,
@@ -36,16 +37,18 @@ const chatSlice = createSlice({
             state,
             action: PayloadAction<{ conversationId: number; count: number }>
         ) {
-            state.unreadCounts[action.payload.conversationId] = action.payload.count;
+            const key = Number(action.payload.conversationId);
+            state.unreadCounts[key] = action.payload.count;
         },
         addMessage(
             state,
-            action: PayloadAction<{ conversationId: number; message: MessageDto }>
+            action: PayloadAction<{ conversationId: number | string; message: MessageDto }>
         ) {
-            if (!state.messages[action.payload.conversationId]) {
-                state.messages[action.payload.conversationId] = [];
+            const key = Number(action.payload.conversationId);
+            if (!state.messages[key]) {
+                state.messages[key] = [];
             }
-            state.messages[action.payload.conversationId].push(action.payload.message);
+            state.messages[key].push(action.payload.message);
         },
     },
 });

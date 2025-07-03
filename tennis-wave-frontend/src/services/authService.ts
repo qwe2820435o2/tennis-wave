@@ -1,4 +1,3 @@
-import axios from "axios";
 import {ApiResponse} from "@/types/api";
 import axiosInstance from "@/services/axiosInstance";
 

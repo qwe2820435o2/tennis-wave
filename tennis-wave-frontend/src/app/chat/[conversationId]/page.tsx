@@ -10,6 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Avatar } from "@/components/ui/avatar";
 import { format } from "date-fns";
+import signalRService from "@/services/signalRService";
 
 export default function ChatDetailPage() {
     const { conversationId } = useParams();
@@ -21,16 +22,26 @@ export default function ChatDetailPage() {
     const messagesEndRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
+        console.log('ChatDetailPage: Loading conversation', conversationId);
+        
+        // Load initial messages
         chatService.getMessages(Number(conversationId)).then(data =>
             dispatch(setMessages({ conversationId: Number(conversationId), messages: data }))
         );
+        
+        // Mark as read
         chatService.markAsRead(Number(conversationId));
-        const timer = setInterval(() => {
-            chatService.getMessages(Number(conversationId)).then(data =>
-                dispatch(setMessages({ conversationId: Number(conversationId), messages: data }))
-            );
-        }, 5000);
-        return () => clearInterval(timer);
+        signalRService.markAsRead(conversationId as string);
+        
+        // Join conversation via SignalR
+        console.log('ChatDetailPage: Joining conversation via SignalR', conversationId);
+        signalRService.joinConversation(conversationId as string);
+        
+        return () => {
+            // Leave conversation when component unmounts
+            console.log('ChatDetailPage: Leaving conversation via SignalR', conversationId);
+            signalRService.leaveConversation(conversationId as string);
+        };
     }, [conversationId, dispatch]);
 
     useEffect(() => {
@@ -50,8 +61,8 @@ export default function ChatDetailPage() {
 
     const handleSend = async () => {
         if (!input.trim()) return;
-        const msg = await chatService.sendMessage(Number(conversationId), input);
-        dispatch(addMessage({ conversationId: Number(conversationId), message: msg }));
+        await signalRService.waitForReady();
+        await signalRService.sendMessage(conversationId as string, input);
         setInput("");
     };
 
