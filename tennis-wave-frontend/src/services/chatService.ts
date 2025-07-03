@@ -1,12 +1,19 @@
 import axiosInstance from "./axiosInstance";
 import { ConversationDto, MessageDto } from "@/types/chat";
 
+export interface ChatMessagesWithOtherUserDto {
+    messages: MessageDto[];
+    otherUserId: number;
+    otherUserName: string;
+    otherUserAvatar?: string;
+}
+
 export const chatService = {
     getConversations: async (): Promise<ConversationDto[]> => {
         const res = await axiosInstance.get("/api/chat/conversations");
         return res.data.data;
     },
-    getMessages: async (conversationId: number): Promise<MessageDto[]> => {
+    getMessages: async (conversationId: number): Promise<ChatMessagesWithOtherUserDto> => {
         const res = await axiosInstance.get(`/api/chat/conversations/${conversationId}/messages`);
         return res.data.data;
     },

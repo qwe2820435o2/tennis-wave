@@ -89,7 +89,7 @@ namespace tennis_wave_api.Controllers
         /// Get conversation messages
         /// </summary>
         [HttpGet("conversations/{conversationId}/messages")]
-        public async Task<ActionResult<ApiResponse<List<MessageDto>>>> GetMessages(
+        public async Task<ActionResult<ApiResponse<ChatMessagesWithOtherUserDto>>> GetMessages(
             int conversationId, 
             [FromQuery] int page = 1, 
             [FromQuery] int size = 20)
@@ -98,11 +98,22 @@ namespace tennis_wave_api.Controllers
             {
                 var userId = GetCurrentUserId();
                 var messages = await _chatService.GetConversationMessagesAsync(conversationId, userId, page, size);
-                return Ok(ApiResponseHelper.Success(messages));
+                var conversation = await _chatService.GetConversationByIdAsync(conversationId, userId);
+                if (conversation == null)
+                    return NotFound(ApiResponseHelper.Fail<ChatMessagesWithOtherUserDto>("Conversation not found"));
+
+                var result = new ChatMessagesWithOtherUserDto
+                {
+                    Messages = messages,
+                    OtherUserId = conversation.OtherUserId,
+                    OtherUserName = conversation.OtherUserName,
+                    OtherUserAvatar = conversation.OtherUserAvatar
+                };
+                return Ok(ApiResponseHelper.Success(result));
             }
             catch (Exception ex)
             {
-                return BadRequest(ApiResponseHelper.Fail<List<MessageDto>>(ex.Message));
+                return BadRequest(ApiResponseHelper.Fail<ChatMessagesWithOtherUserDto>(ex.Message));
             }
         }
 

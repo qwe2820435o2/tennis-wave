@@ -53,4 +53,15 @@ namespace tennis_wave_api.Models.DTOs
         public int ConversationId { get; set; }
         public int UnreadCount { get; set; }
     }
+
+    /// <summary>
+    /// DTO for returning messages and other user info together
+    /// </summary>
+    public class ChatMessagesWithOtherUserDto
+    {
+        public List<MessageDto> Messages { get; set; } = new();
+        public int OtherUserId { get; set; }
+        public string OtherUserName { get; set; } = string.Empty;
+        public string? OtherUserAvatar { get; set; }
+    }
 }

@@ -16,18 +16,20 @@ export default function ChatDetailPage() {
     const { conversationId } = useParams();
     const dispatch = useDispatch();
     const messages = useSelector((state: RootState) => state.chat.messages[Number(conversationId)] || []);
-    const conversations = useSelector((state: RootState) => state.chat.conversations);
-    const conversation = conversations.find(c => c.id === Number(conversationId));
+    const [otherUserName, setOtherUserName] = useState<string>("");
+    const [otherUserAvatar, setOtherUserAvatar] = useState<string>("");
     const [input, setInput] = useState("");
     const messagesEndRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
         console.log('ChatDetailPage: Loading conversation', conversationId);
         
-        // Load initial messages
-        chatService.getMessages(Number(conversationId)).then(data =>
-            dispatch(setMessages({ conversationId: Number(conversationId), messages: data }))
-        );
+        // Load initial messages and other user info
+        chatService.getMessages(Number(conversationId)).then(data => {
+            dispatch(setMessages({ conversationId: Number(conversationId), messages: data.messages }));
+            setOtherUserName(data.otherUserName);
+            setOtherUserAvatar(data.otherUserAvatar || "");
+        });
         
         // Mark as read
         chatService.markAsRead(Number(conversationId));
@@ -72,12 +74,12 @@ export default function ChatDetailPage() {
             <div className="flex flex-col items-center gap-2 border-b px-4 py-4">
                 <Avatar className="w-18 h-18">
                     <img
-                        src={conversation?.otherUserAvatar || "/default-avatar.png"}
+                        src={otherUserAvatar || "/default-avatar.png"}
                         alt="avatar"
                         className="w-18 h-18 object-cover rounded-full"
                     />
                 </Avatar>
-                <div className="font-semibold text-lg">{conversation?.otherUserName}</div>
+                <div className="font-semibold text-lg">{otherUserName}</div>
             </div>
             {/* Message List */}
             <div className="flex-1 overflow-y-auto px-4 py-2 space-y-2 bg-background">
@@ -91,7 +93,7 @@ export default function ChatDetailPage() {
                         <div className={`flex items-end gap-2 ${msg.isFromCurrentUser ? "justify-end" : "justify-start"}`}>
                             {!msg.isFromCurrentUser && (
                                 <Avatar className="w-8 h-8">
-                                    <img src={conversation?.otherUserAvatar || "/default-avatar.png"} alt="avatar" />
+                                    <img src={msg?.senderAvatar || "/default-avatar.png"} alt="avatar" />
                                 </Avatar>
                             )}
 
