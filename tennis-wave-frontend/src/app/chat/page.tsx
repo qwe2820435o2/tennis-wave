@@ -26,8 +26,12 @@ export default function ChatListPage() {
                 {conversations.map(conv => (
                     <Link key={conv.id} href={`/chat/${conv.id}`}>
                         <Card className="flex items-center gap-3 p-3 hover:bg-accent transition cursor-pointer">
-                            <Avatar>
-                                <img src={conv.otherUserAvatar || "/default-avatar.png"} alt="avatar" />
+                            <Avatar className="w-10 h-10">
+                                <img
+                                    src={conv.otherUserAvatar || "/default-avatar.png"}
+                                    alt="avatar"
+                                    className="w-10 h-10 object-cover rounded-full"
+                                />
                             </Avatar>
                             <div className="flex-1 min-w-0">
                                 <div className="font-semibold truncate">{conv.otherUserName}</div>
