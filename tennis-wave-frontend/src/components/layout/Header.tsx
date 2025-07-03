@@ -47,6 +47,9 @@ export default function Header() {
                         <Link href="/my-matches" className="text-gray-600 hover:text-green-600 transition-colors">
                             My Matches
                         </Link>
+                        <Link href="/chat" className="ml-4 font-bold">
+                            💬 Chat
+                        </Link>
                         <Link href="/about" className="text-gray-600 hover:text-green-600 transition-colors">
                             About
                         </Link>
@@ -83,6 +86,9 @@ export default function Header() {
                                             onClick={() => setIsMenuOpen(false)}
                                         >
                                             My Matches
+                                        </Link>
+                                        <Link href="/chat" className="ml-4 font-bold">
+                                            💬 Chat
                                         </Link>
                                         <button
                                             onClick={handleLogout}
