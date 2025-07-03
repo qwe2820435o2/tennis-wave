@@ -40,6 +40,22 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             IssuerSigningKey = new SymmetricSecurityKey(
                 System.Text.Encoding.UTF8.GetBytes(jwtSettings?.SecretKey ?? string.Empty))
         };
+
+        // Configure JWT Bearer for SignalR
+        options.Events = new JwtBearerEvents
+        {
+            OnMessageReceived = context =>
+            {
+                var accessToken = context.Request.Query["access_token"];
+                var path = context.HttpContext.Request.Path;
+                
+                if (!string.IsNullOrEmpty(accessToken) && path.StartsWithSegments("/chatHub"))
+                {
+                    context.Token = accessToken;
+                }
+                return Task.CompletedTask;
+            }
+        };
     });
 
 // Enhance Swagger Config
@@ -96,6 +112,9 @@ builder.Services.AddApplicationServices();
 // Register AutoMapper
 builder.Services.AddAutoMapper(typeof(MappingProfile));
 
+// Add SignalR
+builder.Services.AddSignalR();
+
 // Cors
 builder.Services.AddCors(options =>
 {
@@ -104,7 +123,8 @@ builder.Services.AddCors(options =>
         {
             policy.WithOrigins("http://localhost:3000") // 允许前端地址
                 .AllowAnyHeader()
-                .AllowAnyMethod();
+                .AllowAnyMethod()
+                .AllowCredentials(); // Required for SignalR
         });
 });
 
@@ -154,6 +174,9 @@ app.UseAuthorization();
 
 // Add Router
 app.MapControllers();
+
+// Map SignalR Hub
+app.MapHub<tennis_wave_api.Services.ChatHub>("/chatHub");
 
 
 app.Run();

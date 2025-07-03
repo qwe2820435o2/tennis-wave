@@ -17,4 +17,5 @@ public interface IUserService
     Task<bool> ChangePasswordAsync(int userId, ChangePasswordDto changePasswordDto);
     Task<bool> IsEmailUniqueAsync(string email, int? excludeUserId = null);
     Task<bool> IsUserNameUniqueAsync(string userName, int? excludeUserId = null);
+    Task UpdateUserOnlineStatusAsync(int userId, bool isOnline);
 }

@@ -120,5 +120,13 @@ public class UserService : IUserService
     {
         return await _userRepository.IsUserNameUniqueAsync(userName, excludeUserId);
     }
-    
+
+    public async Task UpdateUserOnlineStatusAsync(int userId, bool isOnline)
+    {
+        // For now, we'll just log the status change
+        // In a real application, you might want to store this in the database
+        // and update the User entity to include an IsOnline field
+        Console.WriteLine($"User {userId} is now {(isOnline ? "online" : "offline")}");
+        await Task.CompletedTask;
+    }
 }
