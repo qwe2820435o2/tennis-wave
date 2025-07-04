@@ -40,6 +40,21 @@ namespace tennis_wave_api.Controllers
                 return BadRequest(ApiResponseHelper.Fail<List<ConversationDto>>(ex.Message));
             }
         }
+        
+        [HttpPost("conversations")]
+        public async Task<ActionResult<ApiResponse<ConversationDto>>> CreateConversation([FromBody] CreateConversationDto dto)
+        {
+            try
+            {
+                var currentUserId = GetCurrentUserId();
+                var conversation = await _chatService.CreateConversationAsync(currentUserId, dto.OtherUserId);
+                return Ok(ApiResponseHelper.Success(conversation));
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ApiResponseHelper.Fail<ConversationDto>(ex.Message));
+            }
+        }
 
         /// <summary>
         /// Get or create a private conversation with specified user
@@ -207,5 +222,6 @@ namespace tennis_wave_api.Controllers
             }
             return userId;
         }
+        
     }
 } 

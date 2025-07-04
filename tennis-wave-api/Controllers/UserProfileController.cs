@@ -140,6 +140,21 @@ public class UserProfileController : ControllerBase
             return BadRequest(ApiResponseHelper.Fail<bool>(ex.Message));
         }
     }
+    
+    [HttpGet("search")]
+    public async Task<ActionResult<ApiResponse<List<UserSearchDto>>>> SearchUsers([FromQuery] string query)
+    {
+        try
+        {
+            var currentUserId = GetCurrentUserId();
+            var users = await _userService.SearchUsersAsync(query, currentUserId);
+            return Ok(ApiResponseHelper.Success(users));
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(ApiResponseHelper.Fail<List<UserSearchDto>>(ex.Message));
+        }
+    }
 
     private int GetCurrentUserId()
     {

@@ -18,4 +18,5 @@ public interface IUserService
     Task<bool> IsEmailUniqueAsync(string email, int? excludeUserId = null);
     Task<bool> IsUserNameUniqueAsync(string userName, int? excludeUserId = null);
     Task UpdateUserOnlineStatusAsync(int userId, bool isOnline);
+    Task<List<UserSearchDto>> SearchUsersAsync(string query, int excludeUserId);
 }

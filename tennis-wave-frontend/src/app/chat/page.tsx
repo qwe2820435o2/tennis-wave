@@ -1,5 +1,5 @@
 "use client";
-import { useEffect } from "react";
+import {useEffect, useState} from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { chatService } from "@/services/chatService";
 import { setConversations, setUnreadCounts } from "@/store/slices/chatSlice";
@@ -8,11 +8,15 @@ import { Card } from "@/components/ui/card";
 import { Avatar } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { RootState } from "@/store";
+import {Button} from "@/components/ui/button";
+import {Plus} from "lucide-react";
+import NewChatModal from "@/components/chat/NewChatModal";
 
 export default function ChatListPage() {
     const dispatch = useDispatch();
     const conversations = useSelector((state: RootState) => state.chat.conversations);
     const unreadCounts = useSelector((state: RootState) => state.chat.unreadCounts);
+    const [isNewChatModalOpen, setIsNewChatModalOpen] = useState(false);
 
     useEffect(() => {
         chatService.getConversations().then(data => dispatch(setConversations(data)));
@@ -21,7 +25,18 @@ export default function ChatListPage() {
 
     return (
         <div className="max-w-xl mx-auto p-4">
-            <h1 className="text-2xl font-bold mb-4">💬 Chat</h1>
+
+            <div className="flex justify-between items-center mb-4">
+                <h1 className="text-2xl font-bold">💬 Chat</h1>
+                <Button
+                    onClick={() => setIsNewChatModalOpen(true)}
+                    className="bg-green-600 hover:bg-green-700"
+                >
+                    <Plus className="w-4 h-4 mr-2" />
+                    New Chat
+                </Button>
+            </div>
+
             <div className="space-y-2">
                 {conversations.map(conv => (
                     <Link key={conv.id} href={`/chat/${conv.id}`}>
@@ -47,6 +62,11 @@ export default function ChatListPage() {
                     <div className="text-center text-muted-foreground py-8">No conversations yet.</div>
                 )}
             </div>
+
+            <NewChatModal
+                isOpen={isNewChatModalOpen}
+                onClose={() => setIsNewChatModalOpen(false)}
+            />
         </div>
     );
 }

@@ -3,6 +3,7 @@ using tennis_wave_api.Models.DTOs;
 using tennis_wave_api.Models.Entities;
 using tennis_wave_api.Services.Interfaces;
 using AutoMapper;
+using tennis_wave_api.Extensions;
 
 namespace tennis_wave_api.Services
 {
@@ -74,6 +75,40 @@ namespace tennis_wave_api.Services
                 return null;
 
             return await MapConversationToDtoAsync(conversation, userId);
+        }
+
+        public async Task<ConversationDto> CreateConversationAsync(int currentUserId, int otherUserId)
+        {
+            if (currentUserId == otherUserId)
+            {
+                throw new BusinessException("Cannot create a conversation with yourself.");
+            }
+
+            // check user 
+            var otherUser = await _userRepository.GetUserByIdAsync(otherUserId);
+            if (otherUser == null)
+            {
+                throw new BusinessException("User not found.");
+            }
+
+            // check conversation
+            var existingConversation = await _conversationRepository.GetConversationBetweenUsersAsync(currentUserId, otherUserId);
+            if (existingConversation != null)
+            {
+                return await MapConversationToDtoAsync(existingConversation, currentUserId);
+            }
+
+            // create conversation
+            var conversation = new Conversation
+            {
+                User1Id = Math.Min(currentUserId, otherUserId),
+                User2Id = Math.Max(currentUserId, otherUserId),
+                CreatedAt = DateTime.UtcNow
+            };
+
+            var createdConversation = await _conversationRepository.CreateConversationAsync(conversation);
+
+            return await MapConversationToDtoAsync(createdConversation, currentUserId);
         }
 
         public async Task<List<MessageDto>> GetConversationMessagesAsync(int conversationId, int userId, int page = 1, int size = 20)

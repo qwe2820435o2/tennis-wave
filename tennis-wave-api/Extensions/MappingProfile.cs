@@ -91,5 +91,10 @@ public class MappingProfile : Profile
             .ForMember(dest => dest.CreatedAt, opt => opt.MapFrom(src => DateTime.UtcNow))
             .ForMember(dest => dest.Conversation, opt => opt.Ignore())
             .ForMember(dest => dest.Sender, opt => opt.Ignore());
+
+        CreateMap<User, UserSearchDto>()
+            .ForMember(dest => dest.UserId, opt => opt.MapFrom(src => src.Id));
+
     }
+    
 }

@@ -129,4 +129,10 @@ public class UserService : IUserService
         Console.WriteLine($"User {userId} is now {(isOnline ? "online" : "offline")}");
         await Task.CompletedTask;
     }
+
+    public async Task<List<UserSearchDto>> SearchUsersAsync(string query, int excludeUserId)
+    {
+        var users = await _userRepository.SearchUsersAsync(query, excludeUserId);
+        return _mapper.Map<List<UserSearchDto>>(users);
+    }
 }

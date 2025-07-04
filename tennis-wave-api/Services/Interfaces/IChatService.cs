@@ -11,6 +11,7 @@ namespace tennis_wave_api.Services.Interfaces
         Task<List<ConversationDto>> GetUserConversationsAsync(int userId);
         Task<ConversationDto?> GetOrCreateConversationAsync(int currentUserId, int otherUserId);
         Task<ConversationDto?> GetConversationByIdAsync(int conversationId, int userId);
+        Task<ConversationDto> CreateConversationAsync(int currentUserId, int otherUserId);
         
         // message management
         Task<List<MessageDto>> GetConversationMessagesAsync(int conversationId, int userId, int page = 1, int size = 20);

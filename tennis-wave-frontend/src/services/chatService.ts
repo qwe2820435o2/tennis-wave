@@ -33,4 +33,11 @@ export const chatService = {
         });
         return map;
     },
+
+    async createConversation(otherUserId: number): Promise<ConversationDto> {
+        const response = await axiosInstance.post('/api/chat/conversations', {
+            otherUserId
+        });
+        return response.data.data;
+    }
 };

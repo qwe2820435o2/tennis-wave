@@ -16,3 +16,7 @@ export interface MessageDto {
     isFromCurrentUser: boolean;
     createdAt?: string;
 }
+
+export interface CreateConversationDto {
+    otherUserId: number;
+}
