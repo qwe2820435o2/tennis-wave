@@ -29,15 +29,6 @@ public class MappingProfile : Profile
                 opt => opt.MapFrom(src => src.Id) // The source property (in User)
             );
         
-        CreateMap<User, UserProfileDto>();
-        CreateMap<UpdateUserProfileDto, User>()
-            .ForMember(dest => dest.Id, opt => opt.Ignore())
-            .ForMember(dest => dest.Email, opt => opt.Ignore())
-            .ForMember(dest => dest.PasswordHash, opt => opt.Ignore())
-            .ForMember(dest => dest.CreatedAt, opt => opt.Ignore())
-            .ForMember(dest => dest.UpdatedAt, opt => opt.Ignore())
-            .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null)); // ignore null
-
         // TennisMatch mappings
         CreateMap<TennisMatch, TennisMatchDto>()
             .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))

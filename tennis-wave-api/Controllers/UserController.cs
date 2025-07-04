@@ -1,8 +1,10 @@
 using System.Collections.Generic;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using tennis_wave_api.Helpers;
+using tennis_wave_api.Models;
 using tennis_wave_api.Models.DTOs;
 using tennis_wave_api.Models.Entities;
 using tennis_wave_api.Services.Interfaces;
@@ -28,6 +30,11 @@ public class UserController : ControllerBase
         return Ok(ApiResponseHelper.Success(users));
     }
 
+    /// <summary>
+    /// Get user by ID
+    /// </summary>
+    /// <param name="userId">User ID</param>
+    /// <returns>User profile information</returns>
     [HttpGet("{id}")]
     public async Task<ActionResult<UserDto>> GetUserById(int id)
     {
@@ -75,5 +82,31 @@ public class UserController : ControllerBase
         {
             return Ok(ApiResponseHelper.Fail<object>("User not found", 404));
         }
+    }
+    
+    [HttpGet("search")]
+    public async Task<ActionResult<ApiResponse<List<UserSearchDto>>>> SearchUsers([FromQuery] string query)
+    {
+        try
+        {
+            var currentUserId = GetCurrentUserId();
+            var users = await _userService.SearchUsersAsync(query, currentUserId);
+            return Ok(ApiResponseHelper.Success(users));
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(ApiResponseHelper.Fail<List<UserSearchDto>>(ex.Message));
+        }
+    }
+    
+  
+    private int GetCurrentUserId()
+    {
+        var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (string.IsNullOrEmpty(userIdClaim) || !int.TryParse(userIdClaim, out int userId))
+        {
+            throw new UnauthorizedAccessException("Invalid user token");
+        }
+        return userId;
     }
 }
