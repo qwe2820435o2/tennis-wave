@@ -29,3 +29,9 @@ public class UpdateUserDto
     public string? TennisLevel { get; set; }
     public string? PreferredLocation { get; set; }
 }
+
+public class ChangePasswordDto
+{
+    public string CurrentPassword { get; set; } = string.Empty;
+    public string NewPassword { get; set; } = string.Empty;
+}

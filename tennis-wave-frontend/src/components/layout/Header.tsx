@@ -44,6 +44,9 @@ export default function Header() {
                         <Link href="/matches" className="text-gray-600 hover:text-green-600 transition-colors">
                             Find Matches
                         </Link>
+                        <Link href="/bookings" className="text-gray-600 hover:text-green-600 transition-colors">
+                            Bookings
+                        </Link>
                         <Link href="/my-matches" className="text-gray-600 hover:text-green-600 transition-colors">
                             My Matches
                         </Link>
@@ -79,6 +82,13 @@ export default function Header() {
                                             onClick={() => setIsMenuOpen(false)}
                                         >
                                             My Profile
+                                        </Link>
+                                        <Link
+                                            href="/bookings"
+                                            className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                                            onClick={() => setIsMenuOpen(false)}
+                                        >
+                                            My Bookings
                                         </Link>
                                         <Link
                                             href="/my-matches"

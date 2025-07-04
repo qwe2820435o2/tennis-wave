@@ -4,3 +4,5 @@ export interface UserSearchDto {
     avatar?: string;
     isOnline: boolean;
 }
+
+export type User = UserSearchDto;
