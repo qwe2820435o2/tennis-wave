@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { getUserProfile, updateUserProfile, UserProfile } from "@/services/userService";
+import { getUserById, updateUser, User } from "@/services/userService";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -11,12 +11,10 @@ import { format } from "date-fns";
 import { useDispatch } from "react-redux";
 import { showLoading, hideLoading } from "@/store/slices/loadingSlice";
 import {AxiosError} from "axios";
-import {unknown} from "zod";
 
 export default function ProfilePage() {
-    const [profile, setProfile] = useState<UserProfile | null>(null);
-    const [editMode, setEditMode] = useState(false);
-    const [formData, setFormData] = useState<Partial<UserProfile>>({});
+    const [profile, setProfile] = useState<User | null>(null);
+    const [formData, setFormData] = useState<Partial<User>>({});
     const [isLoading, setIsLoading] = useState(false);
     const dispatch = useDispatch();
 
@@ -24,7 +22,11 @@ export default function ProfilePage() {
     useEffect(() => {
         async function fetchProfile() {
             try {
-                const data = await getUserProfile();
+                const userStr = localStorage.getItem("user");
+                const user = userStr ? JSON.parse(userStr) : null;
+                const userId = user?.userId;
+                if (!userId) return;
+                const data = await getUserById(userId);
                 setProfile(data);
                 setFormData(data);
             } catch(error: unknown) {
@@ -53,9 +55,12 @@ export default function ProfilePage() {
         setIsLoading(true);
         dispatch(showLoading());
         try {
-            const updated = await updateUserProfile(formData);
+            const userStr = localStorage.getItem("user");
+            const user = userStr ? JSON.parse(userStr) : null;
+            const userId = user?.userId;
+            if (!userId) return;
+            const updated = await updateUser(userId,formData);
             setProfile(updated);
-            setEditMode(false);
             toast.success("Profile updated successfully");
         } catch(error: unknown) {
 
@@ -100,7 +105,6 @@ export default function ProfilePage() {
                                     name="userName"
                                     value={formData.userName || ""}
                                     onChange={handleInputChange}
-                                    disabled={!editMode}
                                     required
                                 />
                             </div>
@@ -122,7 +126,6 @@ export default function ProfilePage() {
                                     name="tennisLevel"
                                     value={formData.tennisLevel || ""}
                                     onChange={handleInputChange}
-                                    disabled={!editMode}
                                     placeholder="Beginner / Intermediate / Advanced"
                                 />
                             </div>
@@ -134,7 +137,6 @@ export default function ProfilePage() {
                                     name="preferredLocation"
                                     value={formData.preferredLocation || ""}
                                     onChange={handleInputChange}
-                                    disabled={!editMode}
                                 />
                             </div>
                             {/* Bio */}
@@ -145,7 +147,6 @@ export default function ProfilePage() {
                                     name="bio"
                                     value={formData.bio || ""}
                                     onChange={handleInputChange}
-                                    disabled={!editMode}
                                     className="w-full border rounded p-2 min-h-[60px]"
                                 />
                             </div>
@@ -161,22 +162,14 @@ export default function ProfilePage() {
                                     disabled
                                 />
                             </div>
-                            {/* Edit/Save Buttons */}
+                            {/* Save Buttons */}
                             <div className="flex justify-end gap-2 mt-4">
-                                {editMode ? (
-                                    <>
-                                        <Button type="submit" disabled={isLoading}>
-                                            {isLoading ? "Saving..." : "Save"}
-                                        </Button>
-                                        <Button type="button" variant="outline" onClick={() => { setEditMode(false); setFormData(profile); }}>
-                                            Cancel
-                                        </Button>
-                                    </>
-                                ) : (
-                                    <Button type="button" onClick={() => setEditMode(true)}>
-                                        Edit
-                                    </Button>
-                                )}
+                                <Button type="submit" disabled={isLoading}>
+                                    {isLoading ? "Saving..." : "Save"}
+                                </Button>
+                                <Button type="button" variant="outline" onClick={() => setFormData(profile)}>
+                                    Cancel
+                                </Button>
                             </div>
                         </form>
                     </CardContent>

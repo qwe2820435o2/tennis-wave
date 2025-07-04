@@ -2,10 +2,11 @@ import {AxiosResponse} from "axios";
 import {ApiResponse} from "@/types/api";
 import axiosInstance from "@/services/axiosInstance";
 import {UserSearchDto} from "@/types/user";
+import {CreateMatchDto, TennisMatch} from "@/types/tennisMatch";
 
 
 
-export interface UserProfile {
+export interface User {
     id: number;
     userName: string;
     email: string;
@@ -17,17 +18,17 @@ export interface UserProfile {
     bio?: string;
 }
 
-export async function getUserProfile(): Promise<UserProfile> {
-    const response: AxiosResponse<ApiResponse<UserProfile>> = await axiosInstance.get("/api/UserProfile/me");
+export async function getUserById(userId: number): Promise<User> {
+    const response: AxiosResponse<ApiResponse<User>> = await axiosInstance.get(`/api/User/${userId}`);
     return response.data.data;
 }
 
-export async function updateUserProfile(data: Partial<UserProfile>): Promise<UserProfile> {
-    const response: AxiosResponse<ApiResponse<UserProfile>> = await axiosInstance.put("/api/UserProfile/me", data);
+export async function updateUser(userId: number, data: Partial<User>): Promise<User> {
+    const response: AxiosResponse<ApiResponse<User>> = await axiosInstance.put(`/api/User/${userId}`, data);
     return response.data.data;
 }
 
 export async function searchUsers(query: string): Promise<UserSearchDto[]> {
-    const response = await axiosInstance.get(`/api/userprofile/search?query=${encodeURIComponent(query)}`);
+    const response = await axiosInstance.get(`/api/User/search?query=${encodeURIComponent(query)}`);
     return response.data.data;
 }
