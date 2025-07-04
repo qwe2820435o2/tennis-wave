@@ -92,4 +92,14 @@ public class UserRepository : IUserRepository
     
         return !await query.AnyAsync();
     }
+
+    public async Task<List<User>> SearchUsersAsync(string query, int excludeUserId)
+    {
+        return await _context.Users
+            .Where(u => u.Id != excludeUserId &&
+                        u.UserName.Contains(query))
+            .OrderBy(u => u.UserName)
+            .Take(20)
+            .ToListAsync();
+    }
 }

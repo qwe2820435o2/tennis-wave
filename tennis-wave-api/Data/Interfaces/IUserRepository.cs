@@ -17,4 +17,5 @@ public interface IUserRepository
     Task<User?> GetByEmailAsync(string email);
     Task<bool> IsEmailUniqueAsync(string email, int? excludeUserId = null);
     Task<bool> IsUserNameUniqueAsync(string userName, int? excludeUserId = null);
+    Task<List<User>> SearchUsersAsync(string query, int excludeUserId);
 }
