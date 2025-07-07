@@ -145,45 +145,6 @@ namespace tenniswaveapi.Migrations
                     b.ToTable("Conversations");
                 });
 
-            modelBuilder.Entity("tennis_wave_api.Models.Entities.MatchParticipant", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<DateTime>("JoinedAt")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime2")
-                        .HasDefaultValueSql("(getutcdate())");
-
-                    b.Property<int>("MatchId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Role")
-                        .IsRequired()
-                        .ValueGeneratedOnAdd()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)")
-                        .HasDefaultValue("Participant");
-
-                    b.Property<int>("UserId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id")
-                        .HasName("PK__MatchPar__3214EC0738996AB5");
-
-                    b.HasIndex(new[] { "MatchId" }, "IX_MatchParticipants_MatchId");
-
-                    b.HasIndex(new[] { "MatchId", "UserId" }, "IX_MatchParticipants_MatchId_UserId")
-                        .IsUnique();
-
-                    b.HasIndex(new[] { "UserId" }, "IX_MatchParticipants_UserId");
-
-                    b.ToTable("MatchParticipants");
-                });
-
             modelBuilder.Entity("tennis_wave_api.Models.Entities.Message", b =>
                 {
                     b.Property<int>("Id")
@@ -325,88 +286,6 @@ namespace tenniswaveapi.Migrations
                     b.ToTable("TennisBookings");
                 });
 
-            modelBuilder.Entity("tennis_wave_api.Models.Entities.TennisMatch", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<DateTime>("CreatedAt")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime2")
-                        .HasDefaultValueSql("(getutcdate())");
-
-                    b.Property<int>("CreatorId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("CurrentParticipants")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasDefaultValue(1);
-
-                    b.Property<string>("Description")
-                        .IsRequired()
-                        .HasMaxLength(1000)
-                        .HasColumnType("nvarchar(1000)");
-
-                    b.Property<double?>("Latitude")
-                        .HasColumnType("float");
-
-                    b.Property<string>("Location")
-                        .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
-
-                    b.Property<double?>("Longitude")
-                        .HasColumnType("float");
-
-                    b.Property<DateTime>("MatchTime")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("MatchType")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
-                    b.Property<int>("MaxParticipants")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasDefaultValue(2);
-
-                    b.Property<string>("SkillLevel")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
-                    b.Property<string>("Status")
-                        .IsRequired()
-                        .ValueGeneratedOnAdd()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)")
-                        .HasDefaultValue("Open");
-
-                    b.Property<string>("Title")
-                        .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
-
-                    b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("Id")
-                        .HasName("PK__TennisMa__3214EC0730F848ED");
-
-                    b.HasIndex(new[] { "CreatorId" }, "IX_TennisMatches_CreatorId");
-
-                    b.HasIndex(new[] { "MatchTime" }, "IX_TennisMatches_MatchTime");
-
-                    b.HasIndex(new[] { "Status" }, "IX_TennisMatches_Status");
-
-                    b.ToTable("TennisMatches");
-                });
-
             modelBuilder.Entity("tennis_wave_api.Models.Entities.User", b =>
                 {
                     b.Property<int>("Id")
@@ -518,25 +397,6 @@ namespace tenniswaveapi.Migrations
                     b.Navigation("User2");
                 });
 
-            modelBuilder.Entity("tennis_wave_api.Models.Entities.MatchParticipant", b =>
-                {
-                    b.HasOne("tennis_wave_api.Models.Entities.TennisMatch", "Match")
-                        .WithMany("Participants")
-                        .HasForeignKey("MatchId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("tennis_wave_api.Models.Entities.User", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Match");
-
-                    b.Navigation("User");
-                });
-
             modelBuilder.Entity("tennis_wave_api.Models.Entities.Message", b =>
                 {
                     b.HasOne("tennis_wave_api.Models.Entities.Conversation", "Conversation")
@@ -567,17 +427,6 @@ namespace tenniswaveapi.Migrations
                     b.Navigation("Creator");
                 });
 
-            modelBuilder.Entity("tennis_wave_api.Models.Entities.TennisMatch", b =>
-                {
-                    b.HasOne("tennis_wave_api.Models.Entities.User", "Creator")
-                        .WithMany()
-                        .HasForeignKey("CreatorId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Creator");
-                });
-
             modelBuilder.Entity("tennis_wave_api.Models.Entities.Conversation", b =>
                 {
                     b.Navigation("Messages");
@@ -588,11 +437,6 @@ namespace tenniswaveapi.Migrations
                     b.Navigation("Participants");
 
                     b.Navigation("Requests");
-                });
-
-            modelBuilder.Entity("tennis_wave_api.Models.Entities.TennisMatch", b =>
-                {
-                    b.Navigation("Participants");
                 });
 
             modelBuilder.Entity("tennis_wave_api.Models.Entities.User", b =>

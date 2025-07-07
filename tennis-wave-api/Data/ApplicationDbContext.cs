@@ -18,11 +18,7 @@ public partial class ApplicationDbContext : DbContext
 
     public virtual DbSet<Conversation> Conversations { get; set; }
 
-    public virtual DbSet<MatchParticipant> MatchParticipants { get; set; }
-
     public virtual DbSet<Message> Messages { get; set; }
-
-    public virtual DbSet<TennisMatch> TennisMatches { get; set; }
 
     public virtual DbSet<User> Users { get; set; }
 
@@ -60,21 +56,7 @@ public partial class ApplicationDbContext : DbContext
                 .HasConstraintName("FK_Conversations_User2");
         });
 
-        modelBuilder.Entity<MatchParticipant>(entity =>
-        {
-            entity.HasKey(e => e.Id).HasName("PK__MatchPar__3214EC0738996AB5");
 
-            entity.HasIndex(e => e.MatchId, "IX_MatchParticipants_MatchId");
-
-            entity.HasIndex(e => new { e.MatchId, e.UserId }, "IX_MatchParticipants_MatchId_UserId").IsUnique();
-
-            entity.HasIndex(e => e.UserId, "IX_MatchParticipants_UserId");
-
-            entity.Property(e => e.JoinedAt).HasDefaultValueSql("(getutcdate())");
-            entity.Property(e => e.Role)
-                .HasMaxLength(20)
-                .HasDefaultValue("Participant");
-        });
 
         modelBuilder.Entity<Message>(entity =>
         {
@@ -103,28 +85,7 @@ public partial class ApplicationDbContext : DbContext
                 .HasConstraintName("FK_Messages_Sender");
         });
 
-        modelBuilder.Entity<TennisMatch>(entity =>
-        {
-            entity.HasKey(e => e.Id).HasName("PK__TennisMa__3214EC0730F848ED");
 
-            entity.HasIndex(e => e.CreatorId, "IX_TennisMatches_CreatorId");
-
-            entity.HasIndex(e => e.MatchTime, "IX_TennisMatches_MatchTime");
-
-            entity.HasIndex(e => e.Status, "IX_TennisMatches_Status");
-
-            entity.Property(e => e.CreatedAt).HasDefaultValueSql("(getutcdate())");
-            entity.Property(e => e.CurrentParticipants).HasDefaultValue(1);
-            entity.Property(e => e.Description).HasMaxLength(1000);
-            entity.Property(e => e.Location).HasMaxLength(200);
-            entity.Property(e => e.MatchType).HasMaxLength(50);
-            entity.Property(e => e.MaxParticipants).HasDefaultValue(2);
-            entity.Property(e => e.SkillLevel).HasMaxLength(50);
-            entity.Property(e => e.Status)
-                .HasMaxLength(20)
-                .HasDefaultValue("Open");
-            entity.Property(e => e.Title).HasMaxLength(200);
-        });
 
         modelBuilder.Entity<User>(entity =>
         {

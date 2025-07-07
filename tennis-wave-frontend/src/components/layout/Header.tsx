@@ -41,14 +41,11 @@ export default function Header() {
 
                     {/* Navigation - Desktop */}
                     <nav className="hidden md:flex items-center space-x-8">
-                        <Link href="/matches" className="text-gray-600 hover:text-green-600 transition-colors">
-                            Find Matches
-                        </Link>
                         <Link href="/bookings" className="text-gray-600 hover:text-green-600 transition-colors">
-                            Bookings
+                            Find Bookings
                         </Link>
-                        <Link href="/my-matches" className="text-gray-600 hover:text-green-600 transition-colors">
-                            My Matches
+                        <Link href="/my-bookings" className="text-gray-600 hover:text-green-600 transition-colors">
+                            My Bookings
                         </Link>
                         <Link href="/chat" className="ml-4 font-bold">
                             💬 Chat
@@ -83,22 +80,8 @@ export default function Header() {
                                         >
                                             My Profile
                                         </Link>
-                                        <Link
-                                            href="/bookings"
-                                            className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                                            onClick={() => setIsMenuOpen(false)}
-                                        >
-                                            My Bookings
-                                        </Link>
-                                        <Link
-                                            href="/my-matches"
-                                            className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                                            onClick={() => setIsMenuOpen(false)}
-                                        >
-                                            My Matches
-                                        </Link>
                                         <Link href="/chat" className="ml-4 font-bold">
-                                            💬 Chat
+                                            Chat
                                         </Link>
                                         <button
                                             onClick={handleLogout}
