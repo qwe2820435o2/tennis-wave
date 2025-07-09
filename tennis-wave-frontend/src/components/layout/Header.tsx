@@ -15,11 +15,15 @@ import {
     DropdownMenuItem,
     DropdownMenuSeparator
 } from "@/components/ui/dropdown-menu";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { usePathname, useRouter } from "next/navigation";
 
 export default function Header() {
     const user = useSelector((state: RootState) => state.user);
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const dispatch = useDispatch();
+    const pathname = usePathname();
+    const router = useRouter();
 
     const handleLogout = () => {
         localStorage.removeItem("user");
@@ -47,16 +51,41 @@ export default function Header() {
                     </Link>
 
                     {/* Navigation - Desktop */}
-                    <nav className="hidden md:flex items-center space-x-8">
-                        <Link href="/bookings" className="text-gray-600 hover:text-green-600 transition-colors">
-                            Find Bookings
-                        </Link>
-                        <Link href="/partners" className="text-gray-600 hover:text-green-600 transition-colors">
-                            Find Partners
-                        </Link>
-                        <Link href="/chat" className="ml-4 font-bold">
-                            Chat
-                        </Link>
+                    <nav className="hidden md:flex items-center justify-center flex-1">
+                        <Tabs value={pathname} className="w-fit">
+                            <TabsList className="bg-white/90 shadow rounded-lg px-2">
+                                <TabsTrigger
+                                    value="/bookings"
+                                    className="px-6 py-2 text-base font-medium transition-all
+                                        data-[state=active]:text-green-700 data-[state=active]:font-bold
+                                        data-[state=active]:border-b-2 data-[state=active]:border-green-600
+                                        hover:bg-green-50 hover:text-green-700 active:scale-95"
+                                    onClick={() => { if (pathname !== "/bookings") router.push("/bookings"); }}
+                                >
+                                    Find Bookings
+                                </TabsTrigger>
+                                <TabsTrigger
+                                    value="/partners"
+                                    className="px-6 py-2 text-base font-medium transition-all
+                                        data-[state=active]:text-green-700 data-[state=active]:font-bold
+                                        data-[state=active]:border-b-2 data-[state=active]:border-green-600
+                                        hover:bg-green-50 hover:text-green-700 active:scale-95"
+                                    onClick={() => { if (pathname !== "/partners") router.push("/partners"); }}
+                                >
+                                    Find Partners
+                                </TabsTrigger>
+                                <TabsTrigger
+                                    value="/chat"
+                                    className="px-6 py-2 text-base font-medium transition-all
+                                        data-[state=active]:text-green-700 data-[state=active]:font-bold
+                                        data-[state=active]:border-b-2 data-[state=active]:border-green-600
+                                        hover:bg-green-50 hover:text-green-700 active:scale-95"
+                                    onClick={() => { if (pathname !== "/chat") router.push("/chat"); }}
+                                >
+                                    Chat
+                                </TabsTrigger>
+                            </TabsList>
+                        </Tabs>
                     </nav>
 
 
