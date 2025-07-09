@@ -7,11 +7,15 @@ import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { useDispatch } from "react-redux";
 import { showLoading, hideLoading } from "@/store/slices/loadingSlice";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { chatService } from "@/services/chatService";
+import { useRouter } from "next/navigation";
 
 export default function PartnersPage() {
     const [partners, setPartners] = useState<User[]>([]);
     const [loading, setLoading] = useState(false);
     const dispatch = useDispatch();
+    const router = useRouter();
 
     useEffect(() => {
         async function fetchPartners() {
@@ -30,6 +34,19 @@ export default function PartnersPage() {
         fetchPartners();
     }, [dispatch]);
 
+    const handleStartChat = async (partner: User) => {
+        try {
+            dispatch(showLoading());
+            const conversation = await chatService.createConversation(partner.id);
+            toast.success(`Chat started with ${partner.userName}`);
+            router.push(`/chat/${conversation.id}`);
+        } catch (error) {
+            toast.error("Failed to start chat");
+        } finally {
+            dispatch(hideLoading());
+        }
+    };
+
     return (
         <div className="min-h-screen flex flex-col items-center bg-gradient-to-br from-green-50 via-white to-blue-50 p-4">
             <div className="w-full max-w-2xl">
@@ -46,17 +63,18 @@ export default function PartnersPage() {
                             <ul className="space-y-4">
                                 {partners.map((partner) => (
                                     <li key={partner.id} className="flex items-center gap-4 p-3 border rounded-lg bg-white">
-                                        <img
-                                            src={partner.avatar || "/default-avatar.png"}
-                                            alt="Avatar"
-                                            className="w-12 h-12 rounded-full object-cover border"
-                                        />
+                                        <Avatar className="w-12 h-12">
+                                            <AvatarImage src={partner.avatar || "/default-avatar.png"} />
+                                            <AvatarFallback>{partner.userName?.[0] || "U"}</AvatarFallback>
+                                        </Avatar>
                                         <div className="flex-1">
                                             <div className="font-semibold">{partner.userName}</div>
                                             <div className="text-xs text-gray-500">Level: {partner.tennisLevel || "-"}</div>
                                             <div className="text-xs text-gray-500">Location: {partner.preferredLocation || "-"}</div>
                                         </div>
-                                        {/* 这里可以加"发起约球"或"加好友"按钮 */}
+                                        <Button size="sm" variant="secondary" onClick={() => handleStartChat(partner)}>
+                                            Start Chat
+                                        </Button>
                                     </li>
                                 ))}
                             </ul>

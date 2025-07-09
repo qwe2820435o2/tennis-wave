@@ -8,7 +8,7 @@ import { setMessages, addMessage } from "@/store/slices/chatSlice";
 import { RootState } from "@/store";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Avatar } from "@/components/ui/avatar";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { format } from "date-fns";
 import signalRService from "@/services/signalRService";
 
@@ -73,11 +73,8 @@ export default function ChatDetailPage() {
             {/* Header */}
             <div className="flex flex-col items-center gap-2 border-b px-4 py-4">
                 <Avatar className="w-18 h-18">
-                    <img
-                        src={otherUserAvatar || "/default-avatar.png"}
-                        alt="avatar"
-                        className="w-18 h-18 object-cover rounded-full"
-                    />
+                    <AvatarImage src={otherUserAvatar || "/default-avatar.png"} />
+                    <AvatarFallback>U</AvatarFallback>
                 </Avatar>
                 <div className="font-semibold text-lg">{otherUserName}</div>
             </div>
@@ -93,7 +90,8 @@ export default function ChatDetailPage() {
                         <div className={`flex items-end gap-2 ${msg.isFromCurrentUser ? "justify-end" : "justify-start"}`}>
                             {!msg.isFromCurrentUser && (
                                 <Avatar className="w-8 h-8">
-                                    <img src={msg?.senderAvatar || "/default-avatar.png"} alt="avatar" />
+                                    <AvatarImage src={msg?.senderAvatar || "/default-avatar.png"} />
+                                    <AvatarFallback>U</AvatarFallback>
                                 </Avatar>
                             )}
 
@@ -108,7 +106,8 @@ export default function ChatDetailPage() {
                             </div>
                             {msg.isFromCurrentUser && (
                                 <Avatar className="w-8 h-8">
-                                    <img src={msg.senderAvatar || "/default-avatar.png"} alt="avatar" />
+                                    <AvatarImage src={msg.senderAvatar || "/default-avatar.png"} />
+                                    <AvatarFallback>U</AvatarFallback>
                                 </Avatar>
                             )}
                         </div>
