@@ -69,6 +69,68 @@ public class TennisBookingService : ITennisBookingService
         return _mapper.Map<List<TennisBookingDto>>(bookings);
     }
 
+    /// <summary>
+    /// Advanced search for tennis bookings
+    /// </summary>
+    public async Task<TennisBookingSearchResultDto> SearchBookingsAsync(SearchBookingDto searchDto, int userId)
+    {
+        var (bookings, totalCount) = await _bookingRepository.SearchBookingsAsync(
+            keyword: searchDto.Keyword,
+            location: searchDto.Location,
+            startDate: searchDto.StartDate,
+            endDate: searchDto.EndDate,
+            startTime: searchDto.StartTime,
+            endTime: searchDto.EndTime,
+            type: searchDto.Type,
+            status: searchDto.Status,
+            minSkillLevel: searchDto.MinSkillLevel,
+            maxSkillLevel: searchDto.MaxSkillLevel,
+            minParticipants: searchDto.MinParticipants,
+            maxParticipants: searchDto.MaxParticipants,
+            hasAvailableSlots: searchDto.HasAvailableSlots,
+            latitude: searchDto.Latitude,
+            longitude: searchDto.Longitude,
+            radiusKm: searchDto.RadiusKm,
+            creatorId: searchDto.CreatorId ?? (searchDto.IsMyBooking == true ? userId : null),
+            isMyBooking: searchDto.IsMyBooking,
+            isParticipating: searchDto.IsParticipating,
+            isFlexible: searchDto.IsFlexible,
+            sortBy: searchDto.SortBy,
+            sortDescending: searchDto.SortDescending,
+            page: searchDto.Page,
+            pageSize: searchDto.PageSize);
+
+        var bookingDtos = _mapper.Map<List<TennisBookingDto>>(bookings);
+        
+        var result = new TennisBookingSearchResultDto
+        {
+            Items = bookingDtos,
+            TotalCount = totalCount,
+            Page = searchDto.Page,
+            PageSize = searchDto.PageSize,
+            TotalPages = (int)Math.Ceiling((double)totalCount / searchDto.PageSize),
+            HasNextPage = searchDto.Page < (int)Math.Ceiling((double)totalCount / searchDto.PageSize),
+            HasPreviousPage = searchDto.Page > 1
+        };
+
+        // Get statistics for filters
+        var stats = await _bookingRepository.GetBookingStatisticsAsync();
+        result.TypeCounts = (Dictionary<string, int>)stats["TypeCounts"];
+        result.StatusCounts = (Dictionary<string, int>)stats["StatusCounts"];
+        result.SkillLevelCounts = (Dictionary<string, int>)stats["SkillLevelCounts"];
+        result.AvailableLocations = (List<string>)stats["AvailableLocations"];
+
+        return result;
+    }
+
+    /// <summary>
+    /// Get booking statistics for search filters
+    /// </summary>
+    public async Task<Dictionary<string, object>> GetBookingStatisticsAsync()
+    {
+        return await _bookingRepository.GetBookingStatisticsAsync();
+    }
+
     public async Task<TennisBookingDto> CreateBookingAsync(CreateBookingDto dto, int userId)
     {
         // Validate user exists

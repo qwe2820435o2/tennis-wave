@@ -149,6 +149,41 @@ public class TennisBookingController : ControllerBase
     }
 
     /// <summary>
+    /// Advanced search for tennis bookings
+    /// </summary>
+    [HttpPost("search")]
+    public async Task<ActionResult<ApiResponse<TennisBookingSearchResultDto>>> SearchBookings([FromBody] SearchBookingDto searchDto)
+    {
+        try
+        {
+            var userId = GetCurrentUserId();
+            var result = await _bookingService.SearchBookingsAsync(searchDto, userId);
+            return Ok(ApiResponseHelper.Success(result));
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(ApiResponseHelper.Fail<TennisBookingSearchResultDto>(ex.Message));
+        }
+    }
+
+    /// <summary>
+    /// Get booking statistics for search filters
+    /// </summary>
+    [HttpGet("statistics")]
+    public async Task<ActionResult<ApiResponse<Dictionary<string, object>>>> GetBookingStatistics()
+    {
+        try
+        {
+            var stats = await _bookingService.GetBookingStatisticsAsync();
+            return Ok(ApiResponseHelper.Success(stats));
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(ApiResponseHelper.Fail<Dictionary<string, object>>(ex.Message));
+        }
+    }
+
+    /// <summary>
     /// Create a new tennis booking
     /// </summary>
     [HttpPost]

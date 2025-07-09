@@ -7,7 +7,9 @@ import {
   RespondToRequestDto,
   BookingRequest,
   BookingType,
-  BookingStatus
+  BookingStatus,
+  SearchBookingDto,
+  TennisBookingSearchResultDto
 } from '@/types/tennisBooking';
 
 export const tennisBookingService = {
@@ -50,6 +52,18 @@ export const tennisBookingService = {
   // Get bookings by location
   async getBookingsByLocation(location: string): Promise<TennisBooking[]> {
     const response = await axiosInstance.get(`/api/tennisbooking/location/${encodeURIComponent(location)}`);
+    return response.data.data;
+  },
+
+  // Advanced search
+  async searchBookings(searchDto: SearchBookingDto): Promise<TennisBookingSearchResultDto> {
+    const response = await axiosInstance.post('/api/tennisbooking/search', searchDto);
+    return response.data.data;
+  },
+
+  // Get booking statistics
+  async getBookingStatistics(): Promise<Record<string, any>> {
+    const response = await axiosInstance.get('/api/tennisbooking/statistics');
     return response.data.data;
   },
 

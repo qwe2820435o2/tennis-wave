@@ -33,4 +33,8 @@ public interface ITennisBookingService
     
     // Recommendation system
     Task<List<TennisBookingDto>> GetRecommendedBookingsAsync(int userId);
+    
+    // Advanced search methods
+    Task<TennisBookingSearchResultDto> SearchBookingsAsync(SearchBookingDto searchDto, int userId);
+    Task<Dictionary<string, object>> GetBookingStatisticsAsync();
 } 

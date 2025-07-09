@@ -188,4 +188,69 @@ export const getSkillLevelColor = (level: SkillLevel): string => {
     case SkillLevel.Professional: return "bg-red-100 text-red-800";
     default: return "bg-gray-100 text-gray-800";
   }
-}; 
+};
+
+// Search types
+export interface SearchBookingDto {
+  // Basic search
+  keyword?: string;
+  location?: string;
+  
+  // Time filters
+  startDate?: string;
+  endDate?: string;
+  startTime?: string;
+  endTime?: string;
+  
+  // Type and status filters
+  type?: BookingType;
+  status?: BookingStatus;
+  
+  // Skill level filters
+  minSkillLevel?: SkillLevel;
+  maxSkillLevel?: SkillLevel;
+  
+  // Participant filters
+  minParticipants?: number;
+  maxParticipants?: number;
+  hasAvailableSlots?: boolean;
+  
+  // Location filters
+  latitude?: number;
+  longitude?: number;
+  radiusKm?: number;
+  
+  // Creator filters
+  creatorId?: number;
+  isMyBooking?: boolean;
+  isParticipating?: boolean;
+  
+  // Sorting
+  sortBy?: string; // "time", "distance", "skill", "participants"
+  sortDescending?: boolean;
+  
+  // Pagination
+  page: number;
+  pageSize: number;
+  
+  // Additional filters
+  isFlexible?: boolean;
+  preferredTimeSlots?: string;
+}
+
+export interface SearchResultDto<T> {
+  items: T[];
+  totalCount: number;
+  page: number;
+  pageSize: number;
+  totalPages: number;
+  hasNextPage: boolean;
+  hasPreviousPage: boolean;
+}
+
+export interface TennisBookingSearchResultDto extends SearchResultDto<TennisBooking> {
+  typeCounts: Record<string, number>;
+  statusCounts: Record<string, number>;
+  skillLevelCounts: Record<string, number>;
+  availableLocations: string[];
+} 

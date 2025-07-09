@@ -112,6 +112,239 @@ public class TennisBookingRepository : ITennisBookingRepository
             .ToListAsync();
     }
 
+    /// <summary>
+    /// Advanced search for tennis bookings
+    /// </summary>
+    public async Task<(List<TennisBooking> Bookings, int TotalCount)> SearchBookingsAsync(
+        string? keyword = null,
+        string? location = null,
+        DateTime? startDate = null,
+        DateTime? endDate = null,
+        TimeSpan? startTime = null,
+        TimeSpan? endTime = null,
+        BookingType? type = null,
+        BookingStatus? status = null,
+        SkillLevel? minSkillLevel = null,
+        SkillLevel? maxSkillLevel = null,
+        int? minParticipants = null,
+        int? maxParticipants = null,
+        bool? hasAvailableSlots = null,
+        double? latitude = null,
+        double? longitude = null,
+        double? radiusKm = null,
+        int? creatorId = null,
+        bool? isMyBooking = null,
+        bool? isParticipating = null,
+        bool? isFlexible = null,
+        string? sortBy = null,
+        bool? sortDescending = null,
+        int page = 1,
+        int pageSize = 20)
+    {
+        var query = _context.TennisBookings
+            .Include(b => b.Creator)
+            .Include(b => b.Participants)
+                .ThenInclude(p => p.User)
+            .Include(b => b.Requests)
+                .ThenInclude(r => r.Requester)
+            .AsQueryable();
+
+        // Keyword search
+        if (!string.IsNullOrEmpty(keyword))
+        {
+            query = query.Where(b => 
+                b.Title.Contains(keyword) || 
+                b.Description.Contains(keyword) ||
+                b.Location.Contains(keyword));
+        }
+
+        // Location search
+        if (!string.IsNullOrEmpty(location))
+        {
+            query = query.Where(b => b.Location.Contains(location));
+        }
+
+        // Date range filter
+        if (startDate.HasValue)
+        {
+            query = query.Where(b => b.BookingTime.Date >= startDate.Value.Date);
+        }
+        if (endDate.HasValue)
+        {
+            query = query.Where(b => b.BookingTime.Date <= endDate.Value.Date);
+        }
+
+        // Time range filter
+        if (startTime.HasValue)
+        {
+            query = query.Where(b => b.BookingTime.TimeOfDay >= startTime.Value);
+        }
+        if (endTime.HasValue)
+        {
+            query = query.Where(b => b.BookingTime.TimeOfDay <= endTime.Value);
+        }
+
+        // Type filter
+        if (type.HasValue)
+        {
+            query = query.Where(b => b.Type == type.Value);
+        }
+
+        // Status filter
+        if (status.HasValue)
+        {
+            query = query.Where(b => b.Status == status.Value);
+        }
+
+        // Skill level filters
+        if (minSkillLevel.HasValue)
+        {
+            query = query.Where(b => b.MinSkillLevel >= minSkillLevel.Value);
+        }
+        if (maxSkillLevel.HasValue)
+        {
+            query = query.Where(b => b.MaxSkillLevel <= maxSkillLevel.Value);
+        }
+
+        // Participant filters
+        if (minParticipants.HasValue)
+        {
+            query = query.Where(b => b.CurrentParticipants >= minParticipants.Value);
+        }
+        if (maxParticipants.HasValue)
+        {
+            query = query.Where(b => b.MaxParticipants <= maxParticipants.Value);
+        }
+        if (hasAvailableSlots.HasValue && hasAvailableSlots.Value)
+        {
+            query = query.Where(b => b.CurrentParticipants < b.MaxParticipants);
+        }
+
+        // Location radius filter (if coordinates provided)
+        if (latitude.HasValue && longitude.HasValue && radiusKm.HasValue)
+        {
+            // Simple distance calculation (can be optimized with spatial indexes)
+            query = query.Where(b => 
+                b.Latitude.HasValue && b.Longitude.HasValue &&
+                CalculateDistance(latitude.Value, longitude.Value, b.Latitude.Value, b.Longitude.Value) <= radiusKm.Value);
+        }
+
+        // Creator filter
+        if (creatorId.HasValue)
+        {
+            query = query.Where(b => b.CreatorId == creatorId.Value);
+        }
+
+        // My bookings filter
+        if (isMyBooking.HasValue && isMyBooking.Value && creatorId.HasValue)
+        {
+            query = query.Where(b => b.CreatorId == creatorId.Value);
+        }
+
+        // Participating filter
+        if (isParticipating.HasValue && isParticipating.Value && creatorId.HasValue)
+        {
+            query = query.Where(b => b.Participants.Any(p => p.UserId == creatorId.Value));
+        }
+
+        // Flexibility filter
+        if (isFlexible.HasValue)
+        {
+            query = query.Where(b => b.IsFlexible == isFlexible.Value);
+        }
+
+        // Sorting
+        query = sortBy?.ToLower() switch
+        {
+            "time" => sortDescending == true 
+                ? query.OrderByDescending(b => b.BookingTime)
+                : query.OrderBy(b => b.BookingTime),
+            "distance" when latitude.HasValue && longitude.HasValue => 
+                query.OrderBy(b => CalculateDistance(latitude.Value, longitude.Value, b.Latitude ?? 0, b.Longitude ?? 0)),
+            "skill" => sortDescending == true
+                ? query.OrderByDescending(b => b.MinSkillLevel)
+                : query.OrderBy(b => b.MinSkillLevel),
+            "participants" => sortDescending == true
+                ? query.OrderByDescending(b => b.CurrentParticipants)
+                : query.OrderBy(b => b.CurrentParticipants),
+            _ => query.OrderByDescending(b => b.CreatedAt)
+        };
+
+        // Get total count
+        var totalCount = await query.CountAsync();
+
+        // Pagination
+        var skip = (page - 1) * pageSize;
+        var bookings = await query
+            .ToListAsync();
+
+        return (bookings, totalCount);
+    }
+
+    /// <summary>
+    /// Get booking statistics for search filters
+    /// </summary>
+    public async Task<Dictionary<string, object>> GetBookingStatisticsAsync()
+    {
+        var stats = new Dictionary<string, object>();
+
+        // Type counts
+        var typeCounts = await _context.TennisBookings
+            .GroupBy(b => b.Type)
+            .Select(g => new { Type = g.Key.ToString(), Count = g.Count() })
+            .ToDictionaryAsync(x => x.Type, x => x.Count);
+        stats["TypeCounts"] = typeCounts;
+
+        // Status counts
+        var statusCounts = await _context.TennisBookings
+            .GroupBy(b => b.Status)
+            .Select(g => new { Status = g.Key.ToString(), Count = g.Count() })
+            .ToDictionaryAsync(x => x.Status, x => x.Count);
+        stats["StatusCounts"] = statusCounts;
+
+        // Skill level counts
+        var skillCounts = await _context.TennisBookings
+            .GroupBy(b => b.MinSkillLevel)
+            .Select(g => new { SkillLevel = g.Key.ToString(), Count = g.Count() })
+            .ToDictionaryAsync(x => x.SkillLevel, x => x.Count);
+        stats["SkillLevelCounts"] = skillCounts;
+
+        // Available locations
+        var locations = await _context.TennisBookings
+            .Where(b => !string.IsNullOrEmpty(b.Location))
+            .Select(b => b.Location)
+            .Distinct()
+            .Take(50)
+            .ToListAsync();
+        stats["AvailableLocations"] = locations;
+
+        return stats;
+    }
+
+    /// <summary>
+    /// Calculate distance between two coordinates using Haversine formula
+    /// </summary>
+    private static double CalculateDistance(double lat1, double lon1, double lat2, double lon2)
+    {
+        const double earthRadius = 6371; // Earth's radius in kilometers
+
+        var dLat = ToRadians(lat2 - lat1);
+        var dLon = ToRadians(lon2 - lon1);
+
+        var a = Math.Sin(dLat / 2) * Math.Sin(dLat / 2) +
+                Math.Cos(ToRadians(lat1)) * Math.Cos(ToRadians(lat2)) *
+                Math.Sin(dLon / 2) * Math.Sin(dLon / 2);
+
+        var c = 2 * Math.Atan2(Math.Sqrt(a), Math.Sqrt(1 - a));
+
+        return earthRadius * c;
+    }
+
+    private static double ToRadians(double degrees)
+    {
+        return degrees * Math.PI / 180;
+    }
+
     public async Task<TennisBooking> CreateAsync(TennisBooking booking)
     {
         _context.TennisBookings.Add(booking);

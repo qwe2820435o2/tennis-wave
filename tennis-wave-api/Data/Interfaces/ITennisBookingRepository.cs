@@ -17,6 +17,36 @@ public interface ITennisBookingRepository
     Task<List<TennisBooking>> GetByLocationAsync(string location);
     Task<List<TennisBooking>> GetBySkillLevelAsync(SkillLevel minLevel, SkillLevel maxLevel);
     Task<List<TennisBooking>> GetAvailableBookingsAsync();
+    
+    // Advanced search methods
+    Task<(List<TennisBooking> Bookings, int TotalCount)> SearchBookingsAsync(
+        string? keyword = null,
+        string? location = null,
+        DateTime? startDate = null,
+        DateTime? endDate = null,
+        TimeSpan? startTime = null,
+        TimeSpan? endTime = null,
+        BookingType? type = null,
+        BookingStatus? status = null,
+        SkillLevel? minSkillLevel = null,
+        SkillLevel? maxSkillLevel = null,
+        int? minParticipants = null,
+        int? maxParticipants = null,
+        bool? hasAvailableSlots = null,
+        double? latitude = null,
+        double? longitude = null,
+        double? radiusKm = null,
+        int? creatorId = null,
+        bool? isMyBooking = null,
+        bool? isParticipating = null,
+        bool? isFlexible = null,
+        string? sortBy = null,
+        bool? sortDescending = null,
+        int page = 1,
+        int pageSize = 20);
+    
+    Task<Dictionary<string, object>> GetBookingStatisticsAsync();
+    
     Task<TennisBooking> CreateAsync(TennisBooking booking);
     Task<TennisBooking> UpdateAsync(TennisBooking booking);
     Task<bool> DeleteAsync(int id);
