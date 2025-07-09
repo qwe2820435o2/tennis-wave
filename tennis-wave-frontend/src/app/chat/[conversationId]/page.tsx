@@ -69,46 +69,56 @@ export default function ChatDetailPage() {
     };
 
     return (
-        <div className="max-w-xl mx-auto flex flex-col h-[calc(100vh-64px)] bg-background rounded-lg shadow-md">
+        <div className="max-w-2xl mx-auto flex flex-col h-[calc(100vh-80px)] bg-gradient-to-br from-green-50 via-white to-blue-50 rounded-2xl shadow-lg border mt-4">
             {/* Header */}
-            <div className="flex flex-col items-center gap-2 border-b px-4 py-4">
-                <Avatar className="w-18 h-18">
+            <div className="flex flex-col items-center gap-2 border-b px-4 py-6 bg-white/80 rounded-t-2xl">
+                <Avatar className="w-24 h-24 shadow-lg ring-2 ring-green-400">
                     <AvatarImage src={otherUserAvatar || "/default-avatar.png"} />
                     <AvatarFallback>U</AvatarFallback>
                 </Avatar>
-                <div className="font-semibold text-lg">{otherUserName}</div>
+                <div className="font-bold text-2xl text-green-700 mt-2">{otherUserName}</div>
             </div>
             {/* Message List */}
-            <div className="flex-1 overflow-y-auto px-4 py-2 space-y-2 bg-background">
+            <div className="flex-1 overflow-y-auto px-4 py-6 space-y-4 bg-transparent scrollbar-thin scrollbar-thumb-green-200 scrollbar-track-transparent">
                 {messages.map((msg, idx) => (
                     <div key={msg.id}>
                         {shouldShowTime(idx) && (
-                            <div className="text-center text-xs text-muted-foreground my-2">
-                                    {format(new Date(msg.createdAt?? ""), "PPpp")}
+                            <div className="text-center text-xs text-gray-400 my-4 select-none">
+                                {format(new Date(msg.createdAt?? ""), "PPpp")}
                             </div>
                         )}
-                        <div className={`flex items-end gap-2 ${msg.isFromCurrentUser ? "justify-end" : "justify-start"}`}>
+                        <div className={`flex items-end gap-3 ${msg.isFromCurrentUser ? "justify-end" : "justify-start"}`}>
+                            {/* 对方消息 */}
                             {!msg.isFromCurrentUser && (
-                                <Avatar className="w-8 h-8">
-                                    <AvatarImage src={msg?.senderAvatar || "/default-avatar.png"} />
-                                    <AvatarFallback>U</AvatarFallback>
-                                </Avatar>
+                                <>
+                                    <Avatar className="w-10 h-10 shadow ring-2 ring-green-300">
+                                        <AvatarImage src={msg?.senderAvatar || "/default-avatar.png"} />
+                                        <AvatarFallback>U</AvatarFallback>
+                                    </Avatar>
+                                    <div className="flex flex-col items-start">
+                                        <div
+                                            className="px-5 py-3 rounded-2xl rounded-bl-md bg-white text-gray-900 shadow-md max-w-xs break-words border border-green-100 animate-fade-in"
+                                        >
+                                            {msg.content}
+                                        </div>
+                                    </div>
+                                </>
                             )}
-
-                            <div
-                                className={`px-4 py-2 rounded-2xl shadow-md max-w-xs break-words ${
-                                    msg.isFromCurrentUser
-                                        ? "bg-primary text-primary-foreground rounded-br-sm"
-                                        : "bg-muted text-foreground rounded-bl-sm"
-                                }`}
-                            >
-                                <div>{msg.content}</div>
-                            </div>
+                            {/* 我方消息 */}
                             {msg.isFromCurrentUser && (
-                                <Avatar className="w-8 h-8">
-                                    <AvatarImage src={msg.senderAvatar || "/default-avatar.png"} />
-                                    <AvatarFallback>U</AvatarFallback>
-                                </Avatar>
+                                <>
+                                    <div className="flex flex-col items-end">
+                                        <div
+                                            className="px-5 py-3 rounded-2xl rounded-br-md bg-gradient-to-r from-green-400 to-green-600 text-white shadow-lg max-w-xs break-words animate-fade-in"
+                                        >
+                                            {msg.content}
+                                        </div>
+                                    </div>
+                                    <Avatar className="w-10 h-10 shadow ring-2 ring-green-400">
+                                        <AvatarImage src={msg.senderAvatar || "/default-avatar.png"} />
+                                        <AvatarFallback>U</AvatarFallback>
+                                    </Avatar>
+                                </>
                             )}
                         </div>
                     </div>
@@ -116,18 +126,23 @@ export default function ChatDetailPage() {
                 <div ref={messagesEndRef} />
             </div>
             {/* Input */}
-            <div className="p-3 border-t flex gap-2 bg-background">
+            <form className="p-4 border-t flex gap-3 bg-white/90 rounded-b-2xl shadow-inner" onSubmit={e => { e.preventDefault(); handleSend(); }}>
                 <Input
-                    className="flex-1"
+                    className="flex-1 rounded-full bg-gray-50 border border-green-200 focus:border-green-500 focus:ring-green-200 shadow-sm px-4 py-2"
                     value={input}
                     onChange={e => setInput(e.target.value)}
                     onKeyDown={e => e.key === "Enter" && handleSend()}
                     placeholder="Type a message..."
                 />
-                <Button onClick={handleSend} disabled={!input.trim()}>
+                <Button
+                    className="rounded-full bg-gradient-to-r from-green-400 to-green-600 text-white font-bold shadow-md px-6 py-2 hover:from-green-500 hover:to-green-700 transition"
+                    onClick={handleSend}
+                    disabled={!input.trim()}
+                    type="submit"
+                >
                     Send
                 </Button>
-            </div>
+            </form>
         </div>
     );
 }
