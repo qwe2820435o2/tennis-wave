@@ -99,6 +99,14 @@ public class UserController : ControllerBase
         }
     }
     
+    [HttpGet("recommended")]
+    public async Task<ActionResult<ApiResponse<List<UserDto>>>> GetRecommendedPartners()
+    {
+        var userId = GetCurrentUserId();
+        var partners = await _userService.GetRecommendedPartnersAsync(userId);
+        return Ok(ApiResponseHelper.Success(partners));
+    }
+    
   
     private int GetCurrentUserId()
     {

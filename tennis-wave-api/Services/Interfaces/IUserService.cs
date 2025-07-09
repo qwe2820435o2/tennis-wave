@@ -17,4 +17,5 @@ public interface IUserService
     Task<bool> IsUserNameUniqueAsync(string userName, int? excludeUserId = null);
     Task UpdateUserOnlineStatusAsync(int userId, bool isOnline);
     Task<List<UserSearchDto>> SearchUsersAsync(string query, int excludeUserId);
+    Task<List<UserDto>> GetRecommendedPartnersAsync(int userId);
 }

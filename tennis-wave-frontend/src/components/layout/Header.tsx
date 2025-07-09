@@ -47,14 +47,11 @@ export default function Header() {
                         <Link href="/my-bookings" className="text-gray-600 hover:text-green-600 transition-colors">
                             My Bookings
                         </Link>
+                        <Link href="/partners" className="text-gray-600 hover:text-green-600 transition-colors">
+                            Find Partners
+                        </Link>
                         <Link href="/chat" className="ml-4 font-bold">
-                            💬 Chat
-                        </Link>
-                        <Link href="/about" className="text-gray-600 hover:text-green-600 transition-colors">
-                            About
-                        </Link>
-                        <Link href="/contact" className="text-gray-600 hover:text-green-600 transition-colors">
-                            Contact
+                            Chat
                         </Link>
                     </nav>
 
@@ -79,9 +76,6 @@ export default function Header() {
                                             onClick={() => setIsMenuOpen(false)}
                                         >
                                             My Profile
-                                        </Link>
-                                        <Link href="/chat" className="ml-4 font-bold">
-                                            Chat
                                         </Link>
                                         <button
                                             onClick={handleLogout}

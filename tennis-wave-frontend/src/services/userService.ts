@@ -32,3 +32,8 @@ export async function searchUsers(query: string): Promise<UserSearchDto[]> {
     const response = await axiosInstance.get(`/api/User/search?query=${encodeURIComponent(query)}`);
     return response.data.data;
 }
+
+export async function getRecommendedPartners(): Promise<User[]> {
+    const response = await axiosInstance.get('/api/user/recommended');
+    return response.data.data;
+}

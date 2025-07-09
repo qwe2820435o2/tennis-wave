@@ -114,4 +114,28 @@ public class UserService : IUserService
         var users = await _userRepository.SearchUsersAsync(query, excludeUserId);
         return _mapper.Map<List<UserSearchDto>>(users);
     }
+
+    public async Task<List<UserDto>> GetRecommendedPartnersAsync(int userId)
+    {
+        var user = await _userRepository.GetUserByIdAsync(userId);
+        if (user == null) return new List<UserDto>();
+
+        var allUsers = await _userRepository.GetAllUsersAsync();
+        var recommended = allUsers
+            .Where(u => u.Id != userId)
+            .Select(u => new
+            {
+                User = u,
+                LevelMatch = !string.IsNullOrEmpty(user.TennisLevel) && u.TennisLevel == user.TennisLevel,
+                LocationMatch = !string.IsNullOrEmpty(user.PreferredLocation) && u.PreferredLocation == user.PreferredLocation
+            })
+            .OrderByDescending(x => x.LevelMatch)
+            .ThenByDescending(x => x.LocationMatch)
+            .ThenBy(x => x.User.CreatedAt)
+            .Take(10)
+            .Select(x => x.User)
+            .ToList();
+
+        return _mapper.Map<List<UserDto>>(recommended);
+    }
 }
