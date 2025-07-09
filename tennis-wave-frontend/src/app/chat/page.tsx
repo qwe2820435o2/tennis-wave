@@ -11,6 +11,7 @@ import { RootState } from "@/store";
 import {Button} from "@/components/ui/button";
 import {Plus} from "lucide-react";
 import NewChatModal from "@/components/chat/NewChatModal";
+import { showLoading, hideLoading } from "@/store/slices/loadingSlice";
 
 export default function ChatListPage() {
     const dispatch = useDispatch();
@@ -19,8 +20,20 @@ export default function ChatListPage() {
     const [isNewChatModalOpen, setIsNewChatModalOpen] = useState(false);
 
     useEffect(() => {
-        chatService.getConversations().then(data => dispatch(setConversations(data)));
-        chatService.getUnreadCounts().then(data => dispatch(setUnreadCounts(data)));
+        async function fetchData() {
+            dispatch(showLoading());
+            try {
+                const [convs, unread] = await Promise.all([
+                    chatService.getConversations(),
+                    chatService.getUnreadCounts()
+                ]);
+                dispatch(setConversations(convs));
+                dispatch(setUnreadCounts(unread));
+            } finally {
+                dispatch(hideLoading());
+            }
+        }
+        fetchData();
     }, [dispatch]);
 
     return (

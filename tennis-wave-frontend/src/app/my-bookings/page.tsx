@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -12,14 +12,14 @@ import { tennisBookingService } from "@/services/tennisBookingService";
 import { TennisBooking} from "@/types/tennisBooking";
 import { getBookingStatusLabel, getBookingStatusColor, getBookingTypeLabel } from "@/types/tennisBooking";
 import type { RootState } from "@/store";
+import { showLoading, hideLoading } from "@/store/slices/loadingSlice";
 
 export default function MyBookingsPage() {
     const [bookings, setBookings] = useState<TennisBooking[]>([]);
     const [pendingDeleteId, setPendingDeleteId] = useState<number | null>(null);
-    const [isLoading, setIsLoading] = useState(true);
-    const [statistics, setStatistics] = useState<any>(null);
     const user = useSelector((state: RootState) => state.user);
     const router = useRouter();
+    const dispatch = useDispatch();
 
     useEffect(() => {
         if (user.isHydrated && user.userId) {
@@ -40,14 +40,14 @@ export default function MyBookingsPage() {
 
     const loadBookings = async () => {
         try {
-            setIsLoading(true);
+            dispatch(showLoading());
             const data = await tennisBookingService.getMyBookings();
             setBookings(data);
         } catch (error) {
             console.error("Failed to load bookings:", error);
             toast.error("Failed to load bookings");
         } finally {
-            setIsLoading(false);
+            dispatch(hideLoading());
         }
     };
 
@@ -61,15 +61,6 @@ export default function MyBookingsPage() {
             toast.error("Failed to delete booking");
         }
     };
-
-    if (!user.isHydrated) {
-        return <div>Loading...</div>;
-    }
-
-    if (!user.userId) {
-        router.push("/auth/login");
-        return null;
-    }
 
     // Separate bookings by creator and participant
     const createdBookings = bookings.filter(booking => booking.creatorId === user.userId);
@@ -162,14 +153,6 @@ export default function MyBookingsPage() {
         </Card>
     );
 
-    if (isLoading) {
-        return (
-            <div className="max-w-4xl mx-auto p-6">
-                <div className="text-center">Loading your bookings...</div>
-            </div>
-        );
-    }
-
     return (
         <div className="max-w-4xl mx-auto p-6">
             <div className="mb-8">
@@ -178,48 +161,7 @@ export default function MyBookingsPage() {
             </div>
 
             {/* Statistics */}
-            {statistics && (
-                <div className="mb-8">
-                    <h2 className="text-xl font-semibold text-gray-900 mb-4 flex items-center">
-                        <BarChart3 className="w-5 h-5 mr-2" />
-                        Booking Statistics
-                    </h2>
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                        <Card>
-                            <CardContent className="pt-4">
-                                <div className="text-center">
-                                    <div className="text-2xl font-bold text-green-600">{statistics.totalCreated}</div>
-                                    <div className="text-sm text-gray-500">Created</div>
-                                </div>
-                            </CardContent>
-                        </Card>
-                        <Card>
-                            <CardContent className="pt-4">
-                                <div className="text-center">
-                                    <div className="text-2xl font-bold text-blue-600">{statistics.totalParticipated}</div>
-                                    <div className="text-sm text-gray-500">Participated</div>
-                                </div>
-                            </CardContent>
-                        </Card>
-                        <Card>
-                            <CardContent className="pt-4">
-                                <div className="text-center">
-                                    <div className="text-2xl font-bold text-yellow-600">{statistics.pendingBookings}</div>
-                                    <div className="text-sm text-gray-500">Pending</div>
-                                </div>
-                            </CardContent>
-                        </Card>
-                        <Card>
-                            <CardContent className="pt-4">
-                                <div className="text-center">
-                                    <div className="text-2xl font-bold text-green-600">{statistics.completedBookings}</div>
-                                    <div className="text-sm text-gray-500">Completed</div>
-                                </div>
-                            </CardContent>
-                        </Card>
-                    </div>
-                </div>
-            )}
+            {/* Removed statistics as it's not directly tied to user's bookings */}
 
             {/* Created Bookings */}
             <div className="mb-8">

@@ -22,6 +22,7 @@ export default function ProfilePage() {
     useEffect(() => {
         async function fetchProfile() {
             try {
+                dispatch(showLoading());
                 const userStr = localStorage.getItem("user");
                 const user = userStr ? JSON.parse(userStr) : null;
                 const userId = user?.userId;
@@ -36,6 +37,8 @@ export default function ProfilePage() {
                         toast.error("Failed to load profile");
                     }
                 }
+            } finally {
+                dispatch(hideLoading());
             }
         }
         fetchProfile();
@@ -76,8 +79,9 @@ export default function ProfilePage() {
         }
     };
 
+    // 移除本地loading占位
     if (!profile) {
-        return <div className="flex justify-center items-center min-h-screen">Loading...</div>;
+        return null;
     }
 
     return (
