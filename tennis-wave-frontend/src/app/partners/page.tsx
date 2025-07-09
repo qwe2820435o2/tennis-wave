@@ -32,7 +32,8 @@ export default function PartnersPage() {
             try {
                 const data = await getRecommendedPartners();
                 setPartners(data);
-            } catch (error) {
+            } catch (error: any) {
+                if (error.isAuthError) return; // It has been processed globally
                 toast.error("Failed to load recommended partners");
             } finally {
                 setLoading(false);

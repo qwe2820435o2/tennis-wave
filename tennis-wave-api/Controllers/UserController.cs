@@ -13,6 +13,7 @@ namespace tennis_wave_api.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
+[Authorize]
 public class UserController : ControllerBase
 {
     private readonly IUserService _userService;
@@ -23,7 +24,6 @@ public class UserController : ControllerBase
     }
 
     [HttpGet]
-    [Authorize] 
     public async Task<ActionResult<IEnumerable<UserDto>>> GetAllUsers()
     {
         var users = await _userService.GetAllUsersAsync();

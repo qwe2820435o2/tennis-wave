@@ -26,28 +26,35 @@ let hasShownSessionExpired = false;
 // Handle 401
 instance.interceptors.response.use(
     (response) => response,
-        (error) => {
-            if (
-                error.response &&
-                error.response.status === 401 &&
-                !hasShownSessionExpired
-            ) {
-                hasShownSessionExpired = true;
-                // Clear user state
-                store.dispatch(clearUser());
-                localStorage.removeItem("user");
-                localStorage.removeItem("token");
-                
-                toast.error("Session expired", {
-                    description: "Session expired, please log in again.",
-                });
-                setTimeout(() => {
-                    window.location.href = "/auth/login";
-                    hasShownSessionExpired = false;
-                }, 1500);
-            }
-            return Promise.reject(error);
+    (error) => {
+        if (
+            error.response &&
+            error.response.status === 401 &&
+            !hasShownSessionExpired
+        ) {
+            hasShownSessionExpired = true;
+            // Clear user state
+            store.dispatch(clearUser());
+            localStorage.removeItem("user");
+            localStorage.removeItem("token");
+            
+            toast.error("Session expired", {
+                description: "Session expired, please log in again.",
+                id: "session-expired"
+            });
+            setTimeout(() => {
+                window.location.href = "/auth/login";
+                hasShownSessionExpired = false;
+            }, 1500);
+            // 返回特殊对象，业务层可识别
+            return Promise.reject({ isAuthError: true });
         }
+        // 401但已弹过toast，业务层也可识别
+        if (error.response && error.response.status === 401) {
+            return Promise.reject({ isAuthError: true });
+        }
+        return Promise.reject(error);
+    }
 );
 
 export default instance;
