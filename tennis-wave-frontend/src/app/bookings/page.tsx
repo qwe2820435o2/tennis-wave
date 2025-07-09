@@ -100,13 +100,13 @@ export default function BookingsPage() {
   const displayBookings = searchResult ? searchResult.items : bookings;
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Header */}
-        <div className="mb-8">
-          <div className="flex items-center justify-between">
+    <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-blue-50 py-8">
+      <div className="max-w-4xl mx-auto">
+        <div className="bg-white border-2 border-green-600 rounded-2xl shadow-lg p-8">
+          {/* Header */}
+          <div className="mb-8 flex items-center justify-between">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900">Tennis Bookings</h1>
+              <h1 className="text-3xl font-bold text-green-700">Tennis Bookings</h1>
               <p className="text-gray-600 mt-2">Find and join tennis games in your area</p>
             </div>
             <div className="flex items-center space-x-4">
@@ -116,6 +116,7 @@ export default function BookingsPage() {
                   variant={viewMode === "list" ? "default" : "ghost"}
                   size="sm"
                   onClick={() => setViewMode("list")}
+                  className={viewMode === "list" ? "bg-green-600 text-white" : ""}
                 >
                   <List className="w-4 h-4" />
                 </Button>
@@ -123,188 +124,145 @@ export default function BookingsPage() {
                   variant={viewMode === "map" ? "default" : "ghost"}
                   size="sm"
                   onClick={() => setViewMode("map")}
+                  className={viewMode === "map" ? "bg-green-600 text-white" : ""}
                 >
                   <Map className="w-4 h-4" />
                 </Button>
               </div>
-              
               <Link href="/bookings/create">
-                <Button className="bg-green-600 hover:bg-green-700">
+                <Button className="bg-green-600 hover:bg-green-700 rounded-lg shadow font-bold">
                   <Plus className="w-4 h-4 mr-2" />
                   Create Booking
                 </Button>
               </Link>
             </div>
           </div>
-        </div>
-
-        {/* Search and Filter */}
-        <AdvancedSearchFilter 
-          onSearch={handleSearch}
-          onReset={handleReset}
-          statistics={statistics}
-        />
-
-        {/* Results Summary */}
-        {searchResult && (
-          <div className="mb-6 p-4 bg-white rounded-lg border">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600">
-                  Found <span className="font-semibold">{searchResult.totalCount}</span> bookings
-                  {searchResult.page > 1 && ` (page ${searchResult.page} of ${searchResult.totalPages})`}
-                </p>
-              </div>
-              <div className="flex items-center space-x-4">
-                {searchResult.hasPreviousPage && (
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => handlePageChange(searchResult.page - 1)}
-                  >
-                    Previous
-                  </Button>
-                )}
-                {searchResult.hasNextPage && (
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => handlePageChange(searchResult.page + 1)}
-                  >
-                    Next
-                  </Button>
-                )}
+          {/* Search and Filter */}
+          <AdvancedSearchFilter
+            onSearch={handleSearch}
+            onReset={handleReset}
+            statistics={statistics}
+          />
+          {/* Results Summary */}
+          {searchResult && (
+            <div className="mb-6 p-4 bg-white rounded-xl border">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-gray-600">
+                    Found <span className="font-semibold">{searchResult.totalCount}</span> bookings
+                    {searchResult.page > 1 && ` (page ${searchResult.page} of ${searchResult.totalPages})`}
+                  </p>
+                </div>
+                <div className="flex items-center space-x-4">
+                  {searchResult.hasPreviousPage && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handlePageChange(searchResult.page - 1)}
+                      className="rounded-lg"
+                    >
+                      Previous
+                    </Button>
+                  )}
+                  {searchResult.hasNextPage && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handlePageChange(searchResult.page + 1)}
+                      className="rounded-lg"
+                    >
+                      Next
+                    </Button>
+                  )}
+                </div>
               </div>
             </div>
-          </div>
-        )}
+          )}
+          {/* Bookings Grid */}
+          {viewMode === "list" ? (
+            <div className="grid grid-cols-1 gap-6">
+              {displayBookings.map((booking) => (
+                <Card key={booking.id} className="hover:shadow-xl transition-shadow border-2 border-transparent hover:border-green-600 rounded-2xl">
+                  <CardHeader>
+                    <div className="flex items-start justify-between">
+                      <div className="flex-1">
+                        <CardTitle className="text-lg font-bold text-green-700">{booking.title}</CardTitle>
+                        <CardDescription className="mt-1 text-gray-600">
+                          {booking.description.length > 100
+                            ? `${booking.description.substring(0, 100)}...`
+                            : booking.description}
+                        </CardDescription>
+                      </div>
+                    </div>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-3">
+                      {/* Time and Location */}
+                      <div className="flex items-center text-sm text-gray-600">
+                        <Calendar className="w-4 h-4 mr-2" />
+                        {format(new Date(booking.bookingTime), "MMM dd, yyyy 'at' HH:mm")}
+                      </div>
+                      <div className="flex items-center text-sm text-gray-600">
+                        <MapPin className="w-4 h-4 mr-2" />
+                        {booking.location}
+                      </div>
+                      
+                      {/* Participants */}
+                      <div className="flex items-center text-sm text-gray-600">
+                        <Users className="w-4 h-4 mr-2" />
+                        {booking.currentParticipants}/{booking.maxParticipants} participants
+                      </div>
 
-        {/* Bookings Grid */}
-        {viewMode === "list" ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {displayBookings.map((booking) => (
-              <Card key={booking.id} className="hover:shadow-lg transition-shadow">
-                <CardHeader>
-                  <div className="flex items-start justify-between">
-                    <div className="flex-1">
-                      <CardTitle className="text-lg">{booking.title}</CardTitle>
-                      <CardDescription className="mt-1">
-                        {booking.description.length > 100 
-                          ? `${booking.description.substring(0, 100)}...` 
-                          : booking.description}
-                      </CardDescription>
-                    </div>
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-3">
-                    {/* Time and Location */}
-                    <div className="flex items-center text-sm text-gray-600">
-                      <Calendar className="w-4 h-4 mr-2" />
-                      {format(new Date(booking.bookingTime), "MMM dd, yyyy 'at' HH:mm")}
-                    </div>
-                    <div className="flex items-center text-sm text-gray-600">
-                      <MapPin className="w-4 h-4 mr-2" />
-                      {booking.location}
-                    </div>
-                    
-                    {/* Participants */}
-                    <div className="flex items-center text-sm text-gray-600">
-                      <Users className="w-4 h-4 mr-2" />
-                      {booking.currentParticipants}/{booking.maxParticipants} participants
-                    </div>
+                      {/* Tags */}
+                      <div className="flex flex-wrap gap-2">
+                        <Badge variant="outline">
+                          {getBookingTypeLabel(booking.type)}
+                        </Badge>
+                        <Badge variant={getBookingStatusColor(booking.status) as "default" | "destructive" | "outline" | "secondary"}>
+                          {getBookingStatusLabel(booking.status)}
+                        </Badge>
+                        <Badge variant="outline">
+                          {getSkillLevelLabel(booking.minSkillLevel)} - {getSkillLevelLabel(booking.maxSkillLevel)}
+                        </Badge>
+                      </div>
 
-                    {/* Tags */}
-                    <div className="flex flex-wrap gap-2">
-                      <Badge variant="outline">
-                        {getBookingTypeLabel(booking.type)}
-                      </Badge>
-                                             <Badge variant={getBookingStatusColor(booking.status) as "default" | "destructive" | "outline" | "secondary"}>
-                         {getBookingStatusLabel(booking.status)}
-                       </Badge>
-                      <Badge variant="outline">
-                        {getSkillLevelLabel(booking.minSkillLevel)} - {getSkillLevelLabel(booking.maxSkillLevel)}
-                      </Badge>
-                    </div>
-
-                    {/* Creator */}
-                    <div className="flex items-center justify-between pt-2 border-t">
-                      <div className="flex items-center">
-                        <div className="w-8 h-8 bg-gray-300 rounded-full flex items-center justify-center">
-                          <span className="text-sm font-medium">
-                            {booking.creator.userName.charAt(0).toUpperCase()}
+                      {/* Creator */}
+                      <div className="flex items-center justify-between pt-2 border-t">
+                        <div className="flex items-center">
+                          <div className="w-8 h-8 bg-gray-300 rounded-full flex items-center justify-center">
+                            <span className="text-sm font-medium">
+                              {booking.creator.userName.charAt(0).toUpperCase()}
+                            </span>
+                          </div>
+                          <span className="ml-2 text-sm text-gray-600">
+                            {booking.creator.userName}
                           </span>
                         </div>
-                        <span className="ml-2 text-sm text-gray-600">
-                          {booking.creator.userName}
-                        </span>
+                        <Link href={`/bookings/${booking.id}`}>
+                          <Button size="sm">View Details</Button>
+                        </Link>
                       </div>
-                      <Link href={`/bookings/${booking.id}`}>
-                        <Button size="sm">View Details</Button>
-                      </Link>
                     </div>
+                  </CardContent>
+                </Card>
+              ))}
+              {displayBookings.length === 0 && (
+                <div className="flex flex-col items-center justify-center py-16 text-center text-gray-400">
+                  <div className="mb-4">
+                    <Search className="w-12 h-12 mx-auto text-green-200" />
                   </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        ) : (
-          <div className="bg-white rounded-lg border p-8 text-center">
-            <Map className="w-16 h-16 mx-auto text-gray-400 mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 mb-2">Map View</h3>
-            <p className="text-gray-600 mb-4">
-              Map view will be available soon with Google Maps integration
-            </p>
-            <Button variant="outline" onClick={() => setViewMode("list")}>
-              Switch to List View
-            </Button>
-          </div>
-        )}
-
-        {/* Empty State */}
-        {displayBookings.length === 0 && (
-          <div className="text-center py-12">
-            <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <Search className="w-8 h-8 text-gray-400" />
-            </div>
-            <h3 className="text-lg font-medium text-gray-900 mb-2">No bookings found</h3>
-            <p className="text-gray-600 mb-6">
-              Try adjusting your search criteria or create a new booking
-            </p>
-            <Link href="/bookings/create">
-              <Button>Create Your First Booking</Button>
-            </Link>
-          </div>
-        )}
-
-        {/* Pagination */}
-        {searchResult && searchResult.totalPages > 1 && (
-          <div className="mt-8 flex items-center justify-center">
-            <div className="flex items-center space-x-2">
-              {searchResult.hasPreviousPage && (
-                <Button
-                  variant="outline"
-                  onClick={() => handlePageChange(searchResult.page - 1)}
-                >
-                  Previous
-                </Button>
-              )}
-              
-              <span className="text-sm text-gray-600">
-                Page {searchResult.page} of {searchResult.totalPages}
-              </span>
-              
-              {searchResult.hasNextPage && (
-                <Button
-                  variant="outline"
-                  onClick={() => handlePageChange(searchResult.page + 1)}
-                >
-                  Next
-                </Button>
+                  <div className="font-bold text-lg mb-2">No bookings found</div>
+                  <div className="text-sm mb-4">Try adjusting your search criteria or create a new booking</div>
+                  <Link href="/bookings/create">
+                    <Button className="bg-green-600 hover:bg-green-700 rounded-lg shadow font-bold">Create Your First Booking</Button>
+                  </Link>
+                </div>
               )}
             </div>
-          </div>
-        )}
+          ) : (
+            <div className="h-96 flex items-center justify-center text-gray-400">Map view coming soon...</div>
+          )}
+        </div>
       </div>
     </div>
   );
