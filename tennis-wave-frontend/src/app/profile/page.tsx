@@ -87,18 +87,18 @@ export default function ProfilePage() {
     return (
         <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-green-50 via-white to-blue-50 p-4">
             <div className="w-full max-w-xl">
-                <Card className="border-2 border-green-600 shadow-2xl">
+                <Card className="border-2 border-green-600 rounded-2xl shadow-lg p-8">
                     <CardHeader>
-                        <CardTitle className="text-2xl text-center">My Profile</CardTitle>
+                        <CardTitle className="text-2xl text-center text-green-700 font-bold">My Profile</CardTitle>
                     </CardHeader>
                     <CardContent>
-                        <form className="space-y-4" onSubmit={e => { e.preventDefault(); handleSave(); }}>
+                        <form className="space-y-6" onSubmit={e => { e.preventDefault(); handleSave(); }}>
                             {/* Avatar */}
                             <div className="flex flex-col items-center mb-4">
                                 <img
                                     src={profile.avatar || "/default-avatar.png"}
                                     alt="Avatar"
-                                    className="w-24 h-24 rounded-full object-cover border-2 border-green-400"
+                                    className="w-24 h-24 rounded-full object-cover border-4 border-green-400 shadow-lg"
                                 />
                             </div>
                             {/* UserName */}
@@ -110,6 +110,7 @@ export default function ProfilePage() {
                                     value={formData.userName || ""}
                                     onChange={handleInputChange}
                                     required
+                                    className="rounded-lg"
                                 />
                             </div>
                             {/* Email */}
@@ -120,6 +121,7 @@ export default function ProfilePage() {
                                     name="email"
                                     value={formData.email || ""}
                                     disabled
+                                    className="rounded-lg"
                                 />
                             </div>
                             {/* Tennis Level */}
@@ -131,6 +133,7 @@ export default function ProfilePage() {
                                     value={formData.tennisLevel || ""}
                                     onChange={handleInputChange}
                                     placeholder="Beginner / Intermediate / Advanced"
+                                    className="rounded-lg"
                                 />
                             </div>
                             {/* Preferred Location */}
@@ -141,6 +144,7 @@ export default function ProfilePage() {
                                     name="preferredLocation"
                                     value={formData.preferredLocation || ""}
                                     onChange={handleInputChange}
+                                    className="rounded-lg"
                                 />
                             </div>
                             {/* Bio */}
@@ -151,7 +155,7 @@ export default function ProfilePage() {
                                     name="bio"
                                     value={formData.bio || ""}
                                     onChange={handleInputChange}
-                                    className="w-full border rounded p-2 min-h-[60px]"
+                                    className="w-full border rounded-lg p-2 min-h-[60px]"
                                 />
                             </div>
                             {/* CreatedAt */}
@@ -164,14 +168,15 @@ export default function ProfilePage() {
                                             : ""
                                     }
                                     disabled
+                                    className="rounded-lg"
                                 />
                             </div>
                             {/* Save Buttons */}
                             <div className="flex justify-end gap-2 mt-4">
-                                <Button type="submit" disabled={isLoading}>
+                                <Button type="submit" disabled={isLoading} className="bg-green-600 hover:bg-green-700 rounded-lg shadow font-bold px-6">
                                     {isLoading ? "Saving..." : "Save"}
                                 </Button>
-                                <Button type="button" variant="outline" onClick={() => setFormData(profile)}>
+                                <Button type="button" variant="outline" onClick={() => setFormData(profile)} className="rounded-lg px-6">
                                     Cancel
                                 </Button>
                             </div>

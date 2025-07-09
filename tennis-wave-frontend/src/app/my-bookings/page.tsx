@@ -154,63 +154,196 @@ export default function MyBookingsPage() {
     );
 
     return (
-        <div className="max-w-4xl mx-auto p-6">
-            <div className="mb-8">
-                <h1 className="text-3xl font-bold text-gray-900 mb-2">My Bookings</h1>
-                <p className="text-gray-600">Manage your tennis bookings and participation</p>
-            </div>
-
-            {/* Statistics */}
-            {/* Removed statistics as it's not directly tied to user's bookings */}
-
-            {/* Created Bookings */}
-            <div className="mb-8">
-                <h2 className="text-xl font-semibold text-gray-900 mb-4">Created Bookings</h2>
-                {createdBookings.length === 0 ? (
-                    <Card>
-                        <CardContent className="pt-6">
-                            <div className="text-center text-gray-500">
-                                <p>You have not created any bookings yet.</p>
+        <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-blue-50 py-8">
+            <div className="max-w-4xl mx-auto">
+                <div className="bg-white border-2 border-green-600 rounded-2xl shadow-lg p-8">
+                    <div className="mb-8">
+                        <h1 className="text-3xl font-bold text-green-700 mb-2">My Bookings</h1>
+                        <p className="text-gray-600">Manage your tennis bookings and participation</p>
+                    </div>
+                    {/* Created Bookings */}
+                    <div className="mb-8">
+                        <h2 className="text-xl font-bold text-green-700 mb-4">Created Bookings</h2>
+                        {createdBookings.length === 0 ? (
+                            <div className="flex flex-col items-center justify-center py-12 text-center text-gray-400">
+                                <div className="mb-4">
+                                    <span role="img" aria-label="booking" className="text-5xl">📅</span>
+                                </div>
+                                <div className="font-bold text-lg mb-2">You have not created any bookings yet.</div>
+                                <div className="text-sm mb-4">Start by creating your first booking</div>
                                 <Button
                                     onClick={() => router.push("/bookings/create")}
-                                    className="mt-2"
+                                    className="bg-green-600 hover:bg-green-700 rounded-lg shadow font-bold px-6"
                                 >
                                     Create Your First Booking
                                 </Button>
                             </div>
-                        </CardContent>
-                    </Card>
-                ) : (
-                    <div className="space-y-4">
-                        {createdBookings.map(booking => renderBookingCard(booking, true))}
+                        ) : (
+                            <div className="space-y-4">
+                                {createdBookings.map(booking => (
+                                    <Card key={booking.id} className="hover:shadow-xl transition-shadow border-2 border-transparent hover:border-green-600 rounded-2xl">
+                                        <CardHeader className="pb-3">
+                                            <div className="flex justify-between items-start">
+                                                <div className="flex-1">
+                                                    <CardTitle className="text-lg font-bold text-green-700">
+                                                        {booking.title}
+                                                    </CardTitle>
+                                                    <div className="flex items-center gap-2 mt-1">
+                                                        <Badge variant="outline" className="text-xs">
+                                                            {getBookingTypeLabel(booking.type)}
+                                                        </Badge>
+                                                        <Badge className={`text-xs ${getBookingStatusColor(booking.status)}`}>
+                                                            {getBookingStatusLabel(booking.status)}
+                                                        </Badge>
+                                                        <Badge variant="secondary" className="text-xs">Organizer</Badge>
+                                                    </div>
+                                                </div>
+                                                <div className="flex gap-2">
+                                                    <Button
+                                                        variant="outline"
+                                                        size="sm"
+                                                        onClick={() => router.push(`/bookings/${booking.id}`)}
+                                                        className="rounded-lg"
+                                                    >
+                                                        <Edit className="w-4 h-4" />
+                                                    </Button>
+                                                    <Button
+                                                        variant="outline"
+                                                        size="sm"
+                                                        onClick={() => openDeleteDialog(booking.id)}
+                                                        className="text-red-600 hover:text-red-700 rounded-lg"
+                                                    >
+                                                        <Trash2 className="w-4 h-4" />
+                                                    </Button>
+                                                </div>
+                                            </div>
+                                        </CardHeader>
+                                        <CardContent className="pt-0">
+                                            <div className="space-y-2 text-sm text-gray-600">
+                                                <div className="flex items-center gap-2">
+                                                    <MapPin className="w-4 h-4" />
+                                                    <span>{booking.location}</span>
+                                                </div>
+                                                <div className="flex items-center gap-2">
+                                                    <Calendar className="w-4 h-4" />
+                                                    <span>{new Date(booking.bookingTime).toLocaleDateString()}</span>
+                                                </div>
+                                                <div className="flex items-center gap-2">
+                                                    <Clock className="w-4 h-4" />
+                                                    <span>{new Date(booking.bookingTime).toLocaleTimeString()}</span>
+                                                </div>
+                                                <div className="flex items-center gap-2">
+                                                    <Users className="w-4 h-4" />
+                                                    <span>{booking.currentParticipants}/{booking.maxParticipants} participants</span>
+                                                </div>
+                                                {booking.description && (
+                                                    <p className="text-gray-500 mt-2 line-clamp-2">{booking.description}</p>
+                                                )}
+                                            </div>
+                                            <div className="mt-4 flex gap-2">
+                                                <Button
+                                                    variant="outline"
+                                                    size="sm"
+                                                    onClick={() => router.push(`/bookings/${booking.id}`)}
+                                                    className="flex-1 rounded-lg"
+                                                >
+                                                    View Details
+                                                </Button>
+                                            </div>
+                                        </CardContent>
+                                    </Card>
+                                ))}
+                            </div>
+                        )}
                     </div>
-                )}
-            </div>
-
-            {/* Participated Bookings */}
-            <div className="mb-8">
-                <h2 className="text-xl font-semibold text-gray-900 mb-4">Participated Bookings</h2>
-                {participatedBookings.length === 0 ? (
-                    <Card>
-                        <CardContent className="pt-6">
-                            <div className="text-center text-gray-500">
-                                <p>You have not joined any bookings yet.</p>
+                    {/* Participated Bookings */}
+                    <div className="mb-8">
+                        <h2 className="text-xl font-bold text-green-700 mb-4">Participated Bookings</h2>
+                        {participatedBookings.length === 0 ? (
+                            <div className="flex flex-col items-center justify-center py-12 text-center text-gray-400">
+                                <div className="mb-4">
+                                    <span role="img" aria-label="booking" className="text-5xl">🎾</span>
+                                </div>
+                                <div className="font-bold text-lg mb-2">You have not joined any bookings yet.</div>
+                                <div className="text-sm mb-4">Browse available bookings to join</div>
                                 <Button
                                     onClick={() => router.push("/bookings")}
-                                    className="mt-2"
+                                    className="bg-green-600 hover:bg-green-700 rounded-lg shadow font-bold px-6"
                                 >
                                     Browse Available Bookings
                                 </Button>
                             </div>
-                        </CardContent>
-                    </Card>
-                ) : (
-                    <div className="space-y-4">
-                        {participatedBookings.map(booking => renderBookingCard(booking, false))}
+                        ) : (
+                            <div className="space-y-4">
+                                {participatedBookings.map(booking => (
+                                    <Card key={booking.id} className="hover:shadow-xl transition-shadow border-2 border-transparent hover:border-green-600 rounded-2xl">
+                                        <CardHeader className="pb-3">
+                                            <div className="flex justify-between items-start">
+                                                <div className="flex-1">
+                                                    <CardTitle className="text-lg font-bold text-green-700">
+                                                        {booking.title}
+                                                    </CardTitle>
+                                                    <div className="flex items-center gap-2 mt-1">
+                                                        <Badge variant="outline" className="text-xs">
+                                                            {getBookingTypeLabel(booking.type)}
+                                                        </Badge>
+                                                        <Badge className={`text-xs ${getBookingStatusColor(booking.status)}`}>
+                                                            {getBookingStatusLabel(booking.status)}
+                                                        </Badge>
+                                                    </div>
+                                                </div>
+                                                <div className="flex gap-2">
+                                                    <Button
+                                                        variant="outline"
+                                                        size="sm"
+                                                        onClick={() => router.push(`/bookings/${booking.id}`)}
+                                                        className="rounded-lg"
+                                                    >
+                                                        <Edit className="w-4 h-4" />
+                                                    </Button>
+                                                </div>
+                                            </div>
+                                        </CardHeader>
+                                        <CardContent className="pt-0">
+                                            <div className="space-y-2 text-sm text-gray-600">
+                                                <div className="flex items-center gap-2">
+                                                    <MapPin className="w-4 h-4" />
+                                                    <span>{booking.location}</span>
+                                                </div>
+                                                <div className="flex items-center gap-2">
+                                                    <Calendar className="w-4 h-4" />
+                                                    <span>{new Date(booking.bookingTime).toLocaleDateString()}</span>
+                                                </div>
+                                                <div className="flex items-center gap-2">
+                                                    <Clock className="w-4 h-4" />
+                                                    <span>{new Date(booking.bookingTime).toLocaleTimeString()}</span>
+                                                </div>
+                                                <div className="flex items-center gap-2">
+                                                    <Users className="w-4 h-4" />
+                                                    <span>{booking.currentParticipants}/{booking.maxParticipants} participants</span>
+                                                </div>
+                                                {booking.description && (
+                                                    <p className="text-gray-500 mt-2 line-clamp-2">{booking.description}</p>
+                                                )}
+                                            </div>
+                                            <div className="mt-4 flex gap-2">
+                                                <Button
+                                                    variant="outline"
+                                                    size="sm"
+                                                    onClick={() => router.push(`/bookings/${booking.id}`)}
+                                                    className="flex-1 rounded-lg"
+                                                >
+                                                    View Details
+                                                </Button>
+                                            </div>
+                                        </CardContent>
+                                    </Card>
+                                ))}
+                            </div>
+                        )}
                     </div>
-                )}
+                </div>
             </div>
-
             {/* Delete Confirmation Dialog */}
             {pendingDeleteId && (
                 <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
