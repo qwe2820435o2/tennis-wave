@@ -5,7 +5,7 @@ import { chatService } from "@/services/chatService";
 import { setConversations, setUnreadCounts } from "@/store/slices/chatSlice";
 import Link from "next/link";
 import { Card } from "@/components/ui/card";
-import { Avatar } from "@/components/ui/avatar";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { RootState } from "@/store";
 import {Button} from "@/components/ui/button";
@@ -37,29 +37,26 @@ export default function ChatListPage() {
                 </Button>
             </div>
 
-            <div className="space-y-2">
+            <div className="space-y-3">
                 {conversations.map(conv => (
-                    <Link key={conv.id} href={`/chat/${conv.id}`}>
-                        <Card className="flex items-center gap-3 p-3 hover:bg-accent transition cursor-pointer">
-                            <Avatar className="w-10 h-10">
-                                <img
-                                    src={conv.otherUserAvatar || "/default-avatar.png"}
-                                    alt="avatar"
-                                    className="w-10 h-10 object-cover rounded-full"
-                                />
+                    <Link key={conv.id} href={`/chat/${conv.id}`} className="block group">
+                        <Card className="flex items-center gap-4 p-4 rounded-xl shadow-sm border border-gray-200 bg-white hover:shadow-lg hover:border-green-400 transition cursor-pointer group-hover:bg-green-50">
+                            <Avatar className="w-12 h-12 ring-2 ring-green-400 shadow">
+                                <AvatarImage src={conv.otherUserAvatar || "/default-avatar.png"} />
+                                <AvatarFallback>{conv.otherUserName?.[0] || "U"}</AvatarFallback>
                             </Avatar>
                             <div className="flex-1 min-w-0">
-                                <div className="font-semibold truncate">{conv.otherUserName}</div>
-                                <div className="text-sm text-muted-foreground truncate">{conv.lastMessage}</div>
+                                <div className="font-semibold text-lg text-gray-900 truncate group-hover:text-green-700">{conv.otherUserName}</div>
+                                <div className="text-sm text-gray-500 truncate mt-1">{conv.lastMessage || <span className="italic text-gray-300">No messages yet</span>}</div>
                             </div>
                             {unreadCounts[conv.id] > 0 && (
-                                <Badge variant="destructive">{unreadCounts[conv.id]}</Badge>
+                                <Badge variant="destructive" className="ml-2 px-2 py-1 rounded-full text-xs font-bold">{unreadCounts[conv.id]}</Badge>
                             )}
                         </Card>
                     </Link>
                 ))}
                 {conversations.length === 0 && (
-                    <div className="text-center text-muted-foreground py-8">No conversations yet.</div>
+                    <div className="text-center text-muted-foreground py-16 text-lg italic">No conversations yet. Start a new chat!</div>
                 )}
             </div>
 

@@ -11,6 +11,7 @@ public class UserDto
     public string? TennisLevel { get; set; }
     public string? PreferredLocation { get; set; }
     public DateTime CreatedAt { get; set; }
+    public string? Bio { get; set; }
 }
 
 public class CreateUserDto
@@ -20,6 +21,7 @@ public class CreateUserDto
     public string? Avatar { get; set; }
     public string? TennisLevel { get; set; }
     public string? PreferredLocation { get; set; }
+    public string? Bio { get; set; }
 }
 
 public class UpdateUserDto
@@ -28,6 +30,7 @@ public class UpdateUserDto
     public string? Avatar { get; set; }
     public string? TennisLevel { get; set; }
     public string? PreferredLocation { get; set; }
+    public string? Bio { get; set; }
 }
 
 public class ChangePasswordDto
