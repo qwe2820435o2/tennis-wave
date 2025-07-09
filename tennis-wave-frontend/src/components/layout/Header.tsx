@@ -8,6 +8,13 @@ import { useDispatch, useSelector } from "react-redux";
 import { clearUser } from "@/store/slices/userSlice";
 import type { RootState } from "@/store";
 import { useState } from "react";
+import {
+    DropdownMenu,
+    DropdownMenuTrigger,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuSeparator
+} from "@/components/ui/dropdown-menu";
 
 export default function Header() {
     const user = useSelector((state: RootState) => state.user);
@@ -44,9 +51,6 @@ export default function Header() {
                         <Link href="/bookings" className="text-gray-600 hover:text-green-600 transition-colors">
                             Find Bookings
                         </Link>
-                        <Link href="/my-bookings" className="text-gray-600 hover:text-green-600 transition-colors">
-                            My Bookings
-                        </Link>
                         <Link href="/partners" className="text-gray-600 hover:text-green-600 transition-colors">
                             Find Partners
                         </Link>
@@ -59,34 +63,39 @@ export default function Header() {
                     {/* User Actions */}
                     <div className="flex items-center space-x-4">
                         {user && user.userId ? (
-                            <div className="relative">
-                                <Button
-                                    variant="ghost"
-                                    className="flex items-center space-x-2"
-                                    onClick={() => setIsMenuOpen(!isMenuOpen)}
-                                >
-                                    <User className="w-4 h-4" />
-                                    <span>{user.userName}</span>
-                                </Button>
-                                {isMenuOpen && (
-                                    <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg border border-gray-200 py-1">
-                                        <Link
-                                            href="/profile"
-                                            className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                                            onClick={() => setIsMenuOpen(false)}
-                                        >
+                            <DropdownMenu>
+                                <DropdownMenuTrigger asChild>
+                                    <Button
+                                        variant="ghost"
+                                        className="flex items-center space-x-2"
+                                    >
+                                        <User className="w-4 h-4" />
+                                        <span>{user.userName}</span>
+                                    </Button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent align="end">
+                                    <DropdownMenuItem asChild>
+                                        <Link href="/profile" className="block w-full text-left">
                                             My Profile
                                         </Link>
+                                    </DropdownMenuItem>
+                                    <DropdownMenuItem asChild>
+                                        <Link href="/my-bookings" className="block w-full text-left">
+                                            My Bookings
+                                        </Link>
+                                    </DropdownMenuItem>
+                                    <DropdownMenuSeparator />
+                                    <DropdownMenuItem asChild>
                                         <button
                                             onClick={handleLogout}
-                                            className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                                            className="w-full text-left flex items-center"
                                         >
                                             <LogOut className="w-4 h-4 inline mr-2" />
                                             Logout
                                         </button>
-                                    </div>
-                                )}
-                            </div>
+                                    </DropdownMenuItem>
+                                </DropdownMenuContent>
+                            </DropdownMenu>
                         ) : (
                             <div className="flex items-center space-x-2">
                                 <Link href="/auth/login">
