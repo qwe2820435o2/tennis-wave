@@ -131,12 +131,10 @@ export default function ChatDetailPage() {
                     className="flex-1 rounded-full bg-gray-50 border border-green-200 focus:border-green-500 focus:ring-green-200 shadow-sm px-4 py-2"
                     value={input}
                     onChange={e => setInput(e.target.value)}
-                    onKeyDown={e => e.key === "Enter" && handleSend()}
                     placeholder="Type a message..."
                 />
                 <Button
                     className="rounded-full bg-gradient-to-r from-green-400 to-green-600 text-white font-bold shadow-md px-6 py-2 hover:from-green-500 hover:to-green-700 transition"
-                    onClick={handleSend}
                     disabled={!input.trim()}
                     type="submit"
                 >
