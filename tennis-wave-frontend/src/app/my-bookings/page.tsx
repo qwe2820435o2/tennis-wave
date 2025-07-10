@@ -43,7 +43,8 @@ export default function MyBookingsPage() {
             dispatch(showLoading());
             const data = await tennisBookingService.getMyBookings();
             setBookings(data);
-        } catch (error) {
+        } catch (error: any) {
+            if (error.isAuthError) return; // 已全局处理，无需重复toast
             console.error("Failed to load bookings:", error);
             toast.error("Failed to load bookings");
         } finally {
@@ -56,7 +57,8 @@ export default function MyBookingsPage() {
             await tennisBookingService.deleteBooking(bookingId);
             toast.success("Booking deleted successfully");
             loadBookings();
-        } catch (error) {
+        } catch (error: any) {
+            if (error.isAuthError) return;
             console.error("Failed to delete booking:", error);
             toast.error("Failed to delete booking");
         }
