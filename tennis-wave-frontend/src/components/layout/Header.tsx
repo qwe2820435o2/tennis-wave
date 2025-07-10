@@ -102,19 +102,18 @@ export default function Header() {
                                         <span>{user.userName}</span>
                                     </Button>
                                 </DropdownMenuTrigger>
-                                <DropdownMenuContent align="end">
-                                    <DropdownMenuItem asChild>
-                                        <Link href="/profile" className="block w-full text-left">
-                                            My Profile
-                                        </Link>
+                                <DropdownMenuContent side="bottom" sideOffset={8} className="rounded-xl shadow-lg border border-gray-100 p-1 min-w-[160px] bg-white">
+                                    <DropdownMenuItem asChild className="flex items-center gap-2 px-4 py-2 rounded-md transition text-sm font-normal cursor-pointer
+                                        hover:bg-green-50 hover:text-green-700 active:bg-green-100 active:text-green-800">
+                                        <Link href="/profile" className="block w-full text-left">My Profile</Link>
                                     </DropdownMenuItem>
-                                    <DropdownMenuItem asChild>
-                                        <Link href="/my-bookings" className="block w-full text-left">
-                                            My Bookings
-                                        </Link>
+                                    <DropdownMenuItem asChild className="flex items-center gap-2 px-4 py-2 rounded-md transition text-sm font-normal cursor-pointer
+                                        hover:bg-green-50 hover:text-green-700 active:bg-green-100 active:text-green-800">
+                                        <Link href="/my-bookings" className="block w-full text-left">My Bookings</Link>
                                     </DropdownMenuItem>
-                                    <DropdownMenuSeparator />
-                                    <DropdownMenuItem asChild>
+                                    <DropdownMenuSeparator className="my-1 bg-gray-100" />
+                                    <DropdownMenuItem asChild className="flex items-center gap-2 px-4 py-2 rounded-md transition text-sm font-normal cursor-pointer
+                                        hover:bg-red-50 hover:text-red-600 active:bg-red-100 active:text-red-800">
                                         <button
                                             onClick={handleLogout}
                                             className="w-full text-left flex items-center"
