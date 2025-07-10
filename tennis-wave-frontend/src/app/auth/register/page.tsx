@@ -84,22 +84,22 @@ export default function RegisterPage() {
     };
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-blue-50 flex items-center justify-center p-4">
+        <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-blue-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 flex items-center justify-center p-4">
             <div className="w-full max-w-md">
                 {/* Title Section */}
                 <div className="text-center mb-8">
-                    <div className="inline-flex items-center justify-center w-16 h-16 bg-green-600 rounded-full mb-4">
+                    <div className="inline-flex items-center justify-center w-16 h-16 bg-green-600 dark:bg-green-500 rounded-full mb-4">
                         <Volleyball className="w-8 h-8 text-white" />
                     </div>
-                    <h1 className="text-3xl font-bold text-gray-900 mb-2">Sign Up</h1>
-                    <p className="text-gray-600">Create your Tennis Wave account</p>
+                    <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">Sign Up</h1>
+                    <p className="text-gray-600 dark:text-gray-300">Create your Tennis Wave account</p>
                 </div>
 
                 {/* Register Card */}
-                <Card className="border-2 border-green-600 shadow-2xl">
+                <Card className="border-2 border-green-600 dark:border-green-500 shadow-2xl bg-white dark:bg-gray-800">
                     <CardHeader className="space-y-1">
-                        <CardTitle className="text-2xl text-center">Create Account</CardTitle>
-                        <CardDescription className="text-center">
+                        <CardTitle className="text-2xl text-center text-gray-900 dark:text-white">Create Account</CardTitle>
+                        <CardDescription className="text-center text-gray-600 dark:text-gray-300">
                             Fill in the information below to register
                         </CardDescription>
                     </CardHeader>
@@ -107,7 +107,7 @@ export default function RegisterPage() {
                         <form onSubmit={handleSubmit} className="space-y-4">
                             {/* User Name Input */}
                             <div className="space-y-2">
-                                <Label htmlFor="userName">User Name</Label>
+                                <Label htmlFor="userName" className="text-gray-700 dark:text-gray-300">User Name</Label>
                                 <Input
                                     id="userName"
                                     name="userName"
@@ -115,12 +115,13 @@ export default function RegisterPage() {
                                     placeholder="Enter your user name"
                                     value={formData.userName}
                                     onChange={handleInputChange}
+                                    className="bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:border-green-500 dark:focus:border-green-400"
                                     required
                                 />
                             </div>
                             {/* Email Input */}
                             <div className="space-y-2">
-                                <Label htmlFor="email">Email</Label>
+                                <Label htmlFor="email" className="text-gray-700 dark:text-gray-300">Email</Label>
                                 <Input
                                     id="email"
                                     name="email"
@@ -128,12 +129,13 @@ export default function RegisterPage() {
                                     placeholder="Enter your email address"
                                     value={formData.email}
                                     onChange={handleInputChange}
+                                    className="bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:border-green-500 dark:focus:border-green-400"
                                     required
                                 />
                             </div>
                             {/* Password Input */}
                             <div className="space-y-2">
-                                <Label htmlFor="password">Password</Label>
+                                <Label htmlFor="password" className="text-gray-700 dark:text-gray-300">Password</Label>
                                 <Input
                                     id="password"
                                     name="password"
@@ -141,12 +143,13 @@ export default function RegisterPage() {
                                     placeholder="Enter your password"
                                     value={formData.password}
                                     onChange={handleInputChange}
+                                    className="bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:border-green-500 dark:focus:border-green-400"
                                     required
                                 />
                             </div>
                             {/* Confirm Password Input */}
                             <div className="space-y-2">
-                                <Label htmlFor="confirmPassword">Confirm Password</Label>
+                                <Label htmlFor="confirmPassword" className="text-gray-700 dark:text-gray-300">Confirm Password</Label>
                                 <Input
                                     id="confirmPassword"
                                     name="confirmPassword"
@@ -154,23 +157,24 @@ export default function RegisterPage() {
                                     placeholder="Confirm your password"
                                     value={formData.confirmPassword}
                                     onChange={handleInputChange}
+                                    className="bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:border-green-500 dark:focus:border-green-400"
                                     required
                                 />
                             </div>
                             {/* Register Button */}
                             <Button
                                 type="submit"
-                                className="w-full bg-green-600 hover:bg-green-700 text-white"
+                                className="w-full bg-green-600 hover:bg-green-700 dark:bg-green-500 dark:hover:bg-green-600 text-white"
                                 disabled={isLoading}
                             >
                                 {isLoading ? "Registering..." : "Sign Up"}
                             </Button>
                             {/* Link to login */}
                             <div className="text-center">
-                                <span className="text-gray-600">Already have an account?</span>
+                                <span className="text-gray-600 dark:text-gray-300">Already have an account?</span>
                                 <Link
                                     href="/auth/login"
-                                    className="ml-1 text-green-600 hover:text-green-700 hover:underline font-medium"
+                                    className="ml-1 text-green-600 dark:text-green-400 hover:text-green-700 dark:hover:text-green-300 hover:underline font-medium"
                                 >
                                     Sign in
                                 </Link>
@@ -179,7 +183,7 @@ export default function RegisterPage() {
                     </CardContent>
                 </Card>
                 {/* Footer */}
-                <div className="text-center mt-8 text-sm text-gray-500">
+                <div className="text-center mt-8 text-sm text-gray-500 dark:text-gray-400">
                     <p>© 2025 Tennis Wave. All rights reserved.</p>
                 </div>
             </div>

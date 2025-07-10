@@ -79,14 +79,14 @@ export default function AdvancedSearchFilter({ onSearch, onReset, statistics }: 
   };
 
   return (
-    <Card className="mb-6">
+    <Card className="mb-6 bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700">
       <CardHeader>
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-2">
-            <Search className="w-5 h-5" />
-            <CardTitle>Search & Filter</CardTitle>
+            <Search className="w-5 h-5 text-gray-600 dark:text-gray-300" />
+            <CardTitle className="text-gray-900 dark:text-white">Search & Filter</CardTitle>
             {getActiveFiltersCount() > 0 && (
-              <Badge variant="secondary">{getActiveFiltersCount()} active</Badge>
+              <Badge variant="secondary" className="bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300">{getActiveFiltersCount()} active</Badge>
             )}
           </div>
           <div className="flex items-center space-x-2">
@@ -94,18 +94,19 @@ export default function AdvancedSearchFilter({ onSearch, onReset, statistics }: 
               variant="outline"
               size="sm"
               onClick={() => setIsExpanded(!isExpanded)}
+              className="border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700"
             >
               <SlidersHorizontal className="w-4 h-4 mr-2" />
               {isExpanded ? "Hide" : "Advanced"}
             </Button>
             {getActiveFiltersCount() > 0 && (
-              <Button variant="ghost" size="sm" onClick={handleReset}>
+              <Button variant="ghost" size="sm" onClick={handleReset} className="text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
                 <X className="w-4 h-4" />
               </Button>
             )}
           </div>
         </div>
-        <CardDescription>
+        <CardDescription className="text-gray-600 dark:text-gray-300">
           Find the perfect tennis booking with advanced filters
         </CardDescription>
       </CardHeader>
@@ -115,21 +116,23 @@ export default function AdvancedSearchFilter({ onSearch, onReset, statistics }: 
         <div className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <Label htmlFor="keyword">Search</Label>
+              <Label htmlFor="keyword" className="text-gray-700 dark:text-gray-300">Search</Label>
               <Input
                 id="keyword"
                 placeholder="Search by title, description, or location..."
                 value={searchDto.keyword || ""}
                 onChange={(e) => handleInputChange("keyword", e.target.value)}
+                className="bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500"
               />
             </div>
             <div>
-              <Label htmlFor="location">Location</Label>
+              <Label htmlFor="location" className="text-gray-700 dark:text-gray-300">Location</Label>
               <Input
                 id="location"
                 placeholder="Enter location..."
                 value={searchDto.location || ""}
                 onChange={(e) => handleInputChange("location", e.target.value)}
+                className="bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500"
               />
             </div>
           </div>
@@ -142,14 +145,18 @@ export default function AdvancedSearchFilter({ onSearch, onReset, statistics }: 
                 variant={searchDto.type === parseInt(type) ? "default" : "outline"}
                 size="sm"
                 onClick={() => handleInputChange("type", searchDto.type === parseInt(type) ? undefined : parseInt(type))}
+                className={searchDto.type === parseInt(type) 
+                  ? "bg-green-600 hover:bg-green-700 dark:bg-green-500 dark:hover:bg-green-600 text-white" 
+                  : "border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700"
+                }
               >
                 {getBookingTypeLabel(parseInt(type) as BookingType)}
-                <Badge variant="secondary" className="ml-2">{count}</Badge>
+                <Badge variant="secondary" className="ml-2 bg-gray-100 dark:bg-gray-600 text-gray-700 dark:text-gray-300">{count}</Badge>
               </Button>
             ))}
           </div>
 
-          <Button onClick={handleSearch} className="w-full">
+          <Button onClick={handleSearch} className="w-full bg-green-600 hover:bg-green-700 dark:bg-green-500 dark:hover:bg-green-600 text-white">
             <Search className="w-4 h-4 mr-2" />
             Search
           </Button>
@@ -158,50 +165,54 @@ export default function AdvancedSearchFilter({ onSearch, onReset, statistics }: 
         {/* Advanced Filters */}
         {isExpanded && (
           <>
-            <Separator className="my-6" />
+            <Separator className="my-6 bg-gray-200 dark:bg-gray-600" />
             
             <div className="space-y-6">
               {/* Time Filters */}
               <div>
-                <h3 className="text-lg font-medium flex items-center mb-4">
+                <h3 className="text-lg font-medium flex items-center mb-4 text-gray-900 dark:text-white">
                   <Calendar className="w-5 h-5 mr-2" />
                   Time & Date
                 </h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <Label htmlFor="startDate">Start Date</Label>
+                    <Label htmlFor="startDate" className="text-gray-700 dark:text-gray-300">Start Date</Label>
                     <Input
                       id="startDate"
                       type="date"
                       value={searchDto.startDate || ""}
                       onChange={(e) => handleInputChange("startDate", e.target.value)}
+                      className="bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white"
                     />
                   </div>
                   <div>
-                    <Label htmlFor="endDate">End Date</Label>
+                    <Label htmlFor="endDate" className="text-gray-700 dark:text-gray-300">End Date</Label>
                     <Input
                       id="endDate"
                       type="date"
                       value={searchDto.endDate || ""}
                       onChange={(e) => handleInputChange("endDate", e.target.value)}
+                      className="bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white"
                     />
                   </div>
                   <div>
-                    <Label htmlFor="startTime">Start Time</Label>
+                    <Label htmlFor="startTime" className="text-gray-700 dark:text-gray-300">Start Time</Label>
                     <Input
                       id="startTime"
                       type="time"
                       value={searchDto.startTime || ""}
                       onChange={(e) => handleInputChange("startTime", e.target.value)}
+                      className="bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white"
                     />
                   </div>
                   <div>
-                    <Label htmlFor="endTime">End Time</Label>
+                    <Label htmlFor="endTime" className="text-gray-700 dark:text-gray-300">End Time</Label>
                     <Input
                       id="endTime"
                       type="time"
                       value={searchDto.endTime || ""}
                       onChange={(e) => handleInputChange("endTime", e.target.value)}
+                      className="bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white"
                     />
                   </div>
                 </div>
@@ -209,21 +220,21 @@ export default function AdvancedSearchFilter({ onSearch, onReset, statistics }: 
 
               {/* Type & Status Filters */}
               <div>
-                <h3 className="text-lg font-medium flex items-center mb-4">
+                <h3 className="text-lg font-medium flex items-center mb-4 text-gray-900 dark:text-white">
                   <Filter className="w-5 h-5 mr-2" />
                   Type & Status
                 </h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <Label htmlFor="type">Booking Type</Label>
+                    <Label htmlFor="type" className="text-gray-700 dark:text-gray-300">Booking Type</Label>
                     <Select 
                       value={searchDto.type !== undefined ? searchDto.type.toString() : "all"} 
                       onValueChange={(value) => handleInputChange("type", value === "all" ? undefined : parseInt(value))}
                     >
-                      <SelectTrigger>
+                      <SelectTrigger className="bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white">
                         <SelectValue placeholder="All types" />
                       </SelectTrigger>
-                      <SelectContent>
+                      <SelectContent className="bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600">
                         <SelectItem value="all">All types</SelectItem>
                         {Object.values(BookingType).filter(v => !isNaN(Number(v))).map(type => (
                           <SelectItem key={type} value={type.toString()}>
@@ -234,15 +245,15 @@ export default function AdvancedSearchFilter({ onSearch, onReset, statistics }: 
                     </Select>
                   </div>
                   <div>
-                    <Label htmlFor="status">Status</Label>
+                    <Label htmlFor="status" className="text-gray-700 dark:text-gray-300">Status</Label>
                     <Select 
                       value={searchDto.status !== undefined ? searchDto.status.toString() : "all"} 
                       onValueChange={(value) => handleInputChange("status", value === "all" ? undefined : parseInt(value))}
                     >
-                      <SelectTrigger>
+                      <SelectTrigger className="bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white">
                         <SelectValue placeholder="All statuses" />
                       </SelectTrigger>
-                      <SelectContent>
+                      <SelectContent className="bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600">
                         <SelectItem value="all">All statuses</SelectItem>
                         {Object.values(BookingStatus).filter(v => !isNaN(Number(v))).map(status => (
                           <SelectItem key={status} value={status.toString()}>
@@ -257,21 +268,21 @@ export default function AdvancedSearchFilter({ onSearch, onReset, statistics }: 
 
               {/* Skill Level Filters */}
               <div>
-                <h3 className="text-lg font-medium flex items-center mb-4">
+                <h3 className="text-lg font-medium flex items-center mb-4 text-gray-900 dark:text-white">
                   <Target className="w-5 h-5 mr-2" />
                   Skill Level
                 </h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <Label htmlFor="minSkill">Minimum Skill Level</Label>
+                    <Label htmlFor="minSkill" className="text-gray-700 dark:text-gray-300">Minimum Skill Level</Label>
                     <Select 
                       value={searchDto.minSkillLevel !== undefined ? searchDto.minSkillLevel.toString() : "all"} 
                       onValueChange={(value) => handleInputChange("minSkillLevel", value === "all" ? undefined : parseInt(value))}
                     >
-                      <SelectTrigger>
+                      <SelectTrigger className="bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white">
                         <SelectValue placeholder="Any level" />
                       </SelectTrigger>
-                      <SelectContent>
+                      <SelectContent className="bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600">
                         <SelectItem value="all">Any level</SelectItem>
                         {Object.values(SkillLevel).filter(v => !isNaN(Number(v))).map(level => (
                           <SelectItem key={level} value={level.toString()}>
@@ -282,15 +293,15 @@ export default function AdvancedSearchFilter({ onSearch, onReset, statistics }: 
                     </Select>
                   </div>
                   <div>
-                    <Label htmlFor="maxSkill">Maximum Skill Level</Label>
+                    <Label htmlFor="maxSkill" className="text-gray-700 dark:text-gray-300">Maximum Skill Level</Label>
                     <Select 
                       value={searchDto.maxSkillLevel !== undefined ? searchDto.maxSkillLevel.toString() : "all"} 
                       onValueChange={(value) => handleInputChange("maxSkillLevel", value === "all" ? undefined : parseInt(value))}
                     >
-                      <SelectTrigger>
+                      <SelectTrigger className="bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white">
                         <SelectValue placeholder="Any level" />
                       </SelectTrigger>
-                      <SelectContent>
+                      <SelectContent className="bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600">
                         <SelectItem value="all">Any level</SelectItem>
                         {Object.values(SkillLevel).filter(v => !isNaN(Number(v))).map(level => (
                           <SelectItem key={level} value={level.toString()}>
@@ -305,13 +316,13 @@ export default function AdvancedSearchFilter({ onSearch, onReset, statistics }: 
 
               {/* Participant Filters */}
               <div>
-                <h3 className="text-lg font-medium flex items-center mb-4">
+                <h3 className="text-lg font-medium flex items-center mb-4 text-gray-900 dark:text-white">
                   <Users className="w-5 h-5 mr-2" />
                   Participants
                 </h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <Label htmlFor="minParticipants">Min Participants</Label>
+                    <Label htmlFor="minParticipants" className="text-gray-700 dark:text-gray-300">Min Participants</Label>
                     <Input
                       id="minParticipants"
                       type="number"
@@ -319,10 +330,11 @@ export default function AdvancedSearchFilter({ onSearch, onReset, statistics }: 
                       placeholder="Any"
                       value={searchDto.minParticipants || ""}
                       onChange={(e) => handleInputChange("minParticipants", e.target.value ? parseInt(e.target.value) : undefined)}
+                      className="bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500"
                     />
                   </div>
                   <div>
-                    <Label htmlFor="maxParticipants">Max Participants</Label>
+                    <Label htmlFor="maxParticipants" className="text-gray-700 dark:text-gray-300">Max Participants</Label>
                     <Input
                       id="maxParticipants"
                       type="number"
@@ -330,6 +342,7 @@ export default function AdvancedSearchFilter({ onSearch, onReset, statistics }: 
                       placeholder="Any"
                       value={searchDto.maxParticipants || ""}
                       onChange={(e) => handleInputChange("maxParticipants", e.target.value ? parseInt(e.target.value) : undefined)}
+                      className="bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500"
                     />
                   </div>
                 </div>
@@ -337,7 +350,7 @@ export default function AdvancedSearchFilter({ onSearch, onReset, statistics }: 
 
               {/* Additional Filters */}
               <div>
-                <h3 className="text-lg font-medium flex items-center mb-4">
+                <h3 className="text-lg font-medium flex items-center mb-4 text-gray-900 dark:text-white">
                   <Clock className="w-5 h-5 mr-2" />
                   Additional Filters
                 </h3>
@@ -348,7 +361,7 @@ export default function AdvancedSearchFilter({ onSearch, onReset, statistics }: 
                       checked={searchDto.hasAvailableSlots || false}
                       onCheckedChange={(checked) => handleInputChange("hasAvailableSlots", checked)}
                     />
-                    <Label htmlFor="hasAvailableSlots">Only show bookings with available slots</Label>
+                    <Label htmlFor="hasAvailableSlots" className="text-gray-700 dark:text-gray-300">Only show bookings with available slots</Label>
                   </div>
                   <div className="flex items-center space-x-2">
                     <Switch
@@ -356,25 +369,25 @@ export default function AdvancedSearchFilter({ onSearch, onReset, statistics }: 
                       checked={searchDto.isFlexible || false}
                       onCheckedChange={(checked) => handleInputChange("isFlexible", checked)}
                     />
-                    <Label htmlFor="isFlexible">Only show flexible time bookings</Label>
+                    <Label htmlFor="isFlexible" className="text-gray-700 dark:text-gray-300">Only show flexible time bookings</Label>
                   </div>
                 </div>
               </div>
 
               {/* Sort Options */}
               <div>
-                <h3 className="text-lg font-medium mb-4">Sort By</h3>
+                <h3 className="text-lg font-medium mb-4 text-gray-900 dark:text-white">Sort By</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <Label htmlFor="sortBy">Sort Field</Label>
+                    <Label htmlFor="sortBy" className="text-gray-700 dark:text-gray-300">Sort Field</Label>
                     <Select 
                       value={searchDto.sortBy || "all"} 
                       onValueChange={(value) => handleInputChange("sortBy", value === "all" ? undefined : value)}
                     >
-                      <SelectTrigger>
+                      <SelectTrigger className="bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white">
                         <SelectValue placeholder="Created date" />
                       </SelectTrigger>
-                      <SelectContent>
+                      <SelectContent className="bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600">
                         <SelectItem value="all">Created date</SelectItem>
                         <SelectItem value="time">Booking time</SelectItem>
                         <SelectItem value="distance">Distance</SelectItem>
@@ -384,15 +397,15 @@ export default function AdvancedSearchFilter({ onSearch, onReset, statistics }: 
                     </Select>
                   </div>
                   <div>
-                    <Label htmlFor="sortOrder">Sort Order</Label>
+                    <Label htmlFor="sortOrder" className="text-gray-700 dark:text-gray-300">Sort Order</Label>
                     <Select 
                       value={searchDto.sortDescending ? "desc" : "asc"} 
                       onValueChange={(value) => handleInputChange("sortDescending", value === "desc")}
                     >
-                      <SelectTrigger>
+                      <SelectTrigger className="bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white">
                         <SelectValue />
                       </SelectTrigger>
-                      <SelectContent>
+                      <SelectContent className="bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600">
                         <SelectItem value="asc">Ascending</SelectItem>
                         <SelectItem value="desc">Descending</SelectItem>
                       </SelectContent>

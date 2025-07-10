@@ -95,22 +95,22 @@ export default function LoginPage() {
     };
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-blue-50 flex items-center justify-center p-4">
+        <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-blue-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 flex items-center justify-center p-4">
             <div className="w-full max-w-md">
                 {/* Logo and Title Section */}
                 <div className="text-center mb-8">
-                    <div className="inline-flex items-center justify-center w-16 h-16 bg-green-600 rounded-full mb-4">
+                    <div className="inline-flex items-center justify-center w-16 h-16 bg-green-600 dark:bg-green-500 rounded-full mb-4">
                         <Volleyball className="w-8 h-8 text-white" />
                     </div>
-                    <h1 className="text-3xl font-bold text-gray-900 mb-2">Tennis Wave</h1>
-                    <p className="text-gray-600">Connect with tennis enthusiasts, start your tennis journey</p>
+                    <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">Tennis Wave</h1>
+                    <p className="text-gray-600 dark:text-gray-300">Connect with tennis enthusiasts, start your tennis journey</p>
                 </div>
 
                 {/* Login Card */}
-                <Card className="border-2 border-b-green-300 shadow-2xl">
+                <Card className="border-2 border-b-green-300 dark:border-green-600 shadow-2xl bg-white dark:bg-gray-800">
                     <CardHeader className="space-y-1">
-                        <CardTitle className="text-2xl text-center">Welcome Back</CardTitle>
-                        <CardDescription className="text-center">
+                        <CardTitle className="text-2xl text-center text-gray-900 dark:text-white">Welcome Back</CardTitle>
+                        <CardDescription className="text-center text-gray-600 dark:text-gray-300">
                             Enter your email and password to sign in to your account
                         </CardDescription>
                     </CardHeader>
@@ -118,9 +118,9 @@ export default function LoginPage() {
                         <form onSubmit={handleSubmit} className="space-y-4">
                             {/* Email Input */}
                             <div className="space-y-2">
-                                <Label htmlFor="email">Email</Label>
+                                <Label htmlFor="email" className="text-gray-700 dark:text-gray-300">Email</Label>
                                 <div className="relative">
-                                    <Mail className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                                    <Mail className="absolute left-3 top-3 h-4 w-4 text-gray-400 dark:text-gray-500" />
                                     <Input
                                         id="email"
                                         name="email"
@@ -128,7 +128,7 @@ export default function LoginPage() {
                                         placeholder="Enter your email address"
                                         value={formData.email}
                                         onChange={handleInputChange}
-                                        className="pl-10"
+                                        className="pl-10 bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:border-green-500 dark:focus:border-green-400"
                                         required
                                     />
                                 </div>
@@ -136,9 +136,9 @@ export default function LoginPage() {
 
                             {/* Password Input */}
                             <div className="space-y-2">
-                                <Label htmlFor="password">Password</Label>
+                                <Label htmlFor="password" className="text-gray-700 dark:text-gray-300">Password</Label>
                                 <div className="relative">
-                                    <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                                    <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-400 dark:text-gray-500" />
                                     <Input
                                         id="password"
                                         name="password"
@@ -146,20 +146,20 @@ export default function LoginPage() {
                                         placeholder="Enter your password"
                                         value={formData.password}
                                         onChange={handleInputChange}
-                                        className="pl-10 pr-10"
+                                        className="pl-10 pr-10 bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:border-green-500 dark:focus:border-green-400"
                                         required
                                     />
                                     <Button
                                         type="button"
                                         variant="ghost"
                                         size="sm"
-                                        className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                                        className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300"
                                         onClick={() => setShowPassword(!showPassword)}
                                     >
                                         {showPassword ? (
-                                            <EyeOff className="h-4 w-4 text-gray-400" />
+                                            <EyeOff className="h-4 w-4" />
                                         ) : (
-                                            <Eye className="h-4 w-4 text-gray-400" />
+                                            <Eye className="h-4 w-4" />
                                         )}
                                     </Button>
                                 </div>
@@ -171,17 +171,17 @@ export default function LoginPage() {
                                     <input
                                         type="checkbox"
                                         id="remember"
-                                        className="rounded border-gray-300 text-green-600 focus:ring-green-500"
+                                        className="rounded border-gray-300 dark:border-gray-600 text-green-600 dark:text-green-400 focus:ring-green-500 dark:focus:ring-green-400 bg-white dark:bg-gray-700"
                                         checked={rememberMe}
                                         onChange={e => setRememberMe(e.target.checked)}
                                     />
-                                    <Label htmlFor="remember" className="text-sm text-gray-600">
+                                    <Label htmlFor="remember" className="text-sm text-gray-600 dark:text-gray-300">
                                         Remember me
                                     </Label>
                                 </div>
                                 <Link
                                     href="/auth/forgot-password"
-                                    className="text-sm text-green-600 hover:text-green-700 hover:underline"
+                                    className="text-sm text-green-600 dark:text-green-400 hover:text-green-700 dark:hover:text-green-300 hover:underline"
                                 >
                                     Forgot password?
                                 </Link>
@@ -190,7 +190,7 @@ export default function LoginPage() {
                             {/* Login Button */}
                             <Button
                                 type="submit"
-                                className="w-full bg-green-600 hover:bg-green-700 text-white"
+                                className="w-full bg-green-600 hover:bg-green-700 dark:bg-green-500 dark:hover:bg-green-600 text-white"
                                 disabled={isLoading}
                             >
                                 {isLoading ? (
@@ -206,19 +206,19 @@ export default function LoginPage() {
                             {/* Divider */}
                             <div className="relative my-6">
                                 <div className="absolute inset-0 flex items-center">
-                                    <span className="w-full border-t border-gray-300" />
+                                    <span className="w-full border-t border-gray-300 dark:border-gray-600" />
                                 </div>
                                 <div className="relative flex justify-center text-xs uppercase">
-                                    <span className="bg-white px-2 text-gray-500">Or continue with</span>
+                                    <span className="bg-white dark:bg-gray-800 px-2 text-gray-500 dark:text-gray-400">Or continue with</span>
                                 </div>
                             </div>
 
                             {/* Register Link */}
                             <div className="text-center">
-                                <span className="text-gray-600">Do not have an account?</span>
+                                <span className="text-gray-600 dark:text-gray-300">Do not have an account?</span>
                                 <Link
                                     href="/auth/register"
-                                    className="ml-1 text-green-600 hover:text-green-700 hover:underline font-medium"
+                                    className="ml-1 text-green-600 dark:text-green-400 hover:text-green-700 dark:hover:text-green-300 hover:underline font-medium"
                                 >
                                     Sign up now
                                 </Link>
@@ -228,7 +228,7 @@ export default function LoginPage() {
                 </Card>
 
                 {/* Footer */}
-                <div className="text-center mt-8 text-sm text-gray-500">
+                <div className="text-center mt-8 text-sm text-gray-500 dark:text-gray-400">
                     <p>© 2025 Tennis Wave. All rights reserved.</p>
                 </div>
             </div>

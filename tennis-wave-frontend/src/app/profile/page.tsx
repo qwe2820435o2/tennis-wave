@@ -85,11 +85,11 @@ export default function ProfilePage() {
     }
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-green-50 via-white to-blue-50 p-4">
+        <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-green-50 via-white to-blue-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 p-4">
             <div className="w-full max-w-xl">
-                <Card className="border-2 border-green-600 rounded-2xl shadow-lg p-8">
+                <Card className="border-2 border-green-600 dark:border-green-500 rounded-2xl shadow-lg p-8 bg-white dark:bg-gray-900">
                     <CardHeader>
-                        <CardTitle className="text-2xl text-center text-green-700 font-bold">My Profile</CardTitle>
+                        <CardTitle className="text-2xl text-center text-green-700 dark:text-green-400 font-bold">My Profile</CardTitle>
                     </CardHeader>
                     <CardContent>
                         <form className="space-y-6" onSubmit={e => { e.preventDefault(); handleSave(); }}>
@@ -98,69 +98,69 @@ export default function ProfilePage() {
                                 <img
                                     src={profile.avatar || "/default-avatar.png"}
                                     alt="Avatar"
-                                    className="w-24 h-24 rounded-full object-cover border-4 border-green-400 shadow-lg"
+                                    className="w-24 h-24 rounded-full object-cover border-4 border-green-400 dark:border-green-500 shadow-lg"
                                 />
                             </div>
                             {/* UserName */}
                             <div>
-                                <Label htmlFor="userName">User Name</Label>
+                                <Label htmlFor="userName" className="text-gray-700 dark:text-gray-300">User Name</Label>
                                 <Input
                                     id="userName"
                                     name="userName"
                                     value={formData.userName || ""}
                                     onChange={handleInputChange}
                                     required
-                                    className="rounded-lg"
+                                    className="rounded-lg bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white"
                                 />
                             </div>
                             {/* Email */}
                             <div>
-                                <Label htmlFor="email">Email</Label>
+                                <Label htmlFor="email" className="text-gray-700 dark:text-gray-300">Email</Label>
                                 <Input
                                     id="email"
                                     name="email"
                                     value={formData.email || ""}
                                     disabled
-                                    className="rounded-lg"
+                                    className="rounded-lg bg-gray-100 dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-500 dark:text-gray-400"
                                 />
                             </div>
                             {/* Tennis Level */}
                             <div>
-                                <Label htmlFor="tennisLevel">Tennis Level</Label>
+                                <Label htmlFor="tennisLevel" className="text-gray-700 dark:text-gray-300">Tennis Level</Label>
                                 <Input
                                     id="tennisLevel"
                                     name="tennisLevel"
                                     value={formData.tennisLevel || ""}
                                     onChange={handleInputChange}
                                     placeholder="Beginner / Intermediate / Advanced"
-                                    className="rounded-lg"
+                                    className="rounded-lg bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500"
                                 />
                             </div>
                             {/* Preferred Location */}
                             <div>
-                                <Label htmlFor="preferredLocation">Preferred Location</Label>
+                                <Label htmlFor="preferredLocation" className="text-gray-700 dark:text-gray-300">Preferred Location</Label>
                                 <Input
                                     id="preferredLocation"
                                     name="preferredLocation"
                                     value={formData.preferredLocation || ""}
                                     onChange={handleInputChange}
-                                    className="rounded-lg"
+                                    className="rounded-lg bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white"
                                 />
                             </div>
                             {/* Bio */}
                             <div>
-                                <Label htmlFor="bio">Bio</Label>
+                                <Label htmlFor="bio" className="text-gray-700 dark:text-gray-300">Bio</Label>
                                 <textarea
                                     id="bio"
                                     name="bio"
                                     value={formData.bio || ""}
                                     onChange={handleInputChange}
-                                    className="w-full border rounded-lg p-2 min-h-[60px]"
+                                    className="w-full border border-gray-300 dark:border-gray-600 rounded-lg p-2 min-h-[60px] bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500"
                                 />
                             </div>
                             {/* CreatedAt */}
                             <div>
-                                <Label>Registered At</Label>
+                                <Label className="text-gray-700 dark:text-gray-300">Registered At</Label>
                                 <Input
                                     value={
                                         profile.createdAt
@@ -168,15 +168,15 @@ export default function ProfilePage() {
                                             : ""
                                     }
                                     disabled
-                                    className="rounded-lg"
+                                    className="rounded-lg bg-gray-100 dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-500 dark:text-gray-400"
                                 />
                             </div>
                             {/* Save Buttons */}
                             <div className="flex justify-end gap-2 mt-4">
-                                <Button type="submit" disabled={isLoading} className="bg-green-600 hover:bg-green-700 rounded-lg shadow font-bold px-6">
+                                <Button type="submit" disabled={isLoading} className="bg-green-600 hover:bg-green-700 dark:bg-green-500 dark:hover:bg-green-600 rounded-lg shadow font-bold px-6 text-white">
                                     {isLoading ? "Saving..." : "Save"}
                                 </Button>
-                                <Button type="button" variant="outline" onClick={() => setFormData(profile)} className="rounded-lg px-6">
+                                <Button type="button" variant="outline" onClick={() => setFormData(profile)} className="rounded-lg px-6 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800">
                                     Cancel
                                 </Button>
                             </div>
