@@ -22,6 +22,7 @@ export default function LoginPage() {
         email: "",
         password: "",
     });
+    const [rememberMe, setRememberMe] = useState(false);
 
     const router = useRouter();
     const dispatch = useDispatch();
@@ -43,12 +44,21 @@ export default function LoginPage() {
         try {
             const result = await login(formData);
             // Store token and user info
-            localStorage.setItem("token", result.token);
-            localStorage.setItem("user", JSON.stringify({
-                userId: result.userId,
-                userName: result.userName,
-                email: result.email
-            }));
+            if (rememberMe) {
+                localStorage.setItem("token", result.token);
+                localStorage.setItem("user", JSON.stringify({
+                    userId: result.userId,
+                    userName: result.userName,
+                    email: result.email
+                }));
+            } else {
+                sessionStorage.setItem("token", result.token);
+                sessionStorage.setItem("user", JSON.stringify({
+                    userId: result.userId,
+                    userName: result.userName,
+                    email: result.email
+                }));
+            }
             toast.success("Login Successful", {
                 description: `Welcome back, ${result.userName}!`,
             });
@@ -162,6 +172,8 @@ export default function LoginPage() {
                                         type="checkbox"
                                         id="remember"
                                         className="rounded border-gray-300 text-green-600 focus:ring-green-500"
+                                        checked={rememberMe}
+                                        onChange={e => setRememberMe(e.target.checked)}
                                     />
                                     <Label htmlFor="remember" className="text-sm text-gray-600">
                                         Remember me

@@ -11,8 +11,8 @@ export default function UserBootstrap() {
     const user = useSelector((state: RootState) => state.user);
 
     useEffect(() => {
-        const userStr = localStorage.getItem("user");
-        const token = localStorage.getItem("token");
+        const userStr = sessionStorage.getItem("user") || localStorage.getItem("user");
+        const token = sessionStorage.getItem("token") || localStorage.getItem("token");
         if (userStr && token) {
             try {
                 const userObj = JSON.parse(userStr);

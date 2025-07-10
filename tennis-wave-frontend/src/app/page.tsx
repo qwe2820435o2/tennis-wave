@@ -16,13 +16,15 @@ export default function HomePage() {
   const [user, setUser] = useState<User | null>(null);
 
   useEffect(() => {
-    const userStr = localStorage.getItem("user");
+    const userStr = sessionStorage.getItem("user") || localStorage.getItem("user");
     if (userStr) {
       try {
         setUser(JSON.parse(userStr));
       } catch {
         localStorage.removeItem("user");
         localStorage.removeItem("token");
+        sessionStorage.removeItem("user");
+        sessionStorage.removeItem("token");
       }
     }
   }, []);

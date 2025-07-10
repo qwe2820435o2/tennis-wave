@@ -23,7 +23,7 @@ export default function ProfilePage() {
         async function fetchProfile() {
             try {
                 dispatch(showLoading());
-                const userStr = localStorage.getItem("user");
+                const userStr = sessionStorage.getItem("user") || localStorage.getItem("user");
                 const user = userStr ? JSON.parse(userStr) : null;
                 const userId = user?.userId;
                 if (!userId) return;
@@ -58,7 +58,7 @@ export default function ProfilePage() {
         setIsLoading(true);
         dispatch(showLoading());
         try {
-            const userStr = localStorage.getItem("user");
+            const userStr = sessionStorage.getItem("user") || localStorage.getItem("user");
             const user = userStr ? JSON.parse(userStr) : null;
             const userId = user?.userId;
             if (!userId) return;
