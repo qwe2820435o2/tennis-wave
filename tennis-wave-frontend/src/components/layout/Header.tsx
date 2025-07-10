@@ -29,6 +29,8 @@ export default function Header() {
     const handleLogout = () => {
         localStorage.removeItem("user");
         localStorage.removeItem("token");
+        sessionStorage.removeItem("user");
+        sessionStorage.removeItem("token");
         dispatch(clearUser());
         toast.success("Logged out successfully");
         window.location.href = "/";
