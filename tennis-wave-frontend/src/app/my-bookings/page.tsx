@@ -103,7 +103,7 @@ export default function MyBookingsPage() {
                             <Button
                                 variant="outline"
                                 size="sm"
-                                onClick={() => router.push(`/bookings/${booking.id}`)}
+                                onClick={() => router.push(`/bookings/${booking.id}?edit=1`)}
                             >
                                 <Edit className="w-4 h-4" />
                             </Button>
@@ -204,7 +204,7 @@ export default function MyBookingsPage() {
                                                     <Button
                                                         variant="outline"
                                                         size="sm"
-                                                        onClick={() => router.push(`/bookings/${booking.id}`)}
+                                                        onClick={() => router.push(`/bookings/${booking.id}?edit=1`)}
                                                         className="rounded-lg"
                                                     >
                                                         <Edit className="w-4 h-4" />

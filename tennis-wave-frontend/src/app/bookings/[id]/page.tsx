@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -36,6 +36,7 @@ import { Clock } from "lucide-react";
 
 export default function BookingDetailPage() {
   const params = useParams();
+  const searchParams = useSearchParams();
   const router = useRouter();
   const dispatch = useDispatch();
   const { userId } = useSelector((state: RootState) => state.user);
@@ -52,12 +53,23 @@ export default function BookingDetailPage() {
 
   const bookingId = parseInt(params.id as string);
 
+  const isCreator = booking?.creatorId === userId;
+  const isParticipant = booking?.participants.some(p => p.userId === userId);
+
   useEffect(() => {
     if (bookingId) {
       loadBooking();
       loadRequests();
     }
   }, [bookingId]);
+
+  // 自动进入编辑模式
+  useEffect(() => {
+    if (searchParams.get("edit") === "1" && isCreator && booking) {
+      setIsEditing(true);
+      setEditFormData({ ...booking });
+    }
+  }, [searchParams, isCreator, booking]);
 
   const loadBooking = async () => {
     try {
@@ -196,8 +208,6 @@ export default function BookingDetailPage() {
     });
   };
 
-  const isCreator = booking?.creatorId === userId;
-  const isParticipant = booking?.participants.some(p => p.userId === userId);
   const canJoin = !isCreator && !isParticipant && (booking?.currentParticipants ?? 0) < (booking?.maxParticipants ?? 0);
 
   const handleEditInputChange = (field: keyof CreateBookingDto, value: string | number | boolean | undefined) => {
