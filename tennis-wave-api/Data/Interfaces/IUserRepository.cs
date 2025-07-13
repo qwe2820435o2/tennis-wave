@@ -18,4 +18,9 @@ public interface IUserRepository
     Task<bool> IsEmailUniqueAsync(string email, int? excludeUserId = null);
     Task<bool> IsUserNameUniqueAsync(string userName, int? excludeUserId = null);
     Task<List<User>> SearchUsersAsync(string query, int excludeUserId);
+    
+    // Pagination methods
+    Task<(List<User> Users, int TotalCount)> GetUsersWithPaginationAsync(int page, int pageSize, string? sortBy = null, bool sortDescending = false);
+    Task<(List<User> Users, int TotalCount)> SearchUsersWithPaginationAsync(string? keyword, string? tennisLevel, string? preferredLocation, int? excludeUserId, int page, int pageSize, string? sortBy = null, bool sortDescending = false);
+    Task<(List<User> Users, int TotalCount)> GetRecommendedPartnersWithPaginationAsync(int userId, int page, int pageSize);
 }

@@ -113,61 +113,23 @@ public class TennisBookingService : ITennisBookingService
             HasPreviousPage = searchDto.Page > 1
         };
 
-        // Get statistics for filters
+        // Add statistics
         var stats = await _bookingRepository.GetBookingStatisticsAsync();
-        result.TypeCounts = (Dictionary<string, int>)stats["TypeCounts"];
-        result.StatusCounts = (Dictionary<string, int>)stats["StatusCounts"];
-        result.SkillLevelCounts = (Dictionary<string, int>)stats["SkillLevelCounts"];
-        result.AvailableLocations = (List<string>)stats["AvailableLocations"];
+        result.TypeCounts = stats.ContainsKey("typeStats") ? (Dictionary<string, int>)stats["typeStats"] : new Dictionary<string, int>();
+        result.StatusCounts = stats.ContainsKey("statusStats") ? (Dictionary<string, int>)stats["statusStats"] : new Dictionary<string, int>();
+        result.SkillLevelCounts = stats.ContainsKey("skillLevelStats") ? (Dictionary<string, int>)stats["skillLevelStats"] : new Dictionary<string, int>();
+        result.AvailableLocations = stats.ContainsKey("availableLocations") ? (List<string>)stats["availableLocations"] : new List<string>();
 
         return result;
     }
 
-    /// <summary>
-    /// Get booking statistics for search filters
-    /// </summary>
-    public async Task<Dictionary<string, object>> GetBookingStatisticsAsync()
-    {
-        return await _bookingRepository.GetBookingStatisticsAsync();
-    }
-
     public async Task<TennisBookingDto> CreateBookingAsync(CreateBookingDto dto, int userId)
     {
-        // Validate user exists
-        var user = await _userRepository.GetUserByIdAsync(userId);
-        if (user == null)
-            throw new BusinessException("User not found");
-
-        // Validate booking time is in the future
-        if (dto.BookingTime <= DateTime.UtcNow)
-            throw new BusinessException("Booking time must be in the future");
-
-        // Validate max participants
-        if (dto.MaxParticipants < 1)
-            throw new BusinessException("Max participants must be at least 1");
-
-        // Validate skill levels
-        if (dto.MinSkillLevel > dto.MaxSkillLevel)
-            throw new BusinessException("Min skill level cannot be higher than max skill level");
-
-        // Use AutoMapper to map DTO to entity
         var booking = _mapper.Map<TennisBooking>(dto);
-        
-        // Set additional properties that are not in the DTO
-        booking.Status = BookingStatus.Pending;
-        booking.CurrentParticipants = 1; // Creator automatically joins
         booking.CreatorId = userId;
+        booking.Status = BookingStatus.Pending;
+        booking.CurrentParticipants = 1;
         booking.CreatedAt = DateTime.UtcNow;
-
-        // Creator automatically becomes a confirmed participant
-        booking.Participants.Add(new BookingParticipant
-        {
-            BookingId = booking.Id,
-            UserId = userId,
-            Status = ParticipantStatus.Confirmed,
-            JoinedAt = DateTime.UtcNow,
-            ConfirmedAt = DateTime.UtcNow
-        });
 
         var createdBooking = await _bookingRepository.CreateAsync(booking);
         return _mapper.Map<TennisBookingDto>(createdBooking);
@@ -177,26 +139,12 @@ public class TennisBookingService : ITennisBookingService
     {
         var booking = await _bookingRepository.GetByIdAsync(id);
         if (booking == null)
-            throw new BusinessException("Booking not found");
+            throw new BusinessException("Booking not found", "BOOKING_NOT_FOUND");
 
         if (booking.CreatorId != userId)
-            throw new BusinessException("Only the creator can update this booking");
+            throw new BusinessException("You can only update your own bookings", "UNAUTHORIZED");
 
-        if (booking.Status != BookingStatus.Pending)
-            throw new BusinessException("Cannot update booking that is not pending");
-
-        // Validate booking time if provided
-        if (dto.BookingTime.HasValue && dto.BookingTime.Value <= DateTime.UtcNow)
-            throw new BusinessException("Booking time must be in the future");
-
-        // Validate max participants if provided
-        if (dto.MaxParticipants.HasValue && dto.MaxParticipants.Value < booking.CurrentParticipants)
-            throw new BusinessException("Max participants cannot be less than current participants");
-
-        // Use AutoMapper to update the booking entity
         _mapper.Map(dto, booking);
-        
-        // Set updated timestamp
         booking.UpdatedAt = DateTime.UtcNow;
 
         var updatedBooking = await _bookingRepository.UpdateAsync(booking);
@@ -210,10 +158,7 @@ public class TennisBookingService : ITennisBookingService
             return false;
 
         if (booking.CreatorId != userId)
-            throw new BusinessException("Only the creator can delete this booking");
-
-        if (booking.Status != BookingStatus.Pending)
-            throw new BusinessException("Cannot delete booking that is not pending");
+            throw new BusinessException("You can only delete your own bookings", "UNAUTHORIZED");
 
         return await _bookingRepository.DeleteAsync(id);
     }
@@ -222,29 +167,27 @@ public class TennisBookingService : ITennisBookingService
     {
         var booking = await _bookingRepository.GetByIdAsync(bookingId);
         if (booking == null)
-            throw new BusinessException("Booking not found");
-
-        if (booking.Status != BookingStatus.Pending)
-            throw new BusinessException("Booking is not available for joining");
-
-        if (booking.CurrentParticipants >= booking.MaxParticipants)
-            throw new BusinessException("Booking is full");
+            return false;
 
         if (booking.CreatorId == userId)
-            throw new BusinessException("Creator is already a participant");
+            throw new BusinessException("You cannot join your own booking", "CANNOT_JOIN_OWN_BOOKING");
 
-        // Check if user is already a participant
+        if (booking.Status != BookingStatus.Pending)
+            throw new BusinessException("Booking is not available for joining", "BOOKING_NOT_AVAILABLE");
+
+        if (booking.CurrentParticipants >= booking.MaxParticipants)
+            throw new BusinessException("Booking is full", "BOOKING_FULL");
+
         var existingParticipant = await _bookingRepository.GetParticipantAsync(bookingId, userId);
         if (existingParticipant != null)
-            throw new BusinessException("You are already a participant");
+            throw new BusinessException("You are already a participant", "ALREADY_PARTICIPANT");
 
         var participant = new BookingParticipant
         {
             BookingId = bookingId,
             UserId = userId,
-            Status = ParticipantStatus.Confirmed,
-            JoinedAt = DateTime.UtcNow,
-            ConfirmedAt = DateTime.UtcNow
+            Status = ParticipantStatus.Pending,
+            JoinedAt = DateTime.UtcNow
         };
 
         await _bookingRepository.AddParticipantAsync(participant);
@@ -258,93 +201,72 @@ public class TennisBookingService : ITennisBookingService
 
     public async Task<bool> LeaveBookingAsync(int bookingId, int userId)
     {
-        var booking = await _bookingRepository.GetByIdAsync(bookingId);
-        if (booking == null)
-            throw new BusinessException("Booking not found");
-
-        if (booking.CreatorId == userId)
-            throw new BusinessException("Creator cannot leave their own booking");
-
         var participant = await _bookingRepository.GetParticipantAsync(bookingId, userId);
         if (participant == null)
-            throw new BusinessException("You are not a participant of this booking");
+            return false;
 
-        var success = await _bookingRepository.RemoveParticipantAsync(bookingId, userId);
-        if (success)
+        await _bookingRepository.RemoveParticipantAsync(bookingId, userId);
+
+        // Update booking participant count
+        var booking = await _bookingRepository.GetByIdAsync(bookingId);
+        if (booking != null)
         {
-            // Update booking participant count
             booking.CurrentParticipants--;
             await _bookingRepository.UpdateAsync(booking);
         }
 
-        return success;
+        return true;
     }
 
     public async Task<bool> ConfirmParticipantAsync(int bookingId, int participantId, int creatorId)
     {
         var booking = await _bookingRepository.GetByIdAsync(bookingId);
-        if (booking == null)
-            throw new BusinessException("Booking not found");
-
-        if (booking.CreatorId != creatorId)
-            throw new BusinessException("Only the creator can confirm participants");
+        if (booking == null || booking.CreatorId != creatorId)
+            return false;
 
         var participant = await _bookingRepository.GetParticipantAsync(bookingId, participantId);
         if (participant == null)
-            throw new BusinessException("Participant not found");
+            return false;
 
         participant.Status = ParticipantStatus.Confirmed;
         participant.ConfirmedAt = DateTime.UtcNow;
-
         await _bookingRepository.UpdateParticipantAsync(participant);
+
         return true;
     }
 
     public async Task<bool> DeclineParticipantAsync(int bookingId, int participantId, int creatorId)
     {
         var booking = await _bookingRepository.GetByIdAsync(bookingId);
-        if (booking == null)
-            throw new BusinessException("Booking not found");
-
-        if (booking.CreatorId != creatorId)
-            throw new BusinessException("Only the creator can decline participants");
+        if (booking == null || booking.CreatorId != creatorId)
+            return false;
 
         var participant = await _bookingRepository.GetParticipantAsync(bookingId, participantId);
         if (participant == null)
-            throw new BusinessException("Participant not found");
+            return false;
 
-        var success = await _bookingRepository.RemoveParticipantAsync(bookingId, participantId);
-        if (success)
-        {
-            // Update booking participant count
-            booking.CurrentParticipants--;
-            await _bookingRepository.UpdateAsync(booking);
-        }
+        participant.Status = ParticipantStatus.Declined;
+        await _bookingRepository.UpdateParticipantAsync(participant);
 
-        return success;
+        // Update booking participant count
+        booking.CurrentParticipants--;
+        await _bookingRepository.UpdateAsync(booking);
+
+        return true;
     }
 
     public async Task<bool> RequestToJoinAsync(int bookingId, int userId, string message)
     {
         var booking = await _bookingRepository.GetByIdAsync(bookingId);
         if (booking == null)
-            throw new BusinessException("Booking not found");
-
-        if (booking.Status != BookingStatus.Pending)
-            throw new BusinessException("Booking is not available for requests");
+            return false;
 
         if (booking.CreatorId == userId)
-            throw new BusinessException("Creator cannot request to join their own booking");
+            throw new BusinessException("You cannot request to join your own booking", "CANNOT_REQUEST_OWN_BOOKING");
 
-        // Check if user is already a participant
-        var existingParticipant = await _bookingRepository.GetParticipantAsync(bookingId, userId);
-        if (existingParticipant != null)
-            throw new BusinessException("You are already a participant");
-
-        // Check if user already has a pending request
-        var existingRequests = await _bookingRepository.GetRequestsByRequesterIdAsync(userId);
-        if (existingRequests.Any(r => r.BookingId == bookingId && r.Status == RequestStatus.Pending))
-            throw new BusinessException("You already have a pending request for this booking");
+        var existingRequest = await _bookingRepository.GetRequestsByBookingIdAsync(bookingId);
+        if (existingRequest.Any(r => r.RequesterId == userId && r.Status == RequestStatus.Pending))
+            throw new BusinessException("You already have a pending request for this booking", "REQUEST_ALREADY_EXISTS");
 
         var request = new BookingRequest
         {
@@ -363,17 +285,11 @@ public class TennisBookingService : ITennisBookingService
     {
         var request = await _bookingRepository.GetRequestAsync(requestId);
         if (request == null)
-            throw new BusinessException("Request not found");
+            return false;
 
         var booking = await _bookingRepository.GetByIdAsync(request.BookingId);
-        if (booking == null)
-            throw new BusinessException("Booking not found");
-
-        if (booking.CreatorId != userId)
-            throw new BusinessException("Only the creator can respond to requests");
-
-        if (request.Status != RequestStatus.Pending)
-            throw new BusinessException("Request has already been processed");
+        if (booking == null || booking.CreatorId != userId)
+            return false;
 
         request.Status = status;
         request.ResponseMessage = responseMessage;
@@ -381,26 +297,9 @@ public class TennisBookingService : ITennisBookingService
 
         await _bookingRepository.UpdateRequestAsync(request);
 
-        // If accepted, add user as participant
         if (status == RequestStatus.Accepted)
         {
-            if (booking.CurrentParticipants >= booking.MaxParticipants)
-                throw new BusinessException("Booking is full");
-
-            var participant = new BookingParticipant
-            {
-                BookingId = request.BookingId,
-                UserId = request.RequesterId,
-                Status = ParticipantStatus.Confirmed,
-                JoinedAt = DateTime.UtcNow,
-                ConfirmedAt = DateTime.UtcNow
-            };
-
-            await _bookingRepository.AddParticipantAsync(participant);
-
-            // Update booking participant count
-            booking.CurrentParticipants++;
-            await _bookingRepository.UpdateAsync(booking);
+            await JoinBookingAsync(request.BookingId, request.RequesterId);
         }
 
         return true;
@@ -409,11 +308,8 @@ public class TennisBookingService : ITennisBookingService
     public async Task<List<BookingRequestDto>> GetRequestsByBookingIdAsync(int bookingId, int userId)
     {
         var booking = await _bookingRepository.GetByIdAsync(bookingId);
-        if (booking == null)
-            throw new BusinessException("Booking not found");
-
-        if (booking.CreatorId != userId)
-            throw new BusinessException("Only the creator can view requests");
+        if (booking == null || booking.CreatorId != userId)
+            return new List<BookingRequestDto>();
 
         var requests = await _bookingRepository.GetRequestsByBookingIdAsync(bookingId);
         return _mapper.Map<List<BookingRequestDto>>(requests);
@@ -428,19 +324,135 @@ public class TennisBookingService : ITennisBookingService
     public async Task<List<TennisBookingDto>> GetRecommendedBookingsAsync(int userId)
     {
         var user = await _userRepository.GetUserByIdAsync(userId);
-        if (user == null)
-            return new List<TennisBookingDto>();
+        if (user == null) return new List<TennisBookingDto>();
 
-        var availableBookings = await _bookingRepository.GetAvailableBookingsAsync();
-        
-        // Simple recommendation algorithm
-        var recommended = availableBookings
-            .Where(b => b.CreatorId != userId) // Exclude own bookings
-            .Where(b => !b.Participants.Any(p => p.UserId == userId)) // Exclude already joined
-            .OrderBy(b => b.BookingTime) // Sort by time
+        var allBookings = await _bookingRepository.GetAvailableBookingsAsync();
+        var recommended = allBookings
+            .Where(b => b.CreatorId != userId)
+            .Select(b => new
+            {
+                Booking = b,
+                LevelMatch = !string.IsNullOrEmpty(user.TennisLevel) && 
+                            (b.MinSkillLevel.ToString() == user.TennisLevel || b.MaxSkillLevel.ToString() == user.TennisLevel),
+                LocationMatch = !string.IsNullOrEmpty(user.PreferredLocation) && b.Location.Contains(user.PreferredLocation)
+            })
+            .OrderByDescending(x => x.LevelMatch)
+            .ThenByDescending(x => x.LocationMatch)
+            .ThenBy(x => x.Booking.BookingTime)
             .Take(10)
+            .Select(x => x.Booking)
             .ToList();
 
         return _mapper.Map<List<TennisBookingDto>>(recommended);
+    }
+
+    public async Task<Dictionary<string, object>> GetBookingStatisticsAsync()
+    {
+        return await _bookingRepository.GetBookingStatisticsAsync();
+    }
+
+    // Pagination methods
+    public async Task<TennisBookingSearchResultDto> GetBookingsWithPaginationAsync(int page, int pageSize, string? sortBy = null, bool sortDescending = false)
+    {
+        var (bookings, totalCount) = await _bookingRepository.GetBookingsWithPaginationAsync(page, pageSize, sortBy, sortDescending);
+        var bookingDtos = _mapper.Map<List<TennisBookingDto>>(bookings);
+        
+        var result = new TennisBookingSearchResultDto
+        {
+            Items = bookingDtos,
+            TotalCount = totalCount,
+            Page = page,
+            PageSize = pageSize,
+            TotalPages = (int)Math.Ceiling((double)totalCount / pageSize),
+            HasNextPage = page < (int)Math.Ceiling((double)totalCount / pageSize),
+            HasPreviousPage = page > 1
+        };
+
+        // Add statistics
+        var stats = await _bookingRepository.GetBookingStatisticsAsync();
+        result.TypeCounts = stats.ContainsKey("typeStats") ? (Dictionary<string, int>)stats["typeStats"] : new Dictionary<string, int>();
+        result.StatusCounts = stats.ContainsKey("statusStats") ? (Dictionary<string, int>)stats["statusStats"] : new Dictionary<string, int>();
+        result.SkillLevelCounts = stats.ContainsKey("skillLevelStats") ? (Dictionary<string, int>)stats["skillLevelStats"] : new Dictionary<string, int>();
+        result.AvailableLocations = stats.ContainsKey("availableLocations") ? (List<string>)stats["availableLocations"] : new List<string>();
+
+        return result;
+    }
+
+    public async Task<TennisBookingSearchResultDto> GetAvailableBookingsWithPaginationAsync(int page, int pageSize, string? sortBy = null, bool sortDescending = false)
+    {
+        var (bookings, totalCount) = await _bookingRepository.GetAvailableBookingsWithPaginationAsync(page, pageSize, sortBy, sortDescending);
+        var bookingDtos = _mapper.Map<List<TennisBookingDto>>(bookings);
+        
+        var result = new TennisBookingSearchResultDto
+        {
+            Items = bookingDtos,
+            TotalCount = totalCount,
+            Page = page,
+            PageSize = pageSize,
+            TotalPages = (int)Math.Ceiling((double)totalCount / pageSize),
+            HasNextPage = page < (int)Math.Ceiling((double)totalCount / pageSize),
+            HasPreviousPage = page > 1
+        };
+
+        // Add statistics
+        var stats = await _bookingRepository.GetBookingStatisticsAsync();
+        result.TypeCounts = stats.ContainsKey("typeStats") ? (Dictionary<string, int>)stats["typeStats"] : new Dictionary<string, int>();
+        result.StatusCounts = stats.ContainsKey("statusStats") ? (Dictionary<string, int>)stats["statusStats"] : new Dictionary<string, int>();
+        result.SkillLevelCounts = stats.ContainsKey("skillLevelStats") ? (Dictionary<string, int>)stats["skillLevelStats"] : new Dictionary<string, int>();
+        result.AvailableLocations = stats.ContainsKey("availableLocations") ? (List<string>)stats["availableLocations"] : new List<string>();
+
+        return result;
+    }
+
+    public async Task<TennisBookingSearchResultDto> GetMyBookingsWithPaginationAsync(int userId, int page, int pageSize, string? sortBy = null, bool sortDescending = false)
+    {
+        var (bookings, totalCount) = await _bookingRepository.GetBookingsByCreatorWithPaginationAsync(userId, page, pageSize, sortBy, sortDescending);
+        var bookingDtos = _mapper.Map<List<TennisBookingDto>>(bookings);
+        
+        var result = new TennisBookingSearchResultDto
+        {
+            Items = bookingDtos,
+            TotalCount = totalCount,
+            Page = page,
+            PageSize = pageSize,
+            TotalPages = (int)Math.Ceiling((double)totalCount / pageSize),
+            HasNextPage = page < (int)Math.Ceiling((double)totalCount / pageSize),
+            HasPreviousPage = page > 1
+        };
+
+        // Add statistics
+        var stats = await _bookingRepository.GetBookingStatisticsAsync();
+        result.TypeCounts = stats.ContainsKey("typeStats") ? (Dictionary<string, int>)stats["typeStats"] : new Dictionary<string, int>();
+        result.StatusCounts = stats.ContainsKey("statusStats") ? (Dictionary<string, int>)stats["statusStats"] : new Dictionary<string, int>();
+        result.SkillLevelCounts = stats.ContainsKey("skillLevelStats") ? (Dictionary<string, int>)stats["skillLevelStats"] : new Dictionary<string, int>();
+        result.AvailableLocations = stats.ContainsKey("availableLocations") ? (List<string>)stats["availableLocations"] : new List<string>();
+
+        return result;
+    }
+
+    public async Task<TennisBookingSearchResultDto> GetRecommendedBookingsWithPaginationAsync(int userId, int page, int pageSize)
+    {
+        var (bookings, totalCount) = await _bookingRepository.GetRecommendedBookingsWithPaginationAsync(userId, page, pageSize);
+        var bookingDtos = _mapper.Map<List<TennisBookingDto>>(bookings);
+        
+        var result = new TennisBookingSearchResultDto
+        {
+            Items = bookingDtos,
+            TotalCount = totalCount,
+            Page = page,
+            PageSize = pageSize,
+            TotalPages = (int)Math.Ceiling((double)totalCount / pageSize),
+            HasNextPage = page < (int)Math.Ceiling((double)totalCount / pageSize),
+            HasPreviousPage = page > 1
+        };
+
+        // Add statistics
+        var stats = await _bookingRepository.GetBookingStatisticsAsync();
+        result.TypeCounts = stats.ContainsKey("typeStats") ? (Dictionary<string, int>)stats["typeStats"] : new Dictionary<string, int>();
+        result.StatusCounts = stats.ContainsKey("statusStats") ? (Dictionary<string, int>)stats["statusStats"] : new Dictionary<string, int>();
+        result.SkillLevelCounts = stats.ContainsKey("skillLevelStats") ? (Dictionary<string, int>)stats["skillLevelStats"] : new Dictionary<string, int>();
+        result.AvailableLocations = stats.ContainsKey("availableLocations") ? (List<string>)stats["availableLocations"] : new List<string>();
+
+        return result;
     }
 }

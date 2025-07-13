@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Avatar } from "@/components/ui/avatar";
 import { Search, User, MessageCircle } from "lucide-react";
-import { searchUsers } from "@/services/userService";
+import { userService } from "@/services/userService";
 import { chatService } from "@/services/chatService";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
@@ -39,7 +39,7 @@ export default function NewChatModal({ isOpen, onClose }: NewChatModalProps) {
 
         setIsSearching(true);
         try {
-            const results = await searchUsers(searchQuery);
+            const results = await userService.searchUsers(searchQuery);
             setSearchResults(results);
         } catch(error: unknown) {
 

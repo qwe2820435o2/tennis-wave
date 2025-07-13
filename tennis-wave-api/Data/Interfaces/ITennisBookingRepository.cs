@@ -50,14 +50,14 @@ public interface ITennisBookingRepository
     Task<TennisBooking> CreateAsync(TennisBooking booking);
     Task<TennisBooking> UpdateAsync(TennisBooking booking);
     Task<bool> DeleteAsync(int id);
-    Task<bool> ExistsAsync(int id);
     
-    // Participant methods
+    // Participant management
     Task<BookingParticipant?> GetParticipantAsync(int bookingId, int userId);
     Task<BookingParticipant> AddParticipantAsync(BookingParticipant participant);
     Task<BookingParticipant> UpdateParticipantAsync(BookingParticipant participant);
     Task<bool> RemoveParticipantAsync(int bookingId, int userId);
     Task<List<BookingParticipant>> GetParticipantsByBookingIdAsync(int bookingId);
+    Task<List<BookingParticipant>> GetParticipantsByUserIdAsync(int userId);
     
     // Request methods
     Task<BookingRequest?> GetRequestAsync(int requestId);
@@ -65,4 +65,10 @@ public interface ITennisBookingRepository
     Task<BookingRequest> UpdateRequestAsync(BookingRequest request);
     Task<List<BookingRequest>> GetRequestsByBookingIdAsync(int bookingId);
     Task<List<BookingRequest>> GetRequestsByRequesterIdAsync(int requesterId);
+    
+    // Pagination methods
+    Task<(List<TennisBooking> Bookings, int TotalCount)> GetBookingsWithPaginationAsync(int page, int pageSize, string? sortBy = null, bool sortDescending = false);
+    Task<(List<TennisBooking> Bookings, int TotalCount)> GetAvailableBookingsWithPaginationAsync(int page, int pageSize, string? sortBy = null, bool sortDescending = false);
+    Task<(List<TennisBooking> Bookings, int TotalCount)> GetBookingsByCreatorWithPaginationAsync(int creatorId, int page, int pageSize, string? sortBy = null, bool sortDescending = false);
+    Task<(List<TennisBooking> Bookings, int TotalCount)> GetRecommendedBookingsWithPaginationAsync(int userId, int page, int pageSize);
 } 

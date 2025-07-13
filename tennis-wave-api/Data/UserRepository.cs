@@ -102,4 +102,106 @@ public class UserRepository : IUserRepository
             .Take(20)
             .ToListAsync();
     }
+
+    // Pagination methods
+    public async Task<(List<User> Users, int TotalCount)> GetUsersWithPaginationAsync(int page, int pageSize, string? sortBy = null, bool sortDescending = false)
+    {
+        var query = _context.Users.AsQueryable();
+
+        // Apply sorting
+        query = ApplySorting(query, sortBy, sortDescending);
+
+        var totalCount = await query.CountAsync();
+        var users = await query
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
+            .ToListAsync();
+
+        return (users, totalCount);
+    }
+
+    public async Task<(List<User> Users, int TotalCount)> SearchUsersWithPaginationAsync(string? keyword, string? tennisLevel, string? preferredLocation, int? excludeUserId, int page, int pageSize, string? sortBy = null, bool sortDescending = false)
+    {
+        var query = _context.Users.AsQueryable();
+
+        // Apply filters
+        if (!string.IsNullOrEmpty(keyword))
+        {
+            query = query.Where(u => u.UserName.Contains(keyword) || 
+                                   (u.Bio != null && u.Bio.Contains(keyword)));
+        }
+
+        if (!string.IsNullOrEmpty(tennisLevel))
+        {
+            query = query.Where(u => u.TennisLevel == tennisLevel);
+        }
+
+        if (!string.IsNullOrEmpty(preferredLocation))
+        {
+            query = query.Where(u => u.PreferredLocation == preferredLocation);
+        }
+
+        if (excludeUserId.HasValue)
+        {
+            query = query.Where(u => u.Id != excludeUserId.Value);
+        }
+
+        // Apply sorting
+        query = ApplySorting(query, sortBy, sortDescending);
+
+        var totalCount = await query.CountAsync();
+        var users = await query
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
+            .ToListAsync();
+
+        return (users, totalCount);
+    }
+
+    public async Task<(List<User> Users, int TotalCount)> GetRecommendedPartnersWithPaginationAsync(int userId, int page, int pageSize)
+    {
+        var currentUser = await _context.Users.FindAsync(userId);
+        if (currentUser == null)
+        {
+            return (new List<User>(), 0);
+        }
+
+        var query = _context.Users
+            .Where(u => u.Id != userId)
+            .AsQueryable();
+
+        // Apply recommendation logic
+        var recommendedQuery = query.Select(u => new
+        {
+            User = u,
+            LevelMatch = !string.IsNullOrEmpty(currentUser.TennisLevel) && u.TennisLevel == currentUser.TennisLevel,
+            LocationMatch = !string.IsNullOrEmpty(currentUser.PreferredLocation) && u.PreferredLocation == currentUser.PreferredLocation
+        })
+        .OrderByDescending(x => x.LevelMatch)
+        .ThenByDescending(x => x.LocationMatch)
+        .ThenBy(x => x.User.CreatedAt)
+        .Select(x => x.User);
+
+        var totalCount = await recommendedQuery.CountAsync();
+        var users = await recommendedQuery
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
+            .ToListAsync();
+
+        return (users, totalCount);
+    }
+
+    private IQueryable<User> ApplySorting(IQueryable<User> query, string? sortBy, bool sortDescending)
+    {
+        return sortBy?.ToLower() switch
+        {
+            "username" => sortDescending ? query.OrderByDescending(u => u.UserName) : query.OrderBy(u => u.UserName),
+            "email" => sortDescending ? query.OrderByDescending(u => u.Email) : query.OrderBy(u => u.Email),
+            "tennislevel" => sortDescending ? query.OrderByDescending(u => u.TennisLevel) : query.OrderBy(u => u.TennisLevel),
+            "preferredlocation" => sortDescending ? query.OrderByDescending(u => u.PreferredLocation) : query.OrderBy(u => u.PreferredLocation),
+            "createdat" => sortDescending ? query.OrderByDescending(u => u.CreatedAt) : query.OrderBy(u => u.CreatedAt),
+            "updatedat" => sortDescending ? query.OrderByDescending(u => u.UpdatedAt) : query.OrderBy(u => u.UpdatedAt),
+            _ => sortDescending ? query.OrderByDescending(u => u.CreatedAt) : query.OrderBy(u => u.CreatedAt)
+        };
+    }
 }

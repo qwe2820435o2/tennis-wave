@@ -43,6 +43,91 @@ public class TennisBookingController : ControllerBase
     }
 
     /// <summary>
+    /// Get tennis bookings with pagination
+    /// </summary>
+    [HttpGet("paginated")]
+    public async Task<ActionResult<ApiResponse<TennisBookingSearchResultDto>>> GetBookingsWithPagination(
+        [FromQuery] int page = 1,
+        [FromQuery] int pageSize = 20,
+        [FromQuery] string? sortBy = null,
+        [FromQuery] bool sortDescending = false)
+    {
+        try
+        {
+            var result = await _bookingService.GetBookingsWithPaginationAsync(page, pageSize, sortBy, sortDescending);
+            return Ok(ApiResponseHelper.Success(result));
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(ApiResponseHelper.Fail<TennisBookingSearchResultDto>(ex.Message));
+        }
+    }
+
+    /// <summary>
+/// Get available tennis bookings with pagination
+/// </summary>
+[HttpGet("available")]
+[AllowAnonymous] 
+public async Task<ActionResult<ApiResponse<TennisBookingSearchResultDto>>> GetAvailableBookingsWithPagination(
+    [FromQuery] int page = 1,
+    [FromQuery] int pageSize = 20,
+    [FromQuery] string? sortBy = null,
+    [FromQuery] bool sortDescending = false)
+    {
+        try
+        {
+            var result = await _bookingService.GetAvailableBookingsWithPaginationAsync(page, pageSize, sortBy, sortDescending);
+            return Ok(ApiResponseHelper.Success(result));
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(ApiResponseHelper.Fail<TennisBookingSearchResultDto>(ex.Message));
+        }
+    }
+
+    /// <summary>
+    /// Get my tennis bookings with pagination
+    /// </summary>
+    [HttpGet("my-bookings")]
+    public async Task<ActionResult<ApiResponse<TennisBookingSearchResultDto>>> GetMyBookingsWithPagination(
+        [FromQuery] int page = 1,
+        [FromQuery] int pageSize = 20,
+        [FromQuery] string? sortBy = null,
+        [FromQuery] bool sortDescending = false)
+    {
+        try
+        {
+            var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "0");
+            var result = await _bookingService.GetMyBookingsWithPaginationAsync(userId, page, pageSize, sortBy, sortDescending);
+            return Ok(ApiResponseHelper.Success(result));
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(ApiResponseHelper.Fail<TennisBookingSearchResultDto>(ex.Message));
+        }
+    }
+
+    /// <summary>
+    /// Get recommended tennis bookings with pagination
+    /// </summary>
+    [HttpGet("recommended")]
+    public async Task<ActionResult<ApiResponse<TennisBookingSearchResultDto>>> GetRecommendedBookingsWithPagination(
+        [FromQuery] int page = 1,
+        [FromQuery] int pageSize = 20)
+    {
+        try
+        {
+            var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "0");
+            var result = await _bookingService.GetRecommendedBookingsWithPaginationAsync(userId, page, pageSize);
+            return Ok(ApiResponseHelper.Success(result));
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(ApiResponseHelper.Fail<TennisBookingSearchResultDto>(ex.Message));
+        }
+    }
+
+    /// <summary>
     /// Get tennis booking by ID
     /// </summary>
     [HttpGet("{id}")]
@@ -62,45 +147,12 @@ public class TennisBookingController : ControllerBase
         }
     }
 
-    /// <summary>
-    /// Get my tennis bookings
-    /// </summary>
-    [HttpGet("my-bookings")]
-    public async Task<ActionResult<ApiResponse<List<TennisBookingDto>>>> GetMyBookings()
-    {
-        try
-        {
-            var userId = GetCurrentUserId();
-            var bookings = await _bookingService.GetMyBookingsAsync(userId);
-            return Ok(ApiResponseHelper.Success(bookings));
-        }
-        catch (Exception ex)
-        {
-            return BadRequest(ApiResponseHelper.Fail<List<TennisBookingDto>>(ex.Message));
-        }
-    }
+
 
     /// <summary>
-    /// Get available tennis bookings
+    /// Get tennis bookings by type
     /// </summary>
-    [HttpGet("available")]
-    public async Task<ActionResult<ApiResponse<List<TennisBookingDto>>>> GetAvailableBookings()
-    {
-        try
-        {
-            var bookings = await _bookingService.GetAvailableBookingsAsync();
-            return Ok(ApiResponseHelper.Success(bookings));
-        }
-        catch (Exception ex)
-        {
-            return BadRequest(ApiResponseHelper.Fail<List<TennisBookingDto>>(ex.Message));
-        }
-    }
-
-    /// <summary>
-    /// Get bookings by type
-    /// </summary>
-    [HttpGet("type/{type}")]
+    [HttpGet("by-type/{type}")]
     public async Task<ActionResult<ApiResponse<List<TennisBookingDto>>>> GetBookingsByType(BookingType type)
     {
         try
@@ -115,9 +167,9 @@ public class TennisBookingController : ControllerBase
     }
 
     /// <summary>
-    /// Get bookings by status
+    /// Get tennis bookings by status
     /// </summary>
-    [HttpGet("status/{status}")]
+    [HttpGet("by-status/{status}")]
     public async Task<ActionResult<ApiResponse<List<TennisBookingDto>>>> GetBookingsByStatus(BookingStatus status)
     {
         try
@@ -132,10 +184,10 @@ public class TennisBookingController : ControllerBase
     }
 
     /// <summary>
-    /// Get bookings by location
+    /// Get tennis bookings by location
     /// </summary>
-    [HttpGet("location/{location}")]
-    public async Task<ActionResult<ApiResponse<List<TennisBookingDto>>>> GetBookingsByLocation(string location)
+    [HttpGet("by-location")]
+    public async Task<ActionResult<ApiResponse<List<TennisBookingDto>>>> GetBookingsByLocation([FromQuery] string location)
     {
         try
         {
@@ -149,56 +201,17 @@ public class TennisBookingController : ControllerBase
     }
 
     /// <summary>
-    /// Advanced search for tennis bookings
-    /// </summary>
-    [HttpPost("search")]
-    public async Task<ActionResult<ApiResponse<TennisBookingSearchResultDto>>> SearchBookings([FromBody] SearchBookingDto searchDto)
-    {
-        try
-        {
-            var userId = GetCurrentUserId();
-            var result = await _bookingService.SearchBookingsAsync(searchDto, userId);
-            return Ok(ApiResponseHelper.Success(result));
-        }
-        catch (Exception ex)
-        {
-            return BadRequest(ApiResponseHelper.Fail<TennisBookingSearchResultDto>(ex.Message));
-        }
-    }
-
-    /// <summary>
-    /// Get booking statistics for search filters
-    /// </summary>
-    [HttpGet("statistics")]
-    public async Task<ActionResult<ApiResponse<Dictionary<string, object>>>> GetBookingStatistics()
-    {
-        try
-        {
-            var stats = await _bookingService.GetBookingStatisticsAsync();
-            return Ok(ApiResponseHelper.Success(stats));
-        }
-        catch (Exception ex)
-        {
-            return BadRequest(ApiResponseHelper.Fail<Dictionary<string, object>>(ex.Message));
-        }
-    }
-
-    /// <summary>
     /// Create a new tennis booking
     /// </summary>
     [HttpPost]
-    public async Task<ActionResult<ApiResponse<TennisBookingDto>>> CreateBooking([FromBody] CreateBookingDto dto)
+    public async Task<ActionResult<ApiResponse<TennisBookingDto>>> CreateBooking([FromBody] CreateBookingDto createBookingDto)
     {
         try
         {
-            var userId = GetCurrentUserId();
-            var booking = await _bookingService.CreateBookingAsync(dto, userId);
+            var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "0");
+            var booking = await _bookingService.CreateBookingAsync(createBookingDto, userId);
             return Ok(ApiResponseHelper.Success(booking, "Booking created successfully"));
         }
-        catch (BusinessException ex)
-        {
-            return BadRequest(ApiResponseHelper.Fail<TennisBookingDto>(ex.Message));
-        }
         catch (Exception ex)
         {
             return BadRequest(ApiResponseHelper.Fail<TennisBookingDto>(ex.Message));
@@ -206,21 +219,17 @@ public class TennisBookingController : ControllerBase
     }
 
     /// <summary>
-    /// Update tennis booking
+    /// Update a tennis booking
     /// </summary>
     [HttpPut("{id}")]
-    public async Task<ActionResult<ApiResponse<TennisBookingDto>>> UpdateBooking(int id, [FromBody] UpdateBookingDto dto)
+    public async Task<ActionResult<ApiResponse<TennisBookingDto>>> UpdateBooking(int id, [FromBody] UpdateBookingDto updateBookingDto)
     {
         try
         {
-            var userId = GetCurrentUserId();
-            var booking = await _bookingService.UpdateBookingAsync(id, dto, userId);
+            var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "0");
+            var booking = await _bookingService.UpdateBookingAsync(id, updateBookingDto, userId);
             return Ok(ApiResponseHelper.Success(booking, "Booking updated successfully"));
         }
-        catch (BusinessException ex)
-        {
-            return BadRequest(ApiResponseHelper.Fail<TennisBookingDto>(ex.Message));
-        }
         catch (Exception ex)
         {
             return BadRequest(ApiResponseHelper.Fail<TennisBookingDto>(ex.Message));
@@ -228,145 +237,163 @@ public class TennisBookingController : ControllerBase
     }
 
     /// <summary>
-    /// Delete tennis booking
+    /// Delete a tennis booking
     /// </summary>
     [HttpDelete("{id}")]
-    public async Task<ActionResult<ApiResponse<object>>> DeleteBooking(int id)
+    public async Task<ActionResult<ApiResponse<bool>>> DeleteBooking(int id)
     {
         try
         {
-            var userId = GetCurrentUserId();
+            var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "0");
             var success = await _bookingService.DeleteBookingAsync(id, userId);
-            if (!success)
-                return BadRequest(ApiResponseHelper.Fail<object>("Failed to delete booking"));
-
-            return Ok(ApiResponseHelper.Success<object>(null, "Booking deleted successfully"));
-        }
-        catch (BusinessException ex)
-        {
-            return BadRequest(ApiResponseHelper.Fail<object>(ex.Message));
+            if (success)
+                return Ok(ApiResponseHelper.Success(true, "Booking deleted successfully"));
+            else
+                return NotFound(ApiResponseHelper.Fail<bool>("Booking not found"));
         }
         catch (Exception ex)
         {
-            return BadRequest(ApiResponseHelper.Fail<object>(ex.Message));
+            return BadRequest(ApiResponseHelper.Fail<bool>(ex.Message));
         }
     }
 
     /// <summary>
-    /// Join tennis booking
+    /// Join a tennis booking
     /// </summary>
     [HttpPost("{id}/join")]
-    public async Task<ActionResult<ApiResponse<object>>> JoinBooking(int id)
+    public async Task<ActionResult<ApiResponse<bool>>> JoinBooking(int id)
     {
         try
         {
-            var userId = GetCurrentUserId();
+            var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "0");
             var success = await _bookingService.JoinBookingAsync(id, userId);
-            if (!success)
-                return BadRequest(ApiResponseHelper.Fail<object>("Failed to join booking"));
-
-            return Ok(ApiResponseHelper.Success<object>(null, "Successfully joined booking"));
-        }
-        catch (BusinessException ex)
-        {
-            return BadRequest(ApiResponseHelper.Fail<object>(ex.Message));
+            if (success)
+                return Ok(ApiResponseHelper.Success(true, "Successfully joined the booking"));
+            else
+                return BadRequest(ApiResponseHelper.Fail<bool>("Failed to join the booking"));
         }
         catch (Exception ex)
         {
-            return BadRequest(ApiResponseHelper.Fail<object>(ex.Message));
+            return BadRequest(ApiResponseHelper.Fail<bool>(ex.Message));
         }
     }
 
     /// <summary>
-    /// Leave tennis booking
+    /// Leave a tennis booking
     /// </summary>
     [HttpPost("{id}/leave")]
-    public async Task<ActionResult<ApiResponse<object>>> LeaveBooking(int id)
+    public async Task<ActionResult<ApiResponse<bool>>> LeaveBooking(int id)
     {
         try
         {
-            var userId = GetCurrentUserId();
+            var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "0");
             var success = await _bookingService.LeaveBookingAsync(id, userId);
-            if (!success)
-                return BadRequest(ApiResponseHelper.Fail<object>("Failed to leave booking"));
-
-            return Ok(ApiResponseHelper.Success<object>(null, "Successfully left booking"));
-        }
-        catch (BusinessException ex)
-        {
-            return BadRequest(ApiResponseHelper.Fail<object>(ex.Message));
+            if (success)
+                return Ok(ApiResponseHelper.Success(true, "Successfully left the booking"));
+            else
+                return BadRequest(ApiResponseHelper.Fail<bool>("Failed to leave the booking"));
         }
         catch (Exception ex)
         {
-            return BadRequest(ApiResponseHelper.Fail<object>(ex.Message));
+            return BadRequest(ApiResponseHelper.Fail<bool>(ex.Message));
         }
     }
 
     /// <summary>
-    /// Request to join tennis booking
+    /// Confirm a participant
+    /// </summary>
+    [HttpPost("{bookingId}/participants/{participantId}/confirm")]
+    public async Task<ActionResult<ApiResponse<bool>>> ConfirmParticipant(int bookingId, int participantId)
+    {
+        try
+        {
+            var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "0");
+            var success = await _bookingService.ConfirmParticipantAsync(bookingId, participantId, userId);
+            if (success)
+                return Ok(ApiResponseHelper.Success(true, "Participant confirmed successfully"));
+            else
+                return BadRequest(ApiResponseHelper.Fail<bool>("Failed to confirm participant"));
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(ApiResponseHelper.Fail<bool>(ex.Message));
+        }
+    }
+
+    /// <summary>
+    /// Decline a participant
+    /// </summary>
+    [HttpPost("{bookingId}/participants/{participantId}/decline")]
+    public async Task<ActionResult<ApiResponse<bool>>> DeclineParticipant(int bookingId, int participantId)
+    {
+        try
+        {
+            var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "0");
+            var success = await _bookingService.DeclineParticipantAsync(bookingId, participantId, userId);
+            if (success)
+                return Ok(ApiResponseHelper.Success(true, "Participant declined successfully"));
+            else
+                return BadRequest(ApiResponseHelper.Fail<bool>("Failed to decline participant"));
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(ApiResponseHelper.Fail<bool>(ex.Message));
+        }
+    }
+
+    /// <summary>
+    /// Request to join a tennis booking
     /// </summary>
     [HttpPost("{id}/request")]
-    public async Task<ActionResult<ApiResponse<object>>> RequestToJoin(int id, [FromBody] CreateBookingRequestDto dto)
+    public async Task<ActionResult<ApiResponse<bool>>> RequestToJoin(int id, [FromBody] CreateBookingRequestDto requestDto)
     {
         try
         {
-            var userId = GetCurrentUserId();
-            var success = await _bookingService.RequestToJoinAsync(id, userId, dto.Message);
-            if (!success)
-                return BadRequest(ApiResponseHelper.Fail<object>("Failed to send request"));
-
-            return Ok(ApiResponseHelper.Success<object>(null, "Request sent successfully"));
-        }
-        catch (BusinessException ex)
-        {
-            return BadRequest(ApiResponseHelper.Fail<object>(ex.Message));
+            var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "0");
+            var success = await _bookingService.RequestToJoinAsync(id, userId, requestDto.Message);
+            if (success)
+                return Ok(ApiResponseHelper.Success(true, "Request sent successfully"));
+            else
+                return BadRequest(ApiResponseHelper.Fail<bool>("Failed to send request"));
         }
         catch (Exception ex)
         {
-            return BadRequest(ApiResponseHelper.Fail<object>(ex.Message));
+            return BadRequest(ApiResponseHelper.Fail<bool>(ex.Message));
         }
     }
 
     /// <summary>
-    /// Respond to booking request
+    /// Respond to a join request
     /// </summary>
     [HttpPost("requests/{requestId}/respond")]
-    public async Task<ActionResult<ApiResponse<object>>> RespondToRequest(int requestId, [FromBody] RespondToRequestDto dto)
+    public async Task<ActionResult<ApiResponse<bool>>> RespondToRequest(int requestId, [FromBody] RespondToRequestDto responseDto)
     {
         try
         {
-            var userId = GetCurrentUserId();
-            var success = await _bookingService.RespondToRequestAsync(requestId, dto.Status, dto.ResponseMessage, userId);
-            if (!success)
-                return BadRequest(ApiResponseHelper.Fail<object>("Failed to respond to request"));
-
-            return Ok(ApiResponseHelper.Success<object>(null, "Response sent successfully"));
-        }
-        catch (BusinessException ex)
-        {
-            return BadRequest(ApiResponseHelper.Fail<object>(ex.Message));
+            var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "0");
+            var success = await _bookingService.RespondToRequestAsync(requestId, responseDto.Status, responseDto.ResponseMessage, userId);
+            if (success)
+                return Ok(ApiResponseHelper.Success(true, "Response sent successfully"));
+            else
+                return BadRequest(ApiResponseHelper.Fail<bool>("Failed to send response"));
         }
         catch (Exception ex)
         {
-            return BadRequest(ApiResponseHelper.Fail<object>(ex.Message));
+            return BadRequest(ApiResponseHelper.Fail<bool>(ex.Message));
         }
     }
 
     /// <summary>
     /// Get requests for a booking
     /// </summary>
-    [HttpGet("{id}/requests")]
-    public async Task<ActionResult<ApiResponse<List<BookingRequestDto>>>> GetBookingRequests(int id)
+    [HttpGet("{bookingId}/requests")]
+    public async Task<ActionResult<ApiResponse<List<BookingRequestDto>>>> GetRequestsByBookingId(int bookingId)
     {
         try
         {
-            var userId = GetCurrentUserId();
-            var requests = await _bookingService.GetRequestsByBookingIdAsync(id, userId);
+            var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "0");
+            var requests = await _bookingService.GetRequestsByBookingIdAsync(bookingId, userId);
             return Ok(ApiResponseHelper.Success(requests));
-        }
-        catch (BusinessException ex)
-        {
-            return BadRequest(ApiResponseHelper.Fail<List<BookingRequestDto>>(ex.Message));
         }
         catch (Exception ex)
         {
@@ -382,7 +409,7 @@ public class TennisBookingController : ControllerBase
     {
         try
         {
-            var userId = GetCurrentUserId();
+            var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "0");
             var requests = await _bookingService.GetMyRequestsAsync(userId);
             return Ok(ApiResponseHelper.Success(requests));
         }
@@ -392,31 +419,40 @@ public class TennisBookingController : ControllerBase
         }
     }
 
+
+
     /// <summary>
-    /// Get recommended bookings
+    /// Advanced search for tennis bookings
     /// </summary>
-    [HttpGet("recommended")]
-    public async Task<ActionResult<ApiResponse<List<TennisBookingDto>>>> GetRecommendedBookings()
+    [HttpPost("search")]
+    public async Task<ActionResult<ApiResponse<TennisBookingSearchResultDto>>> SearchBookings([FromBody] SearchBookingDto searchDto)
     {
         try
         {
-            var userId = GetCurrentUserId();
-            var bookings = await _bookingService.GetRecommendedBookingsAsync(userId);
-            return Ok(ApiResponseHelper.Success(bookings));
+            var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "0");
+            var result = await _bookingService.SearchBookingsAsync(searchDto, userId);
+            return Ok(ApiResponseHelper.Success(result));
         }
         catch (Exception ex)
         {
-            return BadRequest(ApiResponseHelper.Fail<List<TennisBookingDto>>(ex.Message));
+            return BadRequest(ApiResponseHelper.Fail<TennisBookingSearchResultDto>(ex.Message));
         }
     }
 
-    private int GetCurrentUserId()
+    /// <summary>
+    /// Get booking statistics
+    /// </summary>
+    [HttpGet("statistics")]
+    public async Task<ActionResult<ApiResponse<Dictionary<string, object>>>> GetBookingStatistics()
     {
-        var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-        if (string.IsNullOrEmpty(userIdClaim) || !int.TryParse(userIdClaim, out int userId))
+        try
         {
-            throw new UnauthorizedAccessException("Invalid user token");
+            var statistics = await _bookingService.GetBookingStatisticsAsync();
+            return Ok(ApiResponseHelper.Success(statistics));
         }
-        return userId;
+        catch (Exception ex)
+        {
+            return BadRequest(ApiResponseHelper.Fail<Dictionary<string, object>>(ex.Message));
+        }
     }
 } 

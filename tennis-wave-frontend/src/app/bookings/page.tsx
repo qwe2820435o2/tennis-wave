@@ -25,24 +25,43 @@ import { toast } from "sonner";
 import { AxiosError } from "axios";
 import AdvancedSearchFilter from "@/components/bookings/AdvancedSearchFilter";
 import { format } from "date-fns";
+import {
+    Pagination,
+    PaginationContent,
+    PaginationEllipsis,
+    PaginationItem,
+    PaginationLink,
+    PaginationNext,
+    PaginationPrevious,
+} from "@/components/ui/pagination";
 
 export default function BookingsPage() {
   const [searchResult, setSearchResult] = useState<TennisBookingSearchResultDto | null>(null);
   const [bookings, setBookings] = useState<TennisBooking[]>([]);
   const [viewMode, setViewMode] = useState<"list" | "map">("list");
   const [statistics, setStatistics] = useState<any>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize] = useState(20);
+  const [sortBy, setSortBy] = useState<string>("createdat");
+  const [sortDescending, setSortDescending] = useState<boolean>(true);
   const dispatch = useDispatch();
 
   useEffect(() => {
     loadBookings();
     loadStatistics();
-  }, []);
+  }, [currentPage, sortBy, sortDescending]);
 
   const loadBookings = async () => {
     try {
       dispatch(showLoading());
-      const data = await tennisBookingService.getAvailableBookings();
-      setBookings(data);
+      const result = await tennisBookingService.getAvailableBookingsWithPagination(
+        currentPage, 
+        pageSize, 
+        sortBy, 
+        sortDescending
+      );
+      setSearchResult(result);
+      setBookings(result.items);
     } catch (error: unknown) {
       if (error && typeof error === "object" && "isAxiosError" in error) {
         const axiosError = error as AxiosError;
@@ -70,6 +89,7 @@ export default function BookingsPage() {
       const result = await tennisBookingService.searchBookings(searchDto);
       setSearchResult(result);
       setBookings(result.items);
+      setCurrentPage(1);
     } catch (error: unknown) {
       if (error && typeof error === "object" && "isAxiosError" in error) {
         const axiosError = error as AxiosError;
@@ -84,20 +104,134 @@ export default function BookingsPage() {
 
   const handleReset = () => {
     setSearchResult(null);
+    setCurrentPage(1);
     loadBookings();
   };
 
-  const handlePageChange = async (page: number) => {
-    if (searchResult) {
-      const newSearchDto = {
-        ...searchResult,
-        page
-      };
-      await handleSearch(newSearchDto);
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+  };
+
+  const handleSortChange = (newSortBy: string) => {
+    if (sortBy === newSortBy) {
+      setSortDescending(!sortDescending);
+    } else {
+      setSortBy(newSortBy);
+      setSortDescending(false);
     }
   };
 
   const displayBookings = searchResult ? searchResult.items : bookings;
+  const totalPages = searchResult ? searchResult.totalPages : 1;
+
+  const renderPagination = () => {
+    if (totalPages <= 1) return null;
+
+    const pages = [];
+    const maxVisiblePages = 5;
+    let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
+    let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
+
+    if (endPage - startPage + 1 < maxVisiblePages) {
+      startPage = Math.max(1, endPage - maxVisiblePages + 1);
+    }
+
+    for (let i = startPage; i <= endPage; i++) {
+      pages.push(i);
+    }
+
+    return (
+      <Pagination className="mt-8">
+        <PaginationContent>
+          {searchResult?.hasPreviousPage && (
+            <PaginationItem>
+              <PaginationPrevious 
+                href="#" 
+                size="default"
+                onClick={(e) => {
+                  e.preventDefault();
+                  handlePageChange(currentPage - 1);
+                }}
+              />
+            </PaginationItem>
+          )}
+          
+          {startPage > 1 && (
+            <>
+              <PaginationItem>
+                <PaginationLink 
+                  href="#" 
+                  size="default"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    handlePageChange(1);
+                  }}
+                >
+                  1
+                </PaginationLink>
+              </PaginationItem>
+              {startPage > 2 && (
+                <PaginationItem>
+                  <PaginationEllipsis />
+                </PaginationItem>
+              )}
+            </>
+          )}
+
+          {pages.map((page) => (
+            <PaginationItem key={page}>
+              <PaginationLink 
+                href="#" 
+                size="default"
+                isActive={page === currentPage}
+                onClick={(e) => {
+                  e.preventDefault();
+                  handlePageChange(page);
+                }}
+              >
+                {page}
+              </PaginationLink>
+            </PaginationItem>
+          ))}
+
+          {endPage < totalPages && (
+            <>
+              {endPage < totalPages - 1 && (
+                <PaginationItem>
+                  <PaginationEllipsis />
+                </PaginationItem>
+              )}
+              <PaginationItem>
+                <PaginationLink 
+                  href="#" 
+                  size="default"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    handlePageChange(totalPages);
+                  }}
+                >
+                  {totalPages}
+                </PaginationLink>
+              </PaginationItem>
+            </>
+          )}
+
+          {searchResult?.hasNextPage && (
+            <PaginationItem>
+              <PaginationNext 
+                href="#" 
+                size="default"
+                onClick={(e) => {
+                  e.preventDefault();
+                  handlePageChange(currentPage + 1);
+                }}
+              />
+            </PaginationItem>
+          )}
+        </PaginationContent>
+      </Pagination>
+    );
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-blue-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 py-8">
@@ -108,8 +242,43 @@ export default function BookingsPage() {
             <div>
               <h1 className="text-3xl font-bold text-green-700 dark:text-green-400">Tennis Bookings</h1>
               <p className="text-gray-600 dark:text-gray-300 mt-2">Find and join tennis games in your area</p>
+              {searchResult && (
+                <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                  Showing {displayBookings.length} of {searchResult.totalCount} bookings
+                  {totalPages > 1 && ` (page ${currentPage} of ${totalPages})`}
+                </p>
+              )}
             </div>
             <div className="flex items-center space-x-4">
+              {/* Sort Options */}
+              <Select value={sortBy} onValueChange={handleSortChange}>
+                <SelectTrigger className="w-40">
+                  <SelectValue placeholder="Sort by" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="createdat">Date Created</SelectItem>
+                  <SelectItem value="bookingtime">Booking Time</SelectItem>
+                  <SelectItem value="title">Title</SelectItem>
+                  <SelectItem value="location">Location</SelectItem>
+                  <SelectItem value="currentparticipants">Participants</SelectItem>
+                </SelectContent>
+              </Select>
+              
+              {/* Sort Direction */}
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setSortDescending(!sortDescending)}
+                className="flex items-center gap-2"
+              >
+                {sortDescending ? "↓" : "↑"}
+                {sortBy === "createdat" ? "Date" : 
+                 sortBy === "bookingtime" ? "Time" : 
+                 sortBy === "title" ? "Title" : 
+                 sortBy === "location" ? "Location" : 
+                 sortBy === "currentparticipants" ? "Participants" : "Sort"}
+              </Button>
+
               {/* View Mode Toggle */}
               <div className="flex items-center bg-white dark:bg-gray-800 rounded-lg border border-gray-300 dark:border-gray-600 p-1">
                 <Button
@@ -137,47 +306,14 @@ export default function BookingsPage() {
               </Link>
             </div>
           </div>
+          
           {/* Search and Filter */}
           <AdvancedSearchFilter
             onSearch={handleSearch}
             onReset={handleReset}
             statistics={statistics}
           />
-          {/* Results Summary */}
-          {searchResult && (
-            <div className="mb-6 p-4 bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-gray-600 dark:text-gray-300">
-                    Found <span className="font-semibold">{searchResult.totalCount}</span> bookings
-                    {searchResult.page > 1 && ` (page ${searchResult.page} of ${searchResult.totalPages})`}
-                  </p>
-                </div>
-                <div className="flex items-center space-x-4">
-                  {searchResult.hasPreviousPage && (
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => handlePageChange(searchResult.page - 1)}
-                      className="rounded-lg border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700"
-                    >
-                      Previous
-                    </Button>
-                  )}
-                  {searchResult.hasNextPage && (
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => handlePageChange(searchResult.page + 1)}
-                      className="rounded-lg border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700"
-                    >
-                      Next
-                    </Button>
-                  )}
-                </div>
-              </div>
-            </div>
-          )}
+          
           {/* Bookings Grid */}
           {viewMode === "list" ? (
             <div className="grid grid-cols-1 gap-6">
@@ -254,14 +390,33 @@ export default function BookingsPage() {
                   <div className="font-bold text-lg mb-2 text-gray-600 dark:text-gray-300">No bookings found</div>
                   <div className="text-sm mb-4 text-gray-500 dark:text-gray-400">Try adjusting your search criteria or create a new booking</div>
                   <Link href="/bookings/create">
-                    <Button className="bg-green-600 hover:bg-green-700 dark:bg-green-500 dark:hover:bg-green-600 rounded-lg shadow font-bold text-white">Create Your First Booking</Button>
+                    <Button className="bg-green-600 hover:bg-green-700 dark:bg-green-500 dark:hover:bg-green-600 rounded-lg shadow font-bold text-white">
+                      <Plus className="w-4 h-4 mr-2" />
+                      Create Booking
+                    </Button>
                   </Link>
                 </div>
               )}
             </div>
           ) : (
-            <div className="h-96 flex items-center justify-center text-gray-400 dark:text-gray-500">Map view coming soon...</div>
+            <div className="flex flex-col items-center justify-center py-16 text-center text-gray-400 dark:text-gray-500">
+              <div className="mb-4">
+                <Map className="w-12 h-12 mx-auto text-green-200 dark:text-green-700" />
+              </div>
+              <div className="font-bold text-lg mb-2 text-gray-600 dark:text-gray-300">Map view coming soon</div>
+              <div className="text-sm mb-4 text-gray-500 dark:text-gray-400">Switch to list view to see all bookings</div>
+              <Button
+                onClick={() => setViewMode("list")}
+                className="bg-green-600 hover:bg-green-700 dark:bg-green-500 dark:hover:bg-green-600 rounded-lg shadow font-bold text-white"
+              >
+                <List className="w-4 h-4 mr-2" />
+                Switch to List View
+              </Button>
+            </div>
           )}
+          
+          {/* Pagination */}
+          {renderPagination()}
         </div>
       </div>
     </div>

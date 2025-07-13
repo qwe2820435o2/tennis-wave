@@ -37,4 +37,10 @@ public interface ITennisBookingService
     // Advanced search methods
     Task<TennisBookingSearchResultDto> SearchBookingsAsync(SearchBookingDto searchDto, int userId);
     Task<Dictionary<string, object>> GetBookingStatisticsAsync();
+    
+    // Pagination methods
+    Task<TennisBookingSearchResultDto> GetBookingsWithPaginationAsync(int page, int pageSize, string? sortBy = null, bool sortDescending = false);
+    Task<TennisBookingSearchResultDto> GetAvailableBookingsWithPaginationAsync(int page, int pageSize, string? sortBy = null, bool sortDescending = false);
+    Task<TennisBookingSearchResultDto> GetMyBookingsWithPaginationAsync(int userId, int page, int pageSize, string? sortBy = null, bool sortDescending = false);
+    Task<TennisBookingSearchResultDto> GetRecommendedBookingsWithPaginationAsync(int userId, int page, int pageSize);
 } 

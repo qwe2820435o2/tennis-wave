@@ -18,4 +18,9 @@ public interface IUserService
     Task UpdateUserOnlineStatusAsync(int userId, bool isOnline);
     Task<List<UserSearchDto>> SearchUsersAsync(string query, int excludeUserId);
     Task<List<UserDto>> GetRecommendedPartnersAsync(int userId);
+    
+    // Pagination methods
+    Task<UserSearchResultDto> GetUsersWithPaginationAsync(int page, int pageSize, string? sortBy = null, bool sortDescending = false);
+    Task<UserSearchResultDto> SearchUsersWithPaginationAsync(UserSearchDto searchDto, int excludeUserId);
+    Task<UserSearchResultDto> GetRecommendedPartnersWithPaginationAsync(int userId, int page, int pageSize);
 }

@@ -49,20 +49,21 @@ public class UserService : IUserService
     public async Task<UserDto> UpdateUserAsync(int userId, UpdateUserDto updateUserDto)
     {
         var existingUser = await _userRepository.GetUserByIdAsync(userId);
-    
-        // Check if username is being changed and if it's unique
-        if (!string.IsNullOrEmpty(updateUserDto.UserName) && 
-            updateUserDto.UserName != existingUser.UserName &&
-            !await IsUserNameUniqueAsync(updateUserDto.UserName, userId))
-        {
-            throw new BusinessException("Username already exists", "USERNAME_ALREADY_EXISTS");
-        }
-
-        // Use AutoMapper to mapper
-        _mapper.Map(updateUserDto, existingUser);
-
+        
+        // Update properties
+        if (!string.IsNullOrEmpty(updateUserDto.UserName))
+            existingUser.UserName = updateUserDto.UserName;
+        if (!string.IsNullOrEmpty(updateUserDto.Bio))
+            existingUser.Bio = updateUserDto.Bio;
+        if (!string.IsNullOrEmpty(updateUserDto.TennisLevel))
+            existingUser.TennisLevel = updateUserDto.TennisLevel;
+        if (!string.IsNullOrEmpty(updateUserDto.PreferredLocation))
+            existingUser.PreferredLocation = updateUserDto.PreferredLocation;
+        if (!string.IsNullOrEmpty(updateUserDto.Avatar))
+            existingUser.Avatar = updateUserDto.Avatar;
+        
         existingUser.UpdatedAt = DateTime.UtcNow;
-    
+        
         var updatedUser = await _userRepository.UpdateUserAsync(existingUser);
         return _mapper.Map<UserDto>(updatedUser);
     }
@@ -75,17 +76,21 @@ public class UserService : IUserService
     public async Task<bool> ChangePasswordAsync(int userId, ChangePasswordDto changePasswordDto)
     {
         var user = await _userRepository.GetUserByIdAsync(userId);
-    
-        // Verify current password using BCrypt
-        if (!BCrypt.Net.BCrypt.Verify(changePasswordDto.CurrentPassword, user.PasswordHash))
+        
+        // Hash the current password for comparison
+        using var sha256 = SHA256.Create();
+        var currentPasswordHash = Convert.ToBase64String(sha256.ComputeHash(Encoding.UTF8.GetBytes(changePasswordDto.CurrentPassword)));
+        
+        if (user.PasswordHash != currentPasswordHash)
         {
-            throw new BusinessException("Current password is incorrect", "INVALID_CURRENT_PASSWORD");
+            throw new BusinessException("Current password is incorrect", "INVALID_PASSWORD");
         }
-
-        // Hash new password using BCrypt
-        user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(changePasswordDto.NewPassword);
+        
+        // Hash the new password
+        var newPasswordHash = Convert.ToBase64String(sha256.ComputeHash(Encoding.UTF8.GetBytes(changePasswordDto.NewPassword)));
+        user.PasswordHash = newPasswordHash;
         user.UpdatedAt = DateTime.UtcNow;
-    
+        
         await _userRepository.UpdateUserAsync(user);
         return true;
     }
@@ -137,5 +142,150 @@ public class UserService : IUserService
             .ToList();
 
         return _mapper.Map<List<UserDto>>(recommended);
+    }
+
+    // Pagination methods
+    public async Task<UserSearchResultDto> GetUsersWithPaginationAsync(int page, int pageSize, string? sortBy = null, bool sortDescending = false)
+    {
+        var (users, totalCount) = await _userRepository.GetUsersWithPaginationAsync(page, pageSize, sortBy, sortDescending);
+        var userDtos = _mapper.Map<List<UserDto>>(users);
+        
+        var result = new UserSearchResultDto
+        {
+            Items = userDtos,
+            TotalCount = totalCount,
+            Page = page,
+            PageSize = pageSize,
+            TotalPages = (int)Math.Ceiling((double)totalCount / pageSize),
+            HasNextPage = page < (int)Math.Ceiling((double)totalCount / pageSize),
+            HasPreviousPage = page > 1
+        };
+
+        // Add statistics
+        var allUsers = await _userRepository.GetAllUsersAsync();
+        result.LevelCounts = allUsers
+            .Where(u => !string.IsNullOrEmpty(u.TennisLevel))
+            .GroupBy(u => u.TennisLevel)
+            .ToDictionary(g => g.Key, g => g.Count());
+        
+        result.LocationCounts = allUsers
+            .Where(u => !string.IsNullOrEmpty(u.PreferredLocation))
+            .GroupBy(u => u.PreferredLocation)
+            .ToDictionary(g => g.Key, g => g.Count());
+        
+        result.AvailableLevels = allUsers
+            .Where(u => !string.IsNullOrEmpty(u.TennisLevel))
+            .Select(u => u.TennisLevel)
+            .Distinct()
+            .OrderBy(l => l)
+            .ToList();
+        
+        result.AvailableLocations = allUsers
+            .Where(u => !string.IsNullOrEmpty(u.PreferredLocation))
+            .Select(u => u.PreferredLocation)
+            .Distinct()
+            .OrderBy(l => l)
+            .ToList();
+
+        return result;
+    }
+
+    public async Task<UserSearchResultDto> SearchUsersWithPaginationAsync(UserSearchDto searchDto, int excludeUserId)
+    {
+        var (users, totalCount) = await _userRepository.SearchUsersWithPaginationAsync(
+            searchDto.Keyword,
+            searchDto.TennisLevel,
+            searchDto.PreferredLocation,
+            excludeUserId,
+            searchDto.Page,
+            searchDto.PageSize,
+            searchDto.SortBy,
+            searchDto.SortDescending);
+        
+        var userDtos = _mapper.Map<List<UserDto>>(users);
+        
+        var result = new UserSearchResultDto
+        {
+            Items = userDtos,
+            TotalCount = totalCount,
+            Page = searchDto.Page,
+            PageSize = searchDto.PageSize,
+            TotalPages = (int)Math.Ceiling((double)totalCount / searchDto.PageSize),
+            HasNextPage = searchDto.Page < (int)Math.Ceiling((double)totalCount / searchDto.PageSize),
+            HasPreviousPage = searchDto.Page > 1
+        };
+
+        // Add statistics
+        var allUsers = await _userRepository.GetAllUsersAsync();
+        result.LevelCounts = allUsers
+            .Where(u => !string.IsNullOrEmpty(u.TennisLevel))
+            .GroupBy(u => u.TennisLevel)
+            .ToDictionary(g => g.Key, g => g.Count());
+        
+        result.LocationCounts = allUsers
+            .Where(u => !string.IsNullOrEmpty(u.PreferredLocation))
+            .GroupBy(u => u.PreferredLocation)
+            .ToDictionary(g => g.Key, g => g.Count());
+        
+        result.AvailableLevels = allUsers
+            .Where(u => !string.IsNullOrEmpty(u.TennisLevel))
+            .Select(u => u.TennisLevel)
+            .Distinct()
+            .OrderBy(l => l)
+            .ToList();
+        
+        result.AvailableLocations = allUsers
+            .Where(u => !string.IsNullOrEmpty(u.PreferredLocation))
+            .Select(u => u.PreferredLocation)
+            .Distinct()
+            .OrderBy(l => l)
+            .ToList();
+
+        return result;
+    }
+
+    public async Task<UserSearchResultDto> GetRecommendedPartnersWithPaginationAsync(int userId, int page, int pageSize)
+    {
+        var (users, totalCount) = await _userRepository.GetRecommendedPartnersWithPaginationAsync(userId, page, pageSize);
+        var userDtos = _mapper.Map<List<UserDto>>(users);
+        
+        var result = new UserSearchResultDto
+        {
+            Items = userDtos,
+            TotalCount = totalCount,
+            Page = page,
+            PageSize = pageSize,
+            TotalPages = (int)Math.Ceiling((double)totalCount / pageSize),
+            HasNextPage = page < (int)Math.Ceiling((double)totalCount / pageSize),
+            HasPreviousPage = page > 1
+        };
+
+        // Add statistics
+        var allUsers = await _userRepository.GetAllUsersAsync();
+        result.LevelCounts = allUsers
+            .Where(u => !string.IsNullOrEmpty(u.TennisLevel))
+            .GroupBy(u => u.TennisLevel)
+            .ToDictionary(g => g.Key, g => g.Count());
+        
+        result.LocationCounts = allUsers
+            .Where(u => !string.IsNullOrEmpty(u.PreferredLocation))
+            .GroupBy(u => u.PreferredLocation)
+            .ToDictionary(g => g.Key, g => g.Count());
+        
+        result.AvailableLevels = allUsers
+            .Where(u => !string.IsNullOrEmpty(u.TennisLevel))
+            .Select(u => u.TennisLevel)
+            .Distinct()
+            .OrderBy(l => l)
+            .ToList();
+        
+        result.AvailableLocations = allUsers
+            .Where(u => !string.IsNullOrEmpty(u.PreferredLocation))
+            .Select(u => u.PreferredLocation)
+            .Distinct()
+            .OrderBy(l => l)
+            .ToList();
+
+        return result;
     }
 }
