@@ -11,14 +11,16 @@ export default function UserBootstrap() {
     const user = useSelector((state: RootState) => state.user);
 
     useEffect(() => {
-        const userStr = sessionStorage.getItem("user") || localStorage.getItem("user");
-        const token = sessionStorage.getItem("token") || localStorage.getItem("token");
+        const userStr = localStorage.getItem("user");
+        const token = localStorage.getItem("token");
         if (userStr && token) {
             try {
                 const userObj = JSON.parse(userStr);
                 dispatch(setUser({ ...userObj, token }));
                 return;
-            } catch {}
+            } catch (error) {
+                console.error('Failed to parse user data:', error);
+            }
         }
         // init status
         dispatch(hydrateUser());
@@ -32,10 +34,14 @@ export default function UserBootstrap() {
         
         if (user.userId && user.token) {
             console.log('UserBootstrap: Starting SignalR connection...');
-            signalRService.startConnection();
+            signalRService.startConnection().catch(error => {
+                console.error('UserBootstrap: Failed to start SignalR connection:', error);
+            });
         } else {
             console.log('UserBootstrap: Stopping SignalR connection...');
-            signalRService.stopConnection();
+            signalRService.stopConnection().catch(error => {
+                console.error('UserBootstrap: Failed to stop SignalR connection:', error);
+            });
         }
     }, [user.userId, user.token]);
 

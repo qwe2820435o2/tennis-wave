@@ -50,6 +50,17 @@ const chatSlice = createSlice({
             }
             state.messages[key].push(action.payload.message);
         },
+        removeTempMessage(
+            state,
+            action: PayloadAction<{ conversationId: number | string; content: string }>
+        ) {
+            const key = Number(action.payload.conversationId);
+            if (state.messages[key]) {
+                state.messages[key] = state.messages[key].filter(
+                    msg => !(msg.isTemp && msg.content === action.payload.content)
+                );
+            }
+        },
     },
 });
 
@@ -59,6 +70,7 @@ export const {
     setUnreadCounts,
     updateUnreadCount,
     addMessage,
+    removeTempMessage,
 } = chatSlice.actions;
 
 export default chatSlice.reducer;

@@ -44,21 +44,12 @@ export default function LoginPage() {
         try {
             const result = await login(formData);
             // Store token and user info
-            if (rememberMe) {
-                localStorage.setItem("token", result.token);
-                localStorage.setItem("user", JSON.stringify({
-                    userId: result.userId,
-                    userName: result.userName,
-                    email: result.email
-                }));
-            } else {
-                sessionStorage.setItem("token", result.token);
-                sessionStorage.setItem("user", JSON.stringify({
-                    userId: result.userId,
-                    userName: result.userName,
-                    email: result.email
-                }));
-            }
+            localStorage.setItem("token", result.token);
+            localStorage.setItem("user", JSON.stringify({
+                userId: result.userId,
+                userName: result.userName,
+                email: result.email
+            }));
             toast.success("Login Successful", {
                 description: `Welcome back, ${result.userName}!`,
             });
@@ -69,8 +60,9 @@ export default function LoginPage() {
                 email: result.email,
                 token: result.token,
             }));
-            // Jump to homepage
+            // Jump to homepage and force reload
             router.push("/");
+            window.location.reload();
         } catch (error: unknown) {
             let errorMessage = "Please check your email and password";
             if (error && typeof error === "object" && "isAxiosError" in error) {

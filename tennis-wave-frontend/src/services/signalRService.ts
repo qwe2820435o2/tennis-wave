@@ -1,6 +1,6 @@
 import * as signalR from '@microsoft/signalr';
 import { store } from '../store';
-import { addMessage, updateUnreadCount } from '../store/slices/chatSlice';
+import { addMessage, updateUnreadCount, removeTempMessage } from '../store/slices/chatSlice';
 
 class SignalRService {
     private connection: signalR.HubConnection | null = null;
@@ -9,27 +9,37 @@ class SignalRService {
     private maxReconnectAttempts = 5;
     private readyPromise: Promise<void> | null = null;
     private readyResolve: (() => void) | null = null;
+    private readyReject: ((error: any) => void) | null = null;
 
     async startConnection(): Promise<void> {
-        if (this.connection?.state === signalR.HubConnectionState.Connected || this.isConnecting) {
+        if (this.connection?.state === signalR.HubConnectionState.Connected) {
+            console.log('SignalR already connected');
+            return;
+        }
+
+        if (this.isConnecting) {
+            console.log('SignalR connection already in progress');
             return;
         }
 
         this.isConnecting = true;
-        this.readyPromise = new Promise<void>(resolve => this.readyResolve = resolve);
+        this.readyPromise = new Promise<void>((resolve, reject) => {
+            this.readyResolve = resolve;
+            this.readyReject = reject;
+        });
 
         try {
             const token = localStorage.getItem("token");
             if (!token) {
-                console.warn('No authentication token available for SignalR connection');
-                return;
+                throw new Error('No authentication token available for SignalR connection');
             }
 
+            console.log('Creating SignalR connection...');
             this.connection = new signalR.HubConnectionBuilder()
                 .withUrl(`http://localhost:5161/chatHub?access_token=${token}`, {
                     withCredentials: true
                 })
-                .withAutomaticReconnect([0, 2000, 5000, 10000, 30000]) // Reconnection intervals
+                .withAutomaticReconnect([0, 2000, 5000, 10000, 30000])
                 .configureLogging(signalR.LogLevel.Information)
                 .build();
 
@@ -37,9 +47,11 @@ class SignalRService {
             this.setupEventHandlers();
 
             // Start connection
+            console.log('Starting SignalR connection...');
             await this.connection.start();
+            
             this.readyResolve?.();
-            console.log('SignalR connection established');
+            console.log('SignalR connection established successfully');
             console.log('Connection state:', this.connection.state);
             console.log('Connection ID:', this.connection.connectionId);
             this.reconnectAttempts = 0;
@@ -48,6 +60,7 @@ class SignalRService {
         } catch (error) {
             console.error('Failed to start SignalR connection:', error);
             this.isConnecting = false;
+            this.readyReject?.(error);
             this.handleReconnection();
         }
     }
@@ -59,6 +72,11 @@ class SignalRService {
         this.connection.on('ReceiveMessage', (message) => {
             console.log('Received message via SignalR:', message);
             console.log('Dispatching addMessage for conversationId:', message.conversationId);
+            // Remove temp message with same content
+            store.dispatch(removeTempMessage({
+                conversationId: message.conversationId,
+                content: message.content
+            }));
             store.dispatch(addMessage({
                 conversationId: message.conversationId,
                 message: message
@@ -80,16 +98,19 @@ class SignalRService {
         // Handle connection events
         this.connection.onclose((error) => {
             console.log('SignalR connection closed:', error);
+            this.isConnecting = false;
             this.handleReconnection();
         });
 
         this.connection.onreconnecting((error) => {
             console.log('SignalR reconnecting:', error);
+            this.isConnecting = true;
         });
 
         this.connection.onreconnected((connectionId) => {
             console.log('SignalR reconnected with connection ID:', connectionId);
             this.reconnectAttempts = 0;
+            this.isConnecting = false;
         });
     }
 
@@ -118,7 +139,10 @@ class SignalRService {
                 console.log(`Joined conversation: ${conversationId}`);
             } catch (error) {
                 console.error('Failed to join conversation:', error);
+                throw error;
             }
+        } else {
+            console.warn('SignalR not connected, cannot join conversation');
         }
     }
 
@@ -138,18 +162,21 @@ class SignalRService {
         console.log('Connection state:', this.connection?.state);
         console.log('Is connected:', this.isConnected());
         
-        if (this.connection?.state === signalR.HubConnectionState.Connected) {
-            try {
-                console.log(`Sending message to conversation ${conversationId}: ${content}`);
-                await this.connection.invoke('SendMessage', conversationId, content);
-                console.log('Message sent via SignalR successfully');
-            } catch (error) {
-                console.error('Failed to send message via SignalR:', error);
-                throw error;
-            }
-        } else {
-            console.error('SignalR connection not available. State:', this.connection?.state);
-            throw new Error('SignalR connection not available');
+        if (!this.connection) {
+            throw new Error('SignalR connection not initialized');
+        }
+
+        if (this.connection.state !== signalR.HubConnectionState.Connected) {
+            throw new Error(`SignalR connection not available. State: ${this.connection.state}`);
+        }
+
+        try {
+            console.log(`Sending message to conversation ${conversationId}: ${content}`);
+            await this.connection.invoke('SendMessage', conversationId, content);
+            console.log('Message sent via SignalR successfully');
+        } catch (error) {
+            console.error('Failed to send message via SignalR:', error);
+            throw error;
         }
     }
 
@@ -174,6 +201,9 @@ class SignalRService {
             } finally {
                 this.connection = null;
                 this.isConnecting = false;
+                this.readyPromise = null;
+                this.readyResolve = null;
+                this.readyReject = null;
             }
         }
     }
@@ -187,8 +217,23 @@ class SignalRService {
     }
 
     async waitForReady(): Promise<void> {
-        if (this.connection?.state === signalR.HubConnectionState.Connected) return;
-        if (this.readyPromise) await this.readyPromise;
+        if (this.connection?.state === signalR.HubConnectionState.Connected) {
+            return;
+        }
+        
+        if (this.readyPromise) {
+            await this.readyPromise;
+        } else {
+            throw new Error('SignalR connection not initialized');
+        }
+    }
+
+    // 新增：检查连接状态并尝试重新连接
+    async ensureConnection(): Promise<void> {
+        if (!this.isConnected()) {
+            console.log('SignalR not connected, attempting to start connection...');
+            await this.startConnection();
+        }
     }
 }
 
