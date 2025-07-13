@@ -25,9 +25,39 @@ namespace tennis_wave_api.Data
 
         public async Task<Message> CreateMessageAsync(Message message)
         {
-            _context.Messages.Add(message);
-            await _context.SaveChangesAsync();
-            return message;
+            try
+            {
+                Console.WriteLine($"[MessageRepository] Creating message - Conversation: {message.ConversationId}, Sender: {message.SenderId}, Content: {message.Content}");
+                
+                // Ensure required fields are set
+                if (message.CreatedAt == null)
+                {
+                    message.CreatedAt = DateTime.UtcNow;
+                }
+                
+                if (message.IsRead == null)
+                {
+                    message.IsRead = false;
+                }
+
+                _context.Messages.Add(message);
+                await _context.SaveChangesAsync();
+                
+                // Reload the message with sender information
+                var createdMessage = await _context.Messages
+                    .Include(m => m.Sender)
+                    .FirstOrDefaultAsync(m => m.Id == message.Id);
+                
+                Console.WriteLine($"[MessageRepository] Message created successfully - ID: {message.Id}");
+                
+                return createdMessage ?? message;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[MessageRepository] Failed to create message - Error: {ex.Message}");
+                Console.WriteLine($"[MessageRepository] Failed to create message - Stack trace: {ex.StackTrace}");
+                throw;
+            }
         }
 
         public async Task<bool> MarkMessagesAsReadAsync(int conversationId, int userId)

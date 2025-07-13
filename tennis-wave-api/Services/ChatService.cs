@@ -133,29 +133,65 @@ namespace tennis_wave_api.Services
 
         public async Task<MessageDto> SendMessageAsync(int conversationId, SendMessageDto sendDto, int senderId)
         {
-            if (!await _conversationRepository.IsUserInConversationAsync(conversationId, senderId))
-                throw new Exception("User is not a participant in this conversation");
-
-            // Use AutoMapper to create message
-            var message = _mapper.Map<Message>(sendDto);
-            message.ConversationId = conversationId;
-            message.SenderId = senderId;
-
-            var createdMessage = await _messageRepository.CreateMessageAsync(message);
-
-            // Update conversation's last message time
-            var conversation = await _conversationRepository.GetConversationByIdAsync(conversationId);
-            if (conversation != null)
+            Console.WriteLine($"[ChatService] SendMessageAsync called - Conversation: {conversationId}, Sender: {senderId}, Content: {sendDto.Content}");
+            
+            try
             {
+                // Validate input
+                if (string.IsNullOrWhiteSpace(sendDto.Content))
+                {
+                    throw new ArgumentException("Message content cannot be empty");
+                }
+
+                // Check if user is in conversation
+                if (!await _conversationRepository.IsUserInConversationAsync(conversationId, senderId))
+                {
+                    Console.WriteLine($"[ChatService] SendMessageAsync failed - User {senderId} is not in conversation {conversationId}");
+                    throw new UnauthorizedAccessException("User is not a participant in this conversation");
+                }
+
+                // Check if conversation exists
+                var conversation = await _conversationRepository.GetConversationByIdAsync(conversationId);
+                if (conversation == null)
+                {
+                    Console.WriteLine($"[ChatService] SendMessageAsync failed - Conversation {conversationId} not found");
+                    throw new ArgumentException("Conversation not found");
+                }
+
+                // Use AutoMapper to create message
+                var message = _mapper.Map<Message>(sendDto);
+                message.ConversationId = conversationId;
+                message.SenderId = senderId;
+                message.CreatedAt = DateTime.UtcNow;
+                message.IsRead = false;
+
+                Console.WriteLine($"[ChatService] Creating message in database...");
+
+                // Save message to database
+                var createdMessage = await _messageRepository.CreateMessageAsync(message);
+
+                Console.WriteLine($"[ChatService] Message created successfully - ID: {createdMessage.Id}");
+
+                // Update conversation's last message time
                 conversation.LastMessageAt = DateTime.UtcNow;
                 await _conversationRepository.UpdateConversationAsync(conversation);
+
+                Console.WriteLine($"[ChatService] Conversation last message time updated");
+
+                // Use AutoMapper to map response
+                var messageDto = _mapper.Map<MessageDto>(createdMessage);
+                messageDto.IsFromCurrentUser = true;
+
+                Console.WriteLine($"[ChatService] SendMessageAsync completed successfully - Message ID: {messageDto.Id}");
+
+                return messageDto;
             }
-
-            // Use AutoMapper to map response
-            var messageDto = _mapper.Map<MessageDto>(createdMessage);
-            messageDto.IsFromCurrentUser = true;
-
-            return messageDto;
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[ChatService] SendMessageAsync failed - Error: {ex.Message}");
+                Console.WriteLine($"[ChatService] SendMessageAsync failed - Stack trace: {ex.StackTrace}");
+                throw;
+            }
         }
 
         public async Task<bool> MarkConversationAsReadAsync(int conversationId, int userId)
