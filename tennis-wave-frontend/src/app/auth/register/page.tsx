@@ -13,6 +13,7 @@ import {Volleyball} from "lucide-react";
 import {register} from "@/services/authService";
 import { useDispatch } from "react-redux";
 import { showLoading, hideLoading } from "@/store/slices/loadingSlice";
+import AvatarPicker from "@/components/common/AvatarPicker";
 
 export default function RegisterPage() {
     const [isLoading, setIsLoading] = useState(false);
@@ -21,6 +22,7 @@ export default function RegisterPage() {
         email: "",
         password: "",
         confirmPassword: "",
+        avatar: "avatar1.png", // Default avatar
     });
 
     const router = useRouter();
@@ -32,6 +34,14 @@ export default function RegisterPage() {
         setFormData(prev => ({
             ...prev,
             [name]: value
+        }));
+    };
+
+    // Handle avatar selection
+    const handleAvatarSelect = (avatar: string) => {
+        setFormData(prev => ({
+            ...prev,
+            avatar
         }));
     };
 
@@ -47,13 +57,13 @@ export default function RegisterPage() {
             return;
         }
 
-
         try {
             // Call register API
             await register({
                 userName: formData.userName,
                 email: formData.email,
                 password: formData.password,
+                avatar: formData.avatar,
             });
             toast.success("Registration successful", {
                 description: "You can now log in with your new account.",
@@ -159,6 +169,13 @@ export default function RegisterPage() {
                                     onChange={handleInputChange}
                                     className="bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:border-green-500 dark:focus:border-green-400"
                                     required
+                                />
+                            </div>
+                            {/* Avatar Selection */}
+                            <div className="space-y-2">
+                                <AvatarPicker
+                                    selectedAvatar={formData.avatar}
+                                    onAvatarSelect={handleAvatarSelect}
                                 />
                             </div>
                             {/* Register Button */}

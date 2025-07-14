@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { getUserById, updateUser, User } from "@/services/userService";
+import { userService } from "@/services/userService";
+import { User } from "@/types/user";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -11,11 +12,14 @@ import { format } from "date-fns";
 import { useDispatch } from "react-redux";
 import { showLoading, hideLoading } from "@/store/slices/loadingSlice";
 import {AxiosError} from "axios";
+import AvatarPicker from "@/components/common/AvatarPicker";
+import Avatar from "@/components/common/Avatar";
 
 export default function ProfilePage() {
     const [profile, setProfile] = useState<User | null>(null);
     const [formData, setFormData] = useState<Partial<User>>({});
     const [isLoading, setIsLoading] = useState(false);
+    const [showAvatarPicker, setShowAvatarPicker] = useState(false);
     const dispatch = useDispatch();
 
     // Fetch user profile on mount
@@ -27,7 +31,7 @@ export default function ProfilePage() {
                 const user = userStr ? JSON.parse(userStr) : null;
                 const userId = user?.userId;
                 if (!userId) return;
-                const data = await getUserById(userId);
+                const data = await userService.getUserById(userId);
                 setProfile(data);
                 setFormData(data);
             } catch(error: unknown) {
@@ -47,10 +51,19 @@ export default function ProfilePage() {
     // Handle input changes
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         const { name, value } = e.target;
-        setFormData(prev => ({
+        setFormData((prev: Partial<User>) => ({
             ...prev,
             [name]: value
         }));
+    };
+
+    // Handle avatar selection
+    const handleAvatarSelect = (avatar: string) => {
+        setFormData((prev: Partial<User>) => ({
+            ...prev,
+            avatar
+        }));
+        setShowAvatarPicker(false);
     };
 
     // Handle save
@@ -62,7 +75,7 @@ export default function ProfilePage() {
             const user = userStr ? JSON.parse(userStr) : null;
             const userId = user?.userId;
             if (!userId) return;
-            const updated = await updateUser(userId,formData);
+            const updated = await userService.updateUser(userId, formData);
             setProfile(updated);
             toast.success("Profile updated successfully");
         } catch(error: unknown) {
@@ -93,14 +106,36 @@ export default function ProfilePage() {
                     </CardHeader>
                     <CardContent>
                         <form className="space-y-6" onSubmit={e => { e.preventDefault(); handleSave(); }}>
-                            {/* Avatar */}
-                            <div className="flex flex-col items-center mb-4">
-                                <img
-                                    src={profile.avatar || "/default-avatar.png"}
-                                    alt="Avatar"
-                                    className="w-24 h-24 rounded-full object-cover border-4 border-green-400 dark:border-green-500 shadow-lg"
-                                />
+                            {/* Avatar Section */}
+                            <div className="flex flex-col items-center mb-6">
+                                <div className="relative mb-4">
+                                    <Avatar 
+                                        avatar={formData.avatar || profile.avatar} 
+                                        userName={formData.userName || profile.userName}
+                                        size="xl"
+                                        className="border-4 border-green-400 dark:border-green-500 shadow-lg"
+                                    />
+                                    <Button
+                                        type="button"
+                                        variant="outline"
+                                        size="sm"
+                                        onClick={() => setShowAvatarPicker(!showAvatarPicker)}
+                                        className="absolute -bottom-2 -right-2 bg-white dark:bg-gray-800 border-green-500 text-green-600 dark:text-green-400 hover:bg-green-50 dark:hover:bg-green-900/20"
+                                    >
+                                        Change
+                                    </Button>
+                                </div>
+                                
+                                {showAvatarPicker && (
+                                    <div className="w-full max-w-md">
+                                        <AvatarPicker
+                                            selectedAvatar={formData.avatar || profile.avatar}
+                                            onAvatarSelect={handleAvatarSelect}
+                                        />
+                                    </div>
+                                )}
                             </div>
+                            
                             {/* UserName */}
                             <div>
                                 <Label htmlFor="userName" className="text-gray-700 dark:text-gray-300">User Name</Label>

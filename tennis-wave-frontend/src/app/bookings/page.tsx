@@ -34,6 +34,7 @@ import {
     PaginationNext,
     PaginationPrevious,
 } from "@/components/ui/pagination";
+import Avatar from "@/components/common/Avatar";
 
 export default function BookingsPage() {
   const [searchResult, setSearchResult] = useState<TennisBookingSearchResultDto | null>(null);
@@ -294,12 +295,13 @@ export default function BookingsPage() {
                       {/* Creator */}
                       <div className="flex items-center justify-between pt-2 border-t border-gray-200 dark:border-gray-700">
                         <div className="flex items-center">
-                          <div className="w-8 h-8 bg-gray-300 dark:bg-gray-600 rounded-full flex items-center justify-center">
-                            <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                              {booking.creator.userName.charAt(0).toUpperCase()}
-                            </span>
-                          </div>
-                          <span className="ml-2 text-sm text-gray-600 dark:text-gray-300">
+                          <Avatar 
+                            avatar={booking.creator.avatar}
+                            userName={booking.creator.userName}
+                            size="sm"
+                            className="mr-2"
+                          />
+                          <span className="text-sm text-gray-600 dark:text-gray-300">
                             {booking.creator.userName}
                           </span>
                         </div>

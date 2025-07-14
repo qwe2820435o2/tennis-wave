@@ -17,6 +17,7 @@ export interface RegisterRequest {
     userName: string;
     email: string;
     password: string;
+    avatar?: string;
 }
 
 export interface RegisterResponse {
