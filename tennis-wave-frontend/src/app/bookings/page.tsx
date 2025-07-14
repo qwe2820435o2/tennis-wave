@@ -227,54 +227,6 @@ export default function BookingsPage() {
               )}
             </div>
             <div className="flex items-center space-x-4">
-              {/* Sort Options */}
-              <Select value={sortBy} onValueChange={handleSortChange}>
-                <SelectTrigger className="w-40">
-                  <SelectValue placeholder="Sort by" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="createdat">Date Created</SelectItem>
-                  <SelectItem value="bookingtime">Booking Time</SelectItem>
-                  <SelectItem value="title">Title</SelectItem>
-                  <SelectItem value="location">Location</SelectItem>
-                  <SelectItem value="currentparticipants">Participants</SelectItem>
-                </SelectContent>
-              </Select>
-              
-              {/* Sort Direction */}
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setSortDescending(!sortDescending)}
-                className="flex items-center gap-2"
-              >
-                {sortDescending ? "↓" : "↑"}
-                {sortBy === "createdat" ? "Date" : 
-                 sortBy === "bookingtime" ? "Time" : 
-                 sortBy === "title" ? "Title" : 
-                 sortBy === "location" ? "Location" : 
-                 sortBy === "currentparticipants" ? "Participants" : "Sort"}
-              </Button>
-
-              {/* View Mode Toggle */}
-              <div className="flex items-center bg-white dark:bg-gray-800 rounded-lg border border-gray-300 dark:border-gray-600 p-1">
-                <Button
-                  variant={viewMode === "list" ? "default" : "ghost"}
-                  size="sm"
-                  onClick={() => setViewMode("list")}
-                  className={viewMode === "list" ? "bg-green-600 dark:bg-green-500 text-white" : "text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"}
-                >
-                  <List className="w-4 h-4" />
-                </Button>
-                <Button
-                  variant={viewMode === "map" ? "default" : "ghost"}
-                  size="sm"
-                  onClick={() => setViewMode("map")}
-                  className={viewMode === "map" ? "bg-green-600 dark:bg-green-500 text-white" : "text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"}
-                >
-                  <Map className="w-4 h-4" />
-                </Button>
-              </div>
               <Link href="/bookings/create">
                 <Button className="bg-green-600 hover:bg-green-700 dark:bg-green-500 dark:hover:bg-green-600 rounded-lg shadow font-bold text-white">
                   <Plus className="w-4 h-4 mr-2" />

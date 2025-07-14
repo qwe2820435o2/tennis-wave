@@ -520,7 +520,12 @@ public class TennisBookingRepository : ITennisBookingRepository
 
     private IQueryable<TennisBooking> ApplySorting(IQueryable<TennisBooking> query, string? sortBy, bool sortDescending)
     {
-        return sortBy?.ToLower() switch
+        // Default to bookingtime desc if sortBy is null or empty
+        if (string.IsNullOrEmpty(sortBy))
+        {
+            return query.OrderByDescending(b => b.BookingTime);
+        }
+        return sortBy.ToLower() switch
         {
             "title" => sortDescending ? query.OrderByDescending(b => b.Title) : query.OrderBy(b => b.Title),
             "bookingtime" => sortDescending ? query.OrderByDescending(b => b.BookingTime) : query.OrderBy(b => b.BookingTime),
@@ -531,7 +536,7 @@ public class TennisBookingRepository : ITennisBookingRepository
             "maxparticipants" => sortDescending ? query.OrderByDescending(b => b.MaxParticipants) : query.OrderBy(b => b.MaxParticipants),
             "createdat" => sortDescending ? query.OrderByDescending(b => b.CreatedAt) : query.OrderBy(b => b.CreatedAt),
             "updatedat" => sortDescending ? query.OrderByDescending(b => b.UpdatedAt) : query.OrderBy(b => b.UpdatedAt),
-            _ => sortDescending ? query.OrderByDescending(b => b.CreatedAt) : query.OrderBy(b => b.CreatedAt)
+            _ => sortDescending ? query.OrderByDescending(b => b.BookingTime) : query.OrderBy(b => b.BookingTime)
         };
     }
 

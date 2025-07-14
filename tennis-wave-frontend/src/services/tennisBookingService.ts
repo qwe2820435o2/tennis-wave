@@ -206,7 +206,14 @@ export const tennisBookingService = {
 
   // Search bookings
   async searchBookings(searchDto: SearchBookingDto): Promise<TennisBookingSearchResultDto> {
-    const response = await axiosInstance.post('/api/tennisbooking/search', searchDto);
+    // Clean the searchDto: remove all fields with value "", null, or undefined
+    const cleanedSearchDto: Record<string, any> = {};
+    Object.entries(searchDto).forEach(([key, value]) => {
+      if (value !== "" && value !== undefined && value !== null) {
+        cleanedSearchDto[key] = value;
+      }
+    });
+    const response = await axiosInstance.post('/api/tennisbooking/search', cleanedSearchDto);
     return response.data.data;
   },
 
