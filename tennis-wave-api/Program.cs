@@ -124,7 +124,8 @@ builder.Services.AddCors(options =>
             policy.WithOrigins("http://localhost:3000") // 允许前端地址
                 .AllowAnyHeader()
                 .AllowAnyMethod()
-                .AllowCredentials(); // Required for SignalR
+                .AllowCredentials() // Required for SignalR
+                .SetIsOriginAllowedToAllowWildcardSubdomains(); // 允许子域名
         });
 });
 
@@ -161,11 +162,10 @@ else
 }
 
 
-// Cors
+// Cors - Must be before authentication and authorization
 app.UseCors(MyAllowSpecificOrigins);
 
 app.UseHttpsRedirection();
-
 
 // Add authentication and authorization middleware
 app.UseAuthentication();

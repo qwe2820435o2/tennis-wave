@@ -32,6 +32,8 @@ public class MappingProfile : Profile
                 opt => opt.MapFrom(src => src.Id) // The source property (in User)
             );
         
+        CreateMap<User, UserSearchDto>()
+            .ForMember(dest => dest.UserId, opt => opt.MapFrom(src => src.Id));
 
 
         // Chat mappings
@@ -60,8 +62,7 @@ public class MappingProfile : Profile
             .ForMember(dest => dest.Conversation, opt => opt.Ignore())
             .ForMember(dest => dest.Sender, opt => opt.Ignore());
 
-        CreateMap<User, UserSearchDto>()
-            .ForMember(dest => dest.UserId, opt => opt.MapFrom(src => src.Id));
+
 
         // Tennis Booking mappings
         CreateMap<TennisBooking, TennisBookingDto>()

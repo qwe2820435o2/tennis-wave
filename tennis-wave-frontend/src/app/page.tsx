@@ -5,6 +5,8 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Volleyball, Users, MapPin, Calendar, Trophy, MessageCircle } from "lucide-react";
+import { useDispatch } from "react-redux";
+import { hideLoading } from "@/store/slices/loadingSlice";
 
 interface User {
   userId: number;
@@ -14,6 +16,7 @@ interface User {
 
 export default function HomePage() {
   const [user, setUser] = useState<User | null>(null);
+  const dispatch = useDispatch();
 
   useEffect(() => {
     const userStr = sessionStorage.getItem("user") || localStorage.getItem("user");
@@ -27,7 +30,9 @@ export default function HomePage() {
         sessionStorage.removeItem("token");
       }
     }
-  }, []);
+    // 进入首页时关闭全局loading
+    dispatch(hideLoading());
+  }, [dispatch]);
 
   const features = [
     {

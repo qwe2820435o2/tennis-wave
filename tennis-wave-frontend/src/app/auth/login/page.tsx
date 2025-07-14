@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
@@ -12,7 +12,8 @@ import { Eye, EyeOff, Mail, Lock, Volleyball } from "lucide-react";
 import {login} from "@/services/authService";
 import {AxiosError} from "axios";
 import {setUser} from "@/store/slices/userSlice";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import type { RootState } from "@/store";
 import { showLoading, hideLoading } from "@/store/slices/loadingSlice";
 
 export default function LoginPage() {
@@ -26,6 +27,27 @@ export default function LoginPage() {
 
     const router = useRouter();
     const dispatch = useDispatch();
+    const user = useSelector((state: RootState) => state.user);
+
+    // 自动跳转：如果已登录则跳转到首页
+    useEffect(() => {
+        if (user.isHydrated) {
+            const token = localStorage.getItem("token");
+            const userStr = localStorage.getItem("user");
+            if (token && userStr) {
+                router.replace("/");
+            }
+        }
+    }, [router, user.isHydrated]);
+
+    // 登录状态未水合时显示 loading
+    if (!user.isHydrated) {
+        return (
+            <div className="min-h-screen flex items-center justify-center">
+                <div className="text-gray-500">Loading...</div>
+            </div>
+        );
+    }
 
     // Handle input field changes
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -62,7 +84,8 @@ export default function LoginPage() {
             }));
             // Jump to homepage and force reload
             router.push("/");
-            window.location.reload();
+            // 不再 setIsLoading(false)，让 loading 持续到跳转
+            // window.location.reload(); // 如无特殊需求可去掉
         } catch (error: unknown) {
             let errorMessage = "Please check your email and password";
             if (error && typeof error === "object" && "isAxiosError" in error) {
@@ -79,9 +102,7 @@ export default function LoginPage() {
                     });
                 }
             }
-
-        } finally {
-            setIsLoading(false);
+            setIsLoading(false); // 只有失败才 setIsLoading(false)
             dispatch(hideLoading());
         }
     };
