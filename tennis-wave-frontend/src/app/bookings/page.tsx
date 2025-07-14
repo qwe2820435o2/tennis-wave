@@ -37,7 +37,6 @@ import {
 
 export default function BookingsPage() {
   const [searchResult, setSearchResult] = useState<TennisBookingSearchResultDto | null>(null);
-  const [bookings, setBookings] = useState<TennisBooking[]>([]);
   const [viewMode, setViewMode] = useState<"list" | "map">("list");
   const [statistics, setStatistics] = useState<any>(null);
   const [currentPage, setCurrentPage] = useState(1);
@@ -47,32 +46,10 @@ export default function BookingsPage() {
   const dispatch = useDispatch();
 
   useEffect(() => {
-    loadBookings();
     loadStatistics();
+    // 页面初次加载和依赖变化时自动触发一次搜索
+    handleSearch({ page: currentPage, pageSize, sortBy, sortDescending });
   }, [currentPage, sortBy, sortDescending]);
-
-  const loadBookings = async () => {
-    try {
-      dispatch(showLoading());
-      const result = await tennisBookingService.getAvailableBookingsWithPagination(
-        currentPage, 
-        pageSize, 
-        sortBy, 
-        sortDescending
-      );
-      setSearchResult(result);
-      setBookings(result.items);
-    } catch (error: unknown) {
-      if (error && typeof error === "object" && "isAxiosError" in error) {
-        const axiosError = error as AxiosError;
-        if (axiosError.response?.status !== 401) {
-          toast.error("Failed to load bookings");
-        }
-      }
-    } finally {
-      dispatch(hideLoading());
-    }
-  };
 
   const loadStatistics = async () => {
     try {
@@ -88,7 +65,6 @@ export default function BookingsPage() {
       dispatch(showLoading());
       const result = await tennisBookingService.searchBookings(searchDto);
       setSearchResult(result);
-      setBookings(result.items);
       setCurrentPage(1);
     } catch (error: unknown) {
       if (error && typeof error === "object" && "isAxiosError" in error) {
@@ -105,7 +81,8 @@ export default function BookingsPage() {
   const handleReset = () => {
     setSearchResult(null);
     setCurrentPage(1);
-    loadBookings();
+    // 重置后自动触发一次搜索
+    handleSearch({ page: 1, pageSize, sortBy, sortDescending });
   };
 
   const handlePageChange = (page: number) => {
@@ -121,7 +98,7 @@ export default function BookingsPage() {
     }
   };
 
-  const displayBookings = searchResult ? searchResult.items : bookings;
+  const displayBookings = searchResult && Array.isArray(searchResult.items) ? searchResult.items : [];
   const totalPages = searchResult ? searchResult.totalPages : 1;
 
   const renderPagination = () => {
