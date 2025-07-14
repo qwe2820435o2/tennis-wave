@@ -86,9 +86,9 @@ export default function HomePage() {
 
               {user ? (
                   <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                    <Link href="/matches">
+                    <Link href="/bookings">
                       <Button size="lg" className="bg-green-600 hover:bg-green-700 dark:bg-green-500 dark:hover:bg-green-600 text-lg px-8 py-3 text-white">
-                        Find Matches
+                        Find Bookings
                       </Button>
                     </Link>
                     <Link href="/profile">

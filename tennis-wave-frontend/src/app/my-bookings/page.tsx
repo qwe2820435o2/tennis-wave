@@ -42,7 +42,15 @@ export default function MyBookingsPage() {
         try {
             dispatch(showLoading());
             const data = await tennisBookingService.getMyBookings();
-            setBookings(data);
+            // 修复：保证bookings为数组
+            const anyData = data as any;
+            if (Array.isArray(anyData)) {
+                setBookings(anyData);
+            } else if (anyData && Array.isArray(anyData.items)) {
+                setBookings(anyData.items);
+            } else {
+                setBookings([]);
+            }
         } catch (error: any) {
             if (error.isAuthError) return; // 已全局处理，无需重复toast
             console.error("Failed to load bookings:", error);
