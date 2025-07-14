@@ -42,7 +42,8 @@ public class AuthService : IAuthService
             UserName = registerDto.UserName,
             Email = registerDto.Email,
             // Hash the password securely using BCrypt before storing it.
-            PasswordHash = BCrypt.Net.BCrypt.HashPassword(registerDto.Password)
+            PasswordHash = BCrypt.Net.BCrypt.HashPassword(registerDto.Password),
+            Avatar = registerDto.Avatar ?? "avatar1.png" // Default avatar if not provided
         };
         
         var createdUser = await _userRepository.CreateUserAsync(user);
