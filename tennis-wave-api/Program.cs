@@ -22,8 +22,18 @@ Log.Logger = new LoggerConfiguration()
 
 builder.Host.UseSerilog();
 
-// Set up JWT
+// Set up JWT with environment variable support
 var jwtSettings = builder.Configuration.GetSection("JwtSettings").Get<JwtSettings>();
+if (jwtSettings == null)
+{
+    jwtSettings = new JwtSettings
+    {
+        SecretKey = Environment.GetEnvironmentVariable("JWT_SECRET_KEY") ?? "your-super-secret-key-here-make-it-long-and-random-at-least-32-characters",
+        Issuer = Environment.GetEnvironmentVariable("JWT_ISSUER") ?? "tennis-wave-api",
+        Audience = Environment.GetEnvironmentVariable("JWT_AUDIENCE") ?? "tennis-wave-users",
+        ExpiryInMinutes = 60
+    };
+}
 builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection("JwtSettings"));
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
@@ -100,8 +110,11 @@ builder.Services.AddSwaggerGen(c =>
 });
 
 // Add services to the container.
+var connectionString = Environment.GetEnvironmentVariable("DATABASE_URL") ?? 
+                      builder.Configuration.GetConnectionString("DefaultConnection");
+
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+    options.UseSqlServer(connectionString));
 
 // Add Controllers
 builder.Services.AddControllers();
