@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # 
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "tennis-wave-api", "tennis-wave-api.csproj", "{C490A4A6-C5FE-44F7-B9B2-F047FF0593F8}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "tennis-wave-api.Tests", "tennis-wave-api.Tests\tennis-wave-api.Tests.csproj", "{8E71D859-1C0F-4838-A271-C22E51CBC687}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "tennis-wave-api.Tests", "tennis-wave-api.Tests/tennis-wave-api.Tests.csproj", "{8E71D859-1C0F-4838-A271-C22E51CBC687}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

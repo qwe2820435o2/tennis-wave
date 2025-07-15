@@ -121,7 +121,12 @@ builder.Services.AddCors(options =>
     options.AddPolicy(name: MyAllowSpecificOrigins,
         policy =>
         {
-            policy.WithOrigins("http://localhost:3000") // 允许前端地址
+            policy.WithOrigins(
+                    "http://localhost:3000", // 本地开发
+                    "https://localhost:3000", // 本地开发 HTTPS
+                    "https://*.railway.app", // Railway 域名
+                    "https://*.vercel.app" // Vercel 域名（如果前端部署在 Vercel）
+                )
                 .AllowAnyHeader()
                 .AllowAnyMethod()
                 .AllowCredentials() // Required for SignalR
