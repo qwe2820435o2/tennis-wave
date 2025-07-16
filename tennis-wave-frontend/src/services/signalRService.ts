@@ -35,8 +35,9 @@ class SignalRService {
             }
 
             console.log('Creating SignalR connection...');
+            const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5161';
             this.connection = new signalR.HubConnectionBuilder()
-                .withUrl(`http://localhost:5161/chatHub?access_token=${token}`, {
+                .withUrl(`${baseUrl}/chatHub?access_token=${token}`, {
                     withCredentials: true
                 })
                 .withAutomaticReconnect([0, 2000, 5000, 10000, 30000])

@@ -5,7 +5,7 @@ import { clearUser } from "@/store/slices/userSlice";
 
 // Create axios instance
 const instance = axios.create({
-    baseURL: 'http://localhost:5161'
+    baseURL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5161'
 });
 
 // Add token
