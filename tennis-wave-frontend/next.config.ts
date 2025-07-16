@@ -2,15 +2,15 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   /* config options here */
+  // Ignore ESLint errors during production build
   eslint: {
-    // 在生产构建时忽略 ESLint 错误
     ignoreDuringBuilds: true,
   },
+  // Ignore TypeScript errors during production build
   typescript: {
-    // 在生产构建时忽略 TypeScript 错误
     ignoreBuildErrors: true,
   },
-  // 禁用 standalone 输出，使用传统启动方式
+  // Disable standalone output, use traditional startup mode
   // output: 'standalone',
 };
 

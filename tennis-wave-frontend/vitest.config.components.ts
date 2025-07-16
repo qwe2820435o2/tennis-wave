@@ -9,10 +9,15 @@ export default defineConfig({
   test: {
     environment: 'jsdom',
     setupFiles: ['./src/test/setup.ts'],
-    include: ['src/**/*.simple.test.{ts,tsx}', 'src/test/simple.test.{ts,tsx}'],
+    include: ['src/**/*.test.{ts,tsx}', 'src/test/simple.test.{ts,tsx}'],
     exclude: ['src/**/*.stories.{ts,tsx}', 'src/**/*.spec.{ts,tsx}'],
     globals: true,
     testTimeout: 10000,
+    environmentOptions: {
+      jsdom: {
+        resources: 'usable',
+      },
+    },
   },
   resolve: {
     alias: {

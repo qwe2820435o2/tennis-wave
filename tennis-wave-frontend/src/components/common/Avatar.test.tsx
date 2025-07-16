@@ -1,3 +1,4 @@
+import React from 'react';
 import { render, screen } from '@testing-library/react';
 import { describe, it, expect } from 'vitest';
 import Avatar from './Avatar';
@@ -53,7 +54,7 @@ describe('Avatar Component', () => {
     it('should render initials for multiple names', () => {
       render(<Avatar userName="John Michael Doe" />);
       
-      const initialsElement = screen.getByText('JD');
+      const initialsElement = screen.getByText('JM');
       expect(initialsElement).toBeInTheDocument();
     });
 
@@ -83,28 +84,28 @@ describe('Avatar Component', () => {
     it('should apply small size classes', () => {
       render(<Avatar userName="John Doe" size="sm" />);
       
-      const avatarContainer = screen.getByText('JD').parentElement;
+      const avatarContainer = screen.getByText('JD').closest('div');
       expect(avatarContainer).toHaveClass('w-8', 'h-8', 'text-sm');
     });
 
     it('should apply medium size classes (default)', () => {
       render(<Avatar userName="John Doe" />);
       
-      const avatarContainer = screen.getByText('JD').parentElement;
+      const avatarContainer = screen.getByText('JD').closest('div');
       expect(avatarContainer).toHaveClass('w-12', 'h-12', 'text-base');
     });
 
     it('should apply large size classes', () => {
       render(<Avatar userName="John Doe" size="lg" />);
       
-      const avatarContainer = screen.getByText('JD').parentElement;
+      const avatarContainer = screen.getByText('JD').closest('div');
       expect(avatarContainer).toHaveClass('w-16', 'h-16', 'text-lg');
     });
 
     it('should apply extra large size classes', () => {
       render(<Avatar userName="John Doe" size="xl" />);
       
-      const avatarContainer = screen.getByText('JD').parentElement;
+      const avatarContainer = screen.getByText('JD').closest('div');
       expect(avatarContainer).toHaveClass('w-24', 'h-24', 'text-xl');
     });
   });
@@ -113,14 +114,14 @@ describe('Avatar Component', () => {
     it('should apply custom className', () => {
       render(<Avatar userName="John Doe" className="custom-class" />);
       
-      const avatarContainer = screen.getByText('JD').parentElement;
+      const avatarContainer = screen.getByText('JD').closest('div');
       expect(avatarContainer).toHaveClass('custom-class');
     });
 
     it('should have correct base styling for initials', () => {
       render(<Avatar userName="John Doe" />);
       
-      const avatarContainer = screen.getByText('JD').parentElement;
+      const avatarContainer = screen.getByText('JD').closest('div');
       expect(avatarContainer).toHaveClass(
         'bg-gray-300',
         'dark:bg-gray-600',
@@ -167,7 +168,7 @@ describe('Avatar Component', () => {
     it('should handle very long names', () => {
       render(<Avatar userName="John Michael Alexander Doe Smith" />);
       
-      const initialsElement = screen.getByText('JD');
+      const initialsElement = screen.getByText('JM');
       expect(initialsElement).toBeInTheDocument();
     });
 

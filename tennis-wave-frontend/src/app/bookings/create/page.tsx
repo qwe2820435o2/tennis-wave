@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -119,7 +119,7 @@ export default function CreateBookingPage() {
         <div className="mb-8">
           <Link href="/bookings" className="inline-flex items-center text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white mb-4">
             <ArrowLeft className="w-4 h-4 mr-2" />
-            返回约球大厅
+            Back to Booking Hall
           </Link>
           <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Publish Booking</h1>
           <p className="text-gray-600 dark:text-gray-300 mt-2">Create a new tennis booking, invite friends to join</p>
@@ -131,7 +131,7 @@ export default function CreateBookingPage() {
             <CardDescription className="text-gray-600 dark:text-gray-300">Fill in the details of the booking, so other players can understand your needs</CardDescription>
           </CardHeader>
           <CardContent>
-            <form onSubmit={handleSubmit} className="space-y-6">
+            <form onSubmit={handleSubmit} className="space-y-6" data-testid="create-booking-form">
               {/* Basic Information */}
               <div className="space-y-4">
                 <div>

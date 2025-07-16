@@ -1,10 +1,10 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useParams } from "next/navigation";
 import { chatService } from "@/services/chatService";
-import { setMessages, addMessage } from "@/store/slices/chatSlice";
+import { setMessages, addMessage, selectMessages } from "@/store/slices/chatSlice";
 import { RootState } from "@/store";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -16,7 +16,7 @@ import { toast } from "sonner";
 export default function ChatDetailPage() {
     const { conversationId } = useParams();
     const dispatch = useDispatch();
-    const messages = useSelector((state: RootState) => state.chat.messages[Number(conversationId)] || []);
+    const messages = useSelector((state: RootState) => selectMessages(state)[Number(conversationId)] || []);
     const user = useSelector((state: RootState) => state.user);
     const [otherUserName, setOtherUserName] = useState<string>("");
     const [otherUserAvatar, setOtherUserAvatar] = useState<string>("");
@@ -203,8 +203,9 @@ export default function ChatDetailPage() {
                 <div ref={messagesEndRef} />
             </div>
             {/* Input */}
-            <form className="p-4 border-t border-gray-200 dark:border-gray-700 flex gap-3 bg-white/90 dark:bg-gray-900/90 rounded-b-2xl shadow-inner" onSubmit={e => { e.preventDefault(); handleSend(); }}>
+            <form className="p-4 border-t border-gray-200 dark:border-gray-700 flex gap-3 bg-white/90 dark:bg-gray-900/90 rounded-b-2xl shadow-inner" data-testid="chat-form" onSubmit={e => { e.preventDefault(); handleSend(); }}>
                 <Input
+                    type="text"
                     className="flex-1 rounded-full bg-gray-50 dark:bg-gray-800 border border-green-200 dark:border-gray-600 focus:border-green-500 dark:focus:border-green-400 focus:ring-green-200 dark:focus:ring-green-800 shadow-sm px-4 py-2 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500"
                     value={input}
                     onChange={e => setInput(e.target.value)}

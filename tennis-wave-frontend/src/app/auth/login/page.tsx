@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
@@ -15,6 +15,7 @@ import {setUser} from "@/store/slices/userSlice";
 import { useDispatch, useSelector } from "react-redux";
 import type { RootState } from "@/store";
 import { showLoading, hideLoading } from "@/store/slices/loadingSlice";
+import { selectIsHydrated } from "@/store/slices/userSlice";
 
 export default function LoginPage() {
     const [isLoading, setIsLoading] = useState(false);
@@ -27,21 +28,21 @@ export default function LoginPage() {
 
     const router = useRouter();
     const dispatch = useDispatch();
-    const user = useSelector((state: RootState) => state.user);
+    const isHydrated = useSelector(selectIsHydrated);
 
     // 自动跳转：如果已登录则跳转到首页
     useEffect(() => {
-        if (user.isHydrated) {
+        if (isHydrated) {
             const token = localStorage.getItem("token");
             const userStr = localStorage.getItem("user");
             if (token && userStr) {
                 router.replace("/");
             }
         }
-    }, [router, user.isHydrated]);
+    }, [router, isHydrated]);
 
     // 登录状态未水合时显示 loading
-    if (!user.isHydrated) {
+    if (!isHydrated) {
         return (
             <div className="min-h-screen flex items-center justify-center">
                 <div className="text-gray-500">Loading...</div>

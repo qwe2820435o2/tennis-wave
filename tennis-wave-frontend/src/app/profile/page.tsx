@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { userService } from "@/services/userService";
 import { User } from "@/types/user";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -92,7 +92,7 @@ export default function ProfilePage() {
         }
     };
 
-    // 移除本地loading占位
+    // Remove local loading placeholder
     if (!profile) {
         return null;
     }
@@ -105,7 +105,7 @@ export default function ProfilePage() {
                         <CardTitle className="text-2xl text-center text-green-700 dark:text-green-400 font-bold">My Profile</CardTitle>
                     </CardHeader>
                     <CardContent>
-                        <form className="space-y-6" onSubmit={e => { e.preventDefault(); handleSave(); }}>
+                        <form className="space-y-6" data-testid="profile-form" onSubmit={e => { e.preventDefault(); handleSave(); }}>
                             {/* Avatar Section */}
                             <div className="flex flex-col items-center mb-6">
                                 <div className="relative mb-4">

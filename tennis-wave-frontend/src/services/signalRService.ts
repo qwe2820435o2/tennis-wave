@@ -229,7 +229,7 @@ class SignalRService {
         }
     }
 
-    // 新增：检查连接状态并尝试重新连接
+    // Added: Check connection status and try to reconnect
     async ensureConnection(): Promise<void> {
         if (!this.isConnected()) {
             console.log('SignalR not connected, attempting to start connection...');

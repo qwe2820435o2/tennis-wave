@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -13,19 +13,24 @@ import { TennisBooking} from "@/types/tennisBooking";
 import { getBookingStatusLabel, getBookingStatusColor, getBookingTypeLabel } from "@/types/tennisBooking";
 import type { RootState } from "@/store";
 import { showLoading, hideLoading } from "@/store/slices/loadingSlice";
+import { selectUserId, selectUserName, selectEmail, selectToken, selectIsHydrated } from "@/store/slices/userSlice";
 
 export default function MyBookingsPage() {
     const [bookings, setBookings] = useState<TennisBooking[]>([]);
     const [pendingDeleteId, setPendingDeleteId] = useState<number | null>(null);
-    const user = useSelector((state: RootState) => state.user);
+    const userId = useSelector(selectUserId);
+    const userName = useSelector(selectUserName);
+    const email = useSelector(selectEmail);
+    const token = useSelector(selectToken);
+    const isHydrated = useSelector(selectIsHydrated);
     const router = useRouter();
     const dispatch = useDispatch();
 
     useEffect(() => {
-        if (user.isHydrated && user.userId) {
+        if (isHydrated && userId) {
             loadBookings();
         }
-    }, [user.isHydrated, user.userId]);
+    }, [isHydrated, userId]);
 
     const openDeleteDialog = (bookingId: number) => {
         setPendingDeleteId(bookingId);
@@ -73,13 +78,13 @@ export default function MyBookingsPage() {
     };
 
     // Separate bookings by creator and participant
-    const createdBookings = bookings.filter(booking => booking.creatorId === user.userId);
+    const createdBookings = bookings.filter(booking => booking.creatorId === userId);
     const participatedBookings: TennisBooking[] = [];
 
     // Find bookings where user is a participant but not the creator
     bookings.forEach(booking => {
-        if (booking.creatorId !== user.userId && 
-            booking.participants.some(p => p.userId === user.userId)) {
+        if (booking.creatorId !== userId && 
+            booking.participants.some(p => p.userId === userId)) {
             participatedBookings.push(booking);
         }
     });
@@ -214,6 +219,7 @@ export default function MyBookingsPage() {
                                                         size="sm"
                                                         onClick={() => router.push(`/bookings/${booking.id}?edit=1`)}
                                                         className="rounded-lg border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700"
+                                                        aria-label="Edit"
                                                     >
                                                         <Edit className="w-4 h-4" />
                                                     </Button>
@@ -222,6 +228,7 @@ export default function MyBookingsPage() {
                                                         size="sm"
                                                         onClick={() => openDeleteDialog(booking.id)}
                                                         className="text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 rounded-lg border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700"
+                                                        aria-label="Delete"
                                                     >
                                                         <Trash2 className="w-4 h-4" />
                                                     </Button>

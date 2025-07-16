@@ -46,10 +46,10 @@ instance.interceptors.response.use(
                 window.location.href = "/auth/login";
                 hasShownSessionExpired = false;
             }, 1500);
-            // 返回特殊对象，业务层可识别
+            // Return a special object, recognizable by business layer
             return Promise.reject({ isAuthError: true });
         }
-        // 401但已弹过toast，业务层也可识别
+        // 401 but toast already shown, also recognizable by business layer
         if (error.response && error.response.status === 401) {
             return Promise.reject({ isAuthError: true });
         }

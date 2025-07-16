@@ -26,7 +26,7 @@ export const chatService = {
     },
     getUnreadCounts: async (): Promise<{ [conversationId: number]: number }> => {
         const res = await axiosInstance.get("/api/chat/unread-counts");
-        // 转换为map
+        // Convert to map
         const map: { [conversationId: number]: number } = {};
         res.data.data.forEach((item: { conversationId: number; unreadCount: number }) => {
             map[item.conversationId] = item.unreadCount;

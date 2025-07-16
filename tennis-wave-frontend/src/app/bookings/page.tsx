@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -48,7 +48,7 @@ export default function BookingsPage() {
 
   useEffect(() => {
     loadStatistics();
-    // 页面初次加载和依赖变化时自动触发一次搜索
+    // Automatically trigger a search on initial page load and when dependencies change
     handleSearch({ page: currentPage, pageSize, sortBy, sortDescending });
   }, [currentPage, sortBy, sortDescending]);
 
@@ -82,7 +82,7 @@ export default function BookingsPage() {
   const handleReset = () => {
     setSearchResult(null);
     setCurrentPage(1);
-    // 重置后自动触发一次搜索
+    // Automatically trigger a search after reset
     handleSearch({ page: 1, pageSize, sortBy, sortDescending });
   };
 
@@ -296,13 +296,13 @@ export default function BookingsPage() {
                       <div className="flex items-center justify-between pt-2 border-t border-gray-200 dark:border-gray-700">
                         <div className="flex items-center">
                           <Avatar 
-                            avatar={booking.creator.avatar}
-                            userName={booking.creator.userName}
+                            avatar={booking.creator?.avatar}
+                            userName={booking.creator?.userName}
                             size="sm"
                             className="mr-2"
                           />
                           <span className="text-sm text-gray-600 dark:text-gray-300">
-                            {booking.creator.userName}
+                            {booking.creator?.userName}
                           </span>
                         </div>
                         <Link href={`/bookings/${booking.id}`}>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -33,13 +33,14 @@ import Link from "next/link";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Clock } from "lucide-react";
+import { selectUserId } from "@/store/slices/userSlice";
 
 export default function BookingDetailPage() {
   const params = useParams();
   const searchParams = useSearchParams();
   const router = useRouter();
   const dispatch = useDispatch();
-  const { userId } = useSelector((state: RootState) => state.user);
+  const userId = useSelector(selectUserId);
   
   const [booking, setBooking] = useState<TennisBooking | null>(null);
   const [requests, setRequests] = useState<BookingRequest[]>([]);
@@ -63,7 +64,7 @@ export default function BookingDetailPage() {
     }
   }, [bookingId]);
 
-  // 自动进入编辑模式
+  // Automatically enter edit mode
   useEffect(() => {
     if (searchParams.get("edit") === "1" && isCreator && booking) {
       setIsEditing(true);
@@ -559,7 +560,7 @@ export default function BookingDetailPage() {
                       <div className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
                         <div className="flex items-center">
                           <User className="w-5 h-5 mr-2 text-gray-500 dark:text-gray-400" />
-                          <span className="font-medium text-gray-900 dark:text-white">{booking.creator.userName}</span>
+                          <span className="font-medium text-gray-900 dark:text-white">{booking.creator?.userName}</span>
                           <Badge variant="outline" className="ml-2 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300">Creator</Badge>
                         </div>
                       </div>
@@ -567,7 +568,7 @@ export default function BookingDetailPage() {
                         <div key={participant.id} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
                           <div className="flex items-center">
                             <User className="w-5 h-5 mr-2 text-gray-500 dark:text-gray-400" />
-                            <span className="font-medium text-gray-900 dark:text-white">{participant.user.userName}</span>
+                            <span className="font-medium text-gray-900 dark:text-white">{participant.user?.userName}</span>
                             <Badge variant="outline" className="ml-2 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300">
                               {participant.status === 1 ? "Pending" : "Confirmed"}
                             </Badge>
@@ -592,7 +593,7 @@ export default function BookingDetailPage() {
                         {requests.map((request) => (
                           <div key={request.id} className="border border-gray-200 dark:border-gray-600 rounded-lg p-4 bg-gray-50 dark:bg-gray-700">
                             <div className="flex items-center justify-between mb-2">
-                              <span className="font-medium text-gray-900 dark:text-white">{request.requester.userName}</span>
+                              <span className="font-medium text-gray-900 dark:text-white">{request.requester?.userName}</span>
                               <Badge variant="outline" className="border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300">
                                 {request.status === 1 ? "Pending" : 
                                  request.status === 2 ? "Accepted" : 

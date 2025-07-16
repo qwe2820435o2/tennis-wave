@@ -37,7 +37,7 @@ export default function Header() {
     };
 
     if (!user.isHydrated) {
-        // 你可以返回 null 或 loading 占位
+        // You can return null or a loading placeholder
         return null;
     }
 

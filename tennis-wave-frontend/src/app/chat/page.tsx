@@ -1,8 +1,8 @@
 "use client";
-import {useEffect, useState} from "react";
+import React, {useEffect, useState} from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { chatService } from "@/services/chatService";
-import { setConversations, setUnreadCounts } from "@/store/slices/chatSlice";
+import { setConversations, setUnreadCounts, selectConversations, selectUnreadCounts } from "@/store/slices/chatSlice";
 import Link from "next/link";
 import { Card } from "@/components/ui/card";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
@@ -15,8 +15,8 @@ import { showLoading, hideLoading } from "@/store/slices/loadingSlice";
 
 export default function ChatListPage() {
     const dispatch = useDispatch();
-    const conversations = useSelector((state: RootState) => state.chat.conversations);
-    const unreadCounts = useSelector((state: RootState) => state.chat.unreadCounts);
+    const conversations = useSelector(selectConversations);
+    const unreadCounts = useSelector(selectUnreadCounts);
     const [isNewChatModalOpen, setIsNewChatModalOpen] = useState(false);
 
     useEffect(() => {
