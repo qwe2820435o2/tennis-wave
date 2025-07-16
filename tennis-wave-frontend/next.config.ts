@@ -10,8 +10,8 @@ const nextConfig: NextConfig = {
     // 在生产构建时忽略 TypeScript 错误
     ignoreBuildErrors: true,
   },
-  // 启用 standalone 输出，减少镜像大小
-  output: 'standalone',
+  // 禁用 standalone 输出，使用传统启动方式
+  // output: 'standalone',
 };
 
 export default nextConfig;
