@@ -35,7 +35,7 @@ class SignalRService {
             }
 
             console.log('Creating SignalR connection...');
-            const baseUrl = 'https://tennis-wave.railway.internal'; // Use Railway Private Networking with HTTPS
+            const baseUrl = 'https://tennis-wave-api-production.up.railway.app'; // Use Public Networking
             this.connection = new signalR.HubConnectionBuilder()
                 .withUrl(`${baseUrl}/chatHub?access_token=${token}`, {
                     withCredentials: true

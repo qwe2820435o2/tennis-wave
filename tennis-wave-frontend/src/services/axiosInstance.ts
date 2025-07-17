@@ -8,14 +8,14 @@ console.log("🔍 Environment Variables Debug:");
 console.log("NEXT_PUBLIC_API_URL:", process.env.NEXT_PUBLIC_API_URL);
 console.log("NODE_ENV:", process.env.NODE_ENV);
 
-// Try Private Networking first, fallback to Public Networking if needed
+// Use Public Networking as Private Networking has DNS resolution issues
 const getApiBaseUrl = () => {
     // Check if we're in Railway production environment
     if (typeof window !== 'undefined' && window.location.hostname.includes('railway.app')) {
-        // Try Private Networking with HTTPS first
-        return "https://tennis-wave.railway.internal";
+        // Use Public Networking for now
+        return "https://tennis-wave-api-production.up.railway.app";
     }
-    // Fallback to Public Networking or local development
+    // Fallback to local development
     return process.env.NEXT_PUBLIC_API_URL || "http://localhost:5161";
 };
 

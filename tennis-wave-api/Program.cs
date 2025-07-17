@@ -128,16 +128,22 @@ builder.Services.AddAutoMapper(typeof(MappingProfile));
 // Add SignalR
 builder.Services.AddSignalR();
 
-// Cors - Simplified for Private Networking
+// Cors - Configured for Public Networking
 builder.Services.AddCors(options =>
 {
     options.AddPolicy(name: MyAllowSpecificOrigins,
         policy =>
         {
             policy
-                .AllowAnyOrigin() // Allow any origin for private networking
+                .WithOrigins(
+                    "http://localhost:3000", // 本地开发
+                    "https://localhost:3000", // 本地开发 HTTPS
+                    "https://tennis-wave-front-production.up.railway.app", // 生产环境前端
+                    "https://tennis-wave-front-staging.up.railway.app" // 测试环境前端
+                )
                 .AllowAnyHeader()
-                .AllowAnyMethod();
+                .AllowAnyMethod()
+                .AllowCredentials(); // Required for SignalR
         });
 });
 
