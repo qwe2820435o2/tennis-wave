@@ -2,15 +2,17 @@ import axios from "axios";
 import {toast} from "sonner";
 import { store } from "@/store";
 import { clearUser } from "@/store/slices/userSlice";
+import { API_CONFIG } from "@/lib/config";
 
 // Debug: Log environment variables
 console.log("🔍 Environment Variables Debug:");
 console.log("NEXT_PUBLIC_API_URL:", process.env.NEXT_PUBLIC_API_URL);
 console.log("NODE_ENV:", process.env.NODE_ENV);
 
-// Use Railway Private Networking to avoid CORS issues
+// Use environment variable for API URL
 const instance = axios.create({
-    baseURL: "https://tennis-wave-production.up.railway.app"
+    baseURL: API_CONFIG.BASE_URL,
+    timeout: API_CONFIG.REQUEST_CONFIG.TIMEOUT,
     // baseURL: "https://tennis-wave-api-production.up.railway.app" // public networking
     // baseURL: process.env.NEXT_PUBLIC_API_URL || http://localhost:5161 // original code
 });

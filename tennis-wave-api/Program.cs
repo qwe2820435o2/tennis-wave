@@ -128,7 +128,7 @@ builder.Services.AddAutoMapper(typeof(MappingProfile));
 // Add SignalR
 builder.Services.AddSignalR();
 
-// Cors - Simplified for Private Networking
+// Cors - Enhanced for SignalR and API
 builder.Services.AddCors(options =>
 {
     options.AddPolicy(name: MyAllowSpecificOrigins,
@@ -137,7 +137,20 @@ builder.Services.AddCors(options =>
             policy
                 .AllowAnyOrigin() // Allow any origin for private networking
                 .AllowAnyHeader()
-                .AllowAnyMethod();
+                .AllowAnyMethod()
+                .AllowCredentials(); // Important for SignalR
+        });
+    
+    // Special policy for SignalR
+    options.AddPolicy("SignalRPolicy",
+        policy =>
+        {
+            policy
+                .AllowAnyOrigin()
+                .AllowAnyHeader()
+                .AllowAnyMethod()
+                .AllowCredentials()
+                .SetIsOriginAllowed(_ => true); // Allow all origins for SignalR
         });
 });
 
@@ -181,14 +194,28 @@ app.UseCors(MyAllowSpecificOrigins);
 app.Use(async (context, next) =>
 {
     var origin = context.Request.Headers["Origin"].ToString();
+    var method = context.Request.Method;
+    var path = context.Request.Path;
+    var userAgent = context.Request.Headers["User-Agent"].ToString();
+    
     Console.WriteLine($"🔍 CORS Debug: Request from origin: {origin}");
-    Console.WriteLine($"🔍 CORS Debug: Request method: {context.Request.Method}");
-    Console.WriteLine($"🔍 CORS Debug: Request path: {context.Request.Path}");   
+    Console.WriteLine($"🔍 CORS Debug: Request method: {method}");
+    Console.WriteLine($"🔍 CORS Debug: Request path: {path}");
+    Console.WriteLine($"🔍 CORS Debug: User-Agent: {userAgent}");
+    
+    // Special handling for SignalR negotiate requests
+    if (path.StartsWithSegments("/chatHub") && path.Value?.Contains("negotiate") == true)
+    {
+        Console.WriteLine($"🔍 CORS Debug: SignalR negotiate request detected");
+        Console.WriteLine($"🔍 CORS Debug: Access token present: {!string.IsNullOrEmpty(context.Request.Query["access_token"])}");
+    }
+    
     await next();
     
     // Log response headers
     Console.WriteLine($"🔍 CORS Debug: Response status: {context.Response.StatusCode}");
     Console.WriteLine($"🔍 CORS Debug: Access-Control-Allow-Origin: {context.Response.Headers["Access-Control-Allow-Origin"]}");
+    Console.WriteLine($"🔍 CORS Debug: Access-Control-Allow-Credentials: {context.Response.Headers["Access-Control-Allow-Credentials"]}");
 });
 
 app.UseHttpsRedirection();
@@ -201,8 +228,9 @@ app.UseAuthorization();
 // Add Router
 app.MapControllers();
 
-// Map SignalR Hub
-app.MapHub<tennis_wave_api.Services.ChatHub>("/chatHub");
+// Map SignalR Hub with CORS policy
+app.MapHub<tennis_wave_api.Services.ChatHub>("/chatHub")
+    .RequireCors("SignalRPolicy");
 
 
 app.Run();

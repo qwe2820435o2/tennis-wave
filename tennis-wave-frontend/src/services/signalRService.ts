@@ -1,6 +1,7 @@
 import * as signalR from '@microsoft/signalr';
 import { store } from '../store';
 import { addMessage, updateUnreadCount, removeTempMessage } from '../store/slices/chatSlice';
+import { API_CONFIG } from '@/lib/config';
 
 class SignalRService {
     private connection: signalR.HubConnection | null = null;
@@ -35,9 +36,9 @@ class SignalRService {
             }
 
             console.log('Creating SignalR connection...');
-            const baseUrl = 'https://tennis-wave-production.up.railway.app'; // Use Railway Private Networking
+            const baseUrl = API_CONFIG.SIGNALR_URL;
             this.connection = new signalR.HubConnectionBuilder()
-                .withUrl(`${baseUrl}/chatHub?access_token=${token}`, {
+                .withUrl(`${baseUrl}${API_CONFIG.ENDPOINTS.SIGNALR.CHAT_HUB}?access_token=${token}`, {
                     withCredentials: true
                 })
                 .withAutomaticReconnect([0, 2000, 5000, 10000, 30000])
