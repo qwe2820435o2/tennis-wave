@@ -17,6 +17,9 @@ RUN dotnet publish -c Release -o out
 FROM mcr.microsoft.com/dotnet/aspnet:8.0
 WORKDIR /app
 COPY --from=build /app/out ./
-ENV ASPNETCORE_URLS=http://+:80
-EXPOSE 80
+
+# Use PORT environment variable for Railway
+ENV ASPNETCORE_URLS=http://+:${PORT:-80}
+EXPOSE ${PORT:-80}
+
 ENTRYPOINT ["dotnet", "tennis-wave-api.dll"]
