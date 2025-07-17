@@ -196,7 +196,7 @@ docker-compose up -d
 #### Production Deployment
 - **Frontend**: Deployed on Railway 
 - **Backend**: Deployed on Railway
-- **Database**: Railway SQL Server
+- **Database**: Azure SQL Server
 
 > **Note**: Production environment uses Railway's containerized deployment with automatic scaling and SSL certificates.
 
