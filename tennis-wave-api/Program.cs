@@ -135,7 +135,7 @@ builder.Services.AddCors(options =>
         policy =>
         {
             policy
-                .AllowAnyOrigin() // Allow any origin for private networking
+                .SetIsOriginAllowed(_ => true) // Allow any origin but specify explicitly
                 .AllowAnyHeader()
                 .AllowAnyMethod()
                 .AllowCredentials(); // Important for SignalR
@@ -146,11 +146,10 @@ builder.Services.AddCors(options =>
         policy =>
         {
             policy
-                .AllowAnyOrigin()
+                .SetIsOriginAllowed(_ => true) // Allow all origins for SignalR
                 .AllowAnyHeader()
                 .AllowAnyMethod()
-                .AllowCredentials()
-                .SetIsOriginAllowed(_ => true); // Allow all origins for SignalR
+                .AllowCredentials();
         });
 });
 
