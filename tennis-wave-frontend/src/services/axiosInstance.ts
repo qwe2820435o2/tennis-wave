@@ -3,10 +3,19 @@ import {toast} from "sonner";
 import { store } from "@/store";
 import { clearUser } from "@/store/slices/userSlice";
 
-// Create axios instance
+// Debug: Log environment variables
+console.log("🔍 Environment Variables Debug:");
+console.log("NEXT_PUBLIC_API_URL:", process.env.NEXT_PUBLIC_API_URL);
+console.log("NODE_ENV:", process.env.NODE_ENV);
+
+// Temporary hardcoded baseURL for production debugging
 const instance = axios.create({
-    baseURL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5161'
+    baseURL: "https://tennis-wave-api-production.up.railway.app"
+    // baseURL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5161' // original code
 });
+
+// Debug: Log the actual baseURL being used
+console.log("🚀 Axios instance created with baseURL:", instance.defaults.baseURL);
 
 // Add token
 instance.interceptors.request.use(
