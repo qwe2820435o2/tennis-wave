@@ -143,7 +143,8 @@ builder.Services.AddCors(options =>
                 )
                 .AllowAnyHeader()
                 .AllowAnyMethod()
-                .AllowCredentials(); // Required for SignalR
+                .AllowCredentials() // Required for SignalR
+                .SetIsOriginAllowedToAllowWildcardSubdomains(); // Allow subdomains
         });
 });
 
@@ -187,14 +188,32 @@ app.UseCors(MyAllowSpecificOrigins);
 app.Use(async (context, next) =>
 {
     var origin = context.Request.Headers["Origin"].ToString();
+    var method = context.Request.Method;
+    var path = context.Request.Path;
+    
     Console.WriteLine($"🔍 CORS Debug: Request from origin: {origin}");
-    Console.WriteLine($"🔍 CORS Debug: Request method: {context.Request.Method}");
-    Console.WriteLine($"🔍 CORS Debug: Request path: {context.Request.Path}");   
+    Console.WriteLine($"🔍 CORS Debug: Request method: {method}");
+    Console.WriteLine($"🔍 CORS Debug: Request path: {path}");
+    
+    // Handle preflight requests explicitly
+    if (method == "OPTIONS")
+    {
+        Console.WriteLine($"🔍 CORS Debug: Handling preflight request for {path}");
+        context.Response.Headers.Add("Access-Control-Allow-Origin", origin);
+        context.Response.Headers.Add("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+        context.Response.Headers.Add("Access-Control-Allow-Headers", "Content-Type, Authorization, X-Requested-With");
+        context.Response.Headers.Add("Access-Control-Allow-Credentials", "true");
+        context.Response.StatusCode = 200;
+        return;
+    }
+    
     await next();
     
     // Log response headers
     Console.WriteLine($"🔍 CORS Debug: Response status: {context.Response.StatusCode}");
     Console.WriteLine($"🔍 CORS Debug: Access-Control-Allow-Origin: {context.Response.Headers["Access-Control-Allow-Origin"]}");
+    Console.WriteLine($"🔍 CORS Debug: Access-Control-Allow-Methods: {context.Response.Headers["Access-Control-Allow-Methods"]}");
+    Console.WriteLine($"🔍 CORS Debug: Access-Control-Allow-Headers: {context.Response.Headers["Access-Control-Allow-Headers"]}");
 });
 
 app.UseHttpsRedirection();

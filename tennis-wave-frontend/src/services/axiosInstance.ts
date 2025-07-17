@@ -20,7 +20,12 @@ const getApiBaseUrl = () => {
 };
 
 const instance = axios.create({
-    baseURL: getApiBaseUrl()
+    baseURL: getApiBaseUrl(),
+    headers: {
+        'Content-Type': 'application/json',
+        'X-Requested-With': 'XMLHttpRequest'
+    },
+    withCredentials: true // Enable credentials for CORS
 });
 
 // Debug: Log the actual baseURL being used
