@@ -137,7 +137,9 @@ builder.Services.AddCors(options =>
             policy.WithOrigins(
                     "http://localhost:3000", // 本地开发
                     "https://localhost:3000", // 本地开发 HTTPS
-                    "https://*.railway.app", // Railway 域名
+                    "https://tennis-wave-front-production.up.railway.app", // 生产环境前端
+                    "https://tennis-wave-front-staging.up.railway.app", // 测试环境前端
+                    "https://*.railway.app", // Railway 域名通配符
                     "https://*.vercel.app" // Vercel 域名（如果前端部署在 Vercel）
                 )
                 .AllowAnyHeader()
