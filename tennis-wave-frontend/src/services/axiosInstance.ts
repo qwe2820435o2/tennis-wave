@@ -8,11 +8,19 @@ console.log("🔍 Environment Variables Debug:");
 console.log("NEXT_PUBLIC_API_URL:", process.env.NEXT_PUBLIC_API_URL);
 console.log("NODE_ENV:", process.env.NODE_ENV);
 
-// Use Railway Private Networking to avoid CORS issues
+// Try Private Networking first, fallback to Public Networking if needed
+const getApiBaseUrl = () => {
+    // Check if we're in Railway production environment
+    if (typeof window !== 'undefined' && window.location.hostname.includes('railway.app')) {
+        // Try Private Networking with HTTPS first
+        return "https://tennis-wave.railway.internal";
+    }
+    // Fallback to Public Networking or local development
+    return process.env.NEXT_PUBLIC_API_URL || "http://localhost:5161";
+};
+
 const instance = axios.create({
-    baseURL: "http://tennis-wave.railway.internal"
-    // baseURL: "https://tennis-wave-api-production.up.railway.app" // public networking
-    // baseURL: process.env.NEXT_PUBLIC_API_URL || http://localhost:5161 // original code
+    baseURL: getApiBaseUrl()
 });
 
 // Debug: Log the actual baseURL being used
