@@ -128,24 +128,16 @@ builder.Services.AddAutoMapper(typeof(MappingProfile));
 // Add SignalR
 builder.Services.AddSignalR();
 
-// Cors
+// Cors - Simplified for Private Networking
 builder.Services.AddCors(options =>
 {
     options.AddPolicy(name: MyAllowSpecificOrigins,
         policy =>
         {
-            policy.WithOrigins(
-                    "http://localhost:3000", // 本地开发
-                    "https://localhost:3000", // 本地开发 HTTPS
-                    "https://tennis-wave-front-production.up.railway.app", // 生产环境前端
-                    "https://tennis-wave-front-staging.up.railway.app", // 测试环境前端
-                    "https://*.railway.app", // Railway 域名通配符
-                    "https://*.vercel.app" // Vercel 域名（如果前端部署在 Vercel）
-                )
+            policy
+                .AllowAnyOrigin() // Allow any origin for private networking
                 .AllowAnyHeader()
-                .AllowAnyMethod()
-                .AllowCredentials() // Required for SignalR
-                .SetIsOriginAllowedToAllowWildcardSubdomains(); // 允许子域名
+                .AllowAnyMethod();
         });
 });
 
@@ -184,6 +176,20 @@ else
 
 // Cors - Must be before authentication and authorization
 app.UseCors(MyAllowSpecificOrigins);
+
+// Add CORS debugging middleware
+app.Use(async (context, next) =>
+{
+    var origin = context.Request.Headers["Origin"].ToString();
+    Console.WriteLine($"🔍 CORS Debug: Request from origin: {origin}");
+    Console.WriteLine($"🔍 CORS Debug: Request method: {context.Request.Method}");
+    Console.WriteLine($"🔍 CORS Debug: Request path: {context.Request.Path}");   
+    await next();
+    
+    // Log response headers
+    Console.WriteLine($"🔍 CORS Debug: Response status: {context.Response.StatusCode}");
+    Console.WriteLine($"🔍 CORS Debug: Access-Control-Allow-Origin: {context.Response.Headers["Access-Control-Allow-Origin"]}");
+});
 
 app.UseHttpsRedirection();
 

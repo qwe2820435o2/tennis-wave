@@ -8,10 +8,11 @@ console.log("🔍 Environment Variables Debug:");
 console.log("NEXT_PUBLIC_API_URL:", process.env.NEXT_PUBLIC_API_URL);
 console.log("NODE_ENV:", process.env.NODE_ENV);
 
-// Temporary hardcoded baseURL for production debugging
+// Use Railway Private Networking to avoid CORS issues
 const instance = axios.create({
-    baseURL: "https://tennis-wave-api-production.up.railway.app"
-    // baseURL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5161' // original code
+    baseURL: "http://tennis-wave.railway.internal"
+    // baseURL: "https://tennis-wave-api-production.up.railway.app" // public networking
+    // baseURL: process.env.NEXT_PUBLIC_API_URL || http://localhost:5161 // original code
 });
 
 // Debug: Log the actual baseURL being used
