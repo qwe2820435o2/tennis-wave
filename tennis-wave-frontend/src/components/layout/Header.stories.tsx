@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import Header from './Header';
+import HeaderForStorybook from './HeaderForStorybook';
 import { Provider } from 'react-redux';
 import { configureStore } from '@reduxjs/toolkit';
 import userSlice from '@/store/slices/userSlice';
@@ -17,9 +17,9 @@ const createTestStore = (userState: any) => {
   });
 };
 
-const meta: Meta<typeof Header> = {
+const meta: Meta<typeof HeaderForStorybook> = {
   title: 'Layout/Header',
-  component: Header,
+  component: HeaderForStorybook,
   parameters: {
     layout: 'fullscreen',
   },

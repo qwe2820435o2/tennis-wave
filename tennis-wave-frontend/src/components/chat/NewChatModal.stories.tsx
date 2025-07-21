@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import NewChatModal from './NewChatModal';
+import NewChatModalForStorybook from './NewChatModalForStorybook';
 import { useState } from 'react';
 import { ThemeProvider } from 'next-themes';
 
@@ -27,7 +27,7 @@ const mockUsers = [
 
 // Wrapper component to control modal open/close state
 const NewChatModalWrapper = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) => {
-  return <NewChatModal isOpen={isOpen} onClose={onClose} />;
+  return <NewChatModalForStorybook isOpen={isOpen} onClose={onClose} />;
 };
 
 const meta: Meta<typeof NewChatModalWrapper> = {
