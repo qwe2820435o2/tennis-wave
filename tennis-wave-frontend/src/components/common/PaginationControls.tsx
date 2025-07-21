@@ -70,21 +70,21 @@ export function PaginationControls<T>({
       {/* Pagination Info */}
       {showInfo && (
         <div className="flex items-center justify-between text-sm text-muted-foreground">
-          <div className="flex items-center space-x-2">
-            <span>显示</span>
+          <div className="flex items-center space-x-3">
+            <span>Showing </span>
             <span className="font-medium text-foreground">{startItem}</span>
-            <span>到</span>
+            <span> to </span>
             <span className="font-medium text-foreground">{endItem}</span>
-            <span>条，共</span>
+            <span> of </span>
             <span className="font-medium text-foreground">{totalCount}</span>
-            <span>条记录</span>
+            <span> records</span>
           </div>
-          <div className="flex items-center space-x-2">
-            <span>第</span>
+          <div className="flex items-center space-x-3">
+            <span>Page </span>
             <span className="font-medium text-foreground">{page}</span>
-            <span>页，共</span>
+            <span> of </span>
             <span className="font-medium text-foreground">{totalPages}</span>
-            <span>页</span>
+            <span> pages</span>
           </div>
         </div>
       )}
@@ -169,13 +169,13 @@ export function CompactPaginationControls<T>({
         )}
       />
       
-      <div className="flex items-center space-x-2 text-sm">
-        <span className="text-muted-foreground">第</span>
-        <span className="font-medium">{page}</span>
-        <span className="text-muted-foreground">页，共</span>
-        <span className="font-medium">{totalPages}</span>
-        <span className="text-muted-foreground">页</span>
-      </div>
+              <div className="flex items-center space-x-3 text-sm">
+          <span className="text-muted-foreground">Page </span>
+          <span className="font-medium">{page}</span>
+          <span className="text-muted-foreground"> of </span>
+          <span className="font-medium">{totalPages}</span>
+          <span className="text-muted-foreground"> pages</span>
+        </div>
 
       <PaginationNext
         onClick={() => onPageChange(page + 1)}

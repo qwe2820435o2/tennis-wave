@@ -57,7 +57,7 @@ export const WithActiveFilters: Story = {
   parameters: {
     docs: {
       description: {
-        story: '展示当有活跃筛选条件时的组件状态',
+        story: 'Component state when there are active filter conditions',
       },
     },
   },
@@ -70,7 +70,7 @@ export const NoStatistics: Story = {
   parameters: {
     docs: {
       description: {
-        story: '当没有统计数据时的组件状态',
+        story: 'Component state when there is no statistical data',
       },
     },
   },
@@ -86,7 +86,7 @@ export const Mobile: Story = {
     },
     docs: {
       description: {
-        story: '移动端视图下的组件布局',
+        story: 'Component layout in mobile view',
       },
     },
   },
@@ -102,7 +102,7 @@ export const DarkMode: Story = {
     },
     docs: {
       description: {
-        story: '暗色模式下的组件外观',
+        story: 'Component appearance in dark mode',
       },
     },
   },

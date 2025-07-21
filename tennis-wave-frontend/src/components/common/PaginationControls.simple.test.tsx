@@ -29,21 +29,21 @@ const PaginationControls = ({ data, onPageChange, showInfo = true }: any) => {
       {/* Pagination Info */}
       {showInfo && (
         <div className="flex items-center justify-between text-sm">
-          <div className="flex items-center space-x-2">
-            <span>显示</span>
+          <div className="flex items-center space-x-3">
+            <span>Showing </span>
             <span className="font-medium">{startItem}</span>
-            <span>到</span>
+            <span> to </span>
             <span className="font-medium">{endItem}</span>
-            <span>条，共</span>
+            <span> of </span>
             <span className="font-medium">{totalCount}</span>
-            <span>条记录</span>
+            <span> records</span>
           </div>
-          <div className="flex items-center space-x-2">
-            <span>第</span>
+          <div className="flex items-center space-x-3">
+            <span>Page </span>
             <span className="font-medium">{page}</span>
-            <span>页，共</span>
+            <span> of </span>
             <span className="font-medium">{totalPages}</span>
-            <span>页</span>
+            <span> pages</span>
           </div>
         </div>
       )}
@@ -56,7 +56,7 @@ const PaginationControls = ({ data, onPageChange, showInfo = true }: any) => {
           disabled={!hasPreviousPage}
           className="px-3 py-1 rounded"
         >
-          上一页
+          Previous
         </button>
 
         {/* Page Numbers */}
@@ -80,7 +80,7 @@ const PaginationControls = ({ data, onPageChange, showInfo = true }: any) => {
           disabled={!hasNextPage}
           className="px-3 py-1 rounded"
         >
-          下一页
+          Next
         </button>
       </div>
     </div>
@@ -103,11 +103,11 @@ describe('PaginationControls Component (Simple)', () => {
         />
       );
 
-      expect(screen.getByText('显示')).toBeInTheDocument();
-      expect(screen.getByText('到')).toBeInTheDocument();
-      expect(screen.getByText('条，共')).toBeInTheDocument();
+      expect(screen.getByText('Showing')).toBeInTheDocument();
+      expect(screen.getByText('to')).toBeInTheDocument();
+      expect(screen.getByText('of')).toBeInTheDocument();
       expect(screen.getByText('100')).toBeInTheDocument();
-      expect(screen.getByText('条记录')).toBeInTheDocument();
+      expect(screen.getByText('records')).toBeInTheDocument();
       
       // Check that both "10" elements exist (one for range, one for total pages)
       const tens = screen.getAllByText('10');
@@ -122,9 +122,9 @@ describe('PaginationControls Component (Simple)', () => {
         />
       );
 
-      expect(screen.getByText('第')).toBeInTheDocument();
-      expect(screen.getByText('页，共')).toBeInTheDocument();
-      expect(screen.getByText('页')).toBeInTheDocument();
+      expect(screen.getByText('Page')).toBeInTheDocument();
+      expect(screen.getByText('of')).toBeInTheDocument();
+      expect(screen.getByText('pages')).toBeInTheDocument();
       
       // Check that both "10" elements exist (one for range, one for total pages)
       const tens = screen.getAllByText('10');
@@ -141,7 +141,7 @@ describe('PaginationControls Component (Simple)', () => {
         />
       );
 
-      const nextButton = screen.getByText('下一页');
+      const nextButton = screen.getByText('Next');
       fireEvent.click(nextButton);
       expect(mockOnPageChange).toHaveBeenCalledWith(2);
     });
@@ -155,7 +155,7 @@ describe('PaginationControls Component (Simple)', () => {
         />
       );
 
-      const prevButton = screen.getByText('上一页');
+      const prevButton = screen.getByText('Previous');
       fireEvent.click(prevButton);
       expect(mockOnPageChange).toHaveBeenCalledWith(1);
     });
@@ -181,7 +181,7 @@ describe('PaginationControls Component (Simple)', () => {
         />
       );
 
-      const prevButton = screen.getByText('上一页');
+      const prevButton = screen.getByText('Previous');
       expect(prevButton).toBeDisabled();
     });
 
@@ -194,7 +194,7 @@ describe('PaginationControls Component (Simple)', () => {
         />
       );
 
-      const nextButton = screen.getByText('下一页');
+      const nextButton = screen.getByText('Next');
       expect(nextButton).toBeDisabled();
     });
   });
@@ -209,8 +209,8 @@ describe('PaginationControls Component (Simple)', () => {
         />
       );
 
-      expect(screen.queryByText('显示')).not.toBeInTheDocument();
-      expect(screen.queryByText('条，共')).not.toBeInTheDocument();
+      expect(screen.queryByText('Showing')).not.toBeInTheDocument();
+      expect(screen.queryByText('of')).not.toBeInTheDocument();
     });
   });
 

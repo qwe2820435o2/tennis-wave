@@ -160,7 +160,7 @@ export default function ChatDetailPage() {
                             </div>
                         )}
                         <div className={`flex items-end gap-3 ${msg.isFromCurrentUser ? "justify-end" : "justify-start"}`}>
-                            {/* 对方消息 */}
+                            {/* Other person's message */}
                             {!msg.isFromCurrentUser && (
                                 <>
                                     <Avatar className="w-10 h-10 shadow ring-2 ring-green-300 dark:ring-green-600">
@@ -176,7 +176,7 @@ export default function ChatDetailPage() {
                                     </div>
                                 </>
                             )}
-                            {/* 我方消息 */}
+                            {/* My message */}
                             {msg.isFromCurrentUser && (
                                 <>
                                     <div className="flex flex-col items-end">
