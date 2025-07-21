@@ -30,7 +30,7 @@ export default function LoginPage() {
     const dispatch = useDispatch();
     const isHydrated = useSelector(selectIsHydrated);
 
-    // 自动跳转：如果已登录则跳转到首页
+    // Auto redirect: if already logged in, redirect to homepage
     useEffect(() => {
         if (isHydrated) {
             const token = localStorage.getItem("token");
@@ -41,7 +41,7 @@ export default function LoginPage() {
         }
     }, [router, isHydrated]);
 
-    // 登录状态未水合时显示 loading
+    // Show loading when login state is not hydrated
     if (!isHydrated) {
         return (
             <div className="min-h-screen flex items-center justify-center">
@@ -85,8 +85,8 @@ export default function LoginPage() {
             }));
             // Jump to homepage and force reload
             router.push("/");
-            // 不再 setIsLoading(false)，让 loading 持续到跳转
-            // window.location.reload(); // 如无特殊需求可去掉
+            // No longer setIsLoading(false), let loading continue until redirect
+            // window.location.reload(); // Can be removed if no special requirements
         } catch (error: unknown) {
             let errorMessage = "Please check your email and password";
             if (error && typeof error === "object" && "isAxiosError" in error) {
@@ -103,7 +103,7 @@ export default function LoginPage() {
                     });
                 }
             }
-            setIsLoading(false); // 只有失败才 setIsLoading(false)
+            setIsLoading(false); // Only set loading to false on failure
             dispatch(hideLoading());
         }
     };

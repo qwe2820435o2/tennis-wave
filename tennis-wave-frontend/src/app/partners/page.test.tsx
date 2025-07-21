@@ -19,13 +19,13 @@ vi.mock("@/services/chatService", () => ({
 }));
 vi.mock("sonner", () => ({ toast: { error: vi.fn(), success: vi.fn() } }));
 
-// mock lucide-react 图标
+  // mock lucide-react icons
 vi.mock("lucide-react", () => ({
     Search: () => <svg data-testid="search-icon" />,
     ChevronRight: () => <svg data-testid="chevron-right" />,
     ChevronLeft: () => <svg data-testid="chevron-left" />,
     XIcon: () => <svg data-testid="x-icon" />,
-    // ...补全其它用到的icon
+    // ...complete other icons used
 }));
 
 const createTestStore = () => configureStore({ reducer: { loading: loadingSlice } });

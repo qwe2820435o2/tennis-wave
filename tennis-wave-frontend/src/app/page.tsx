@@ -30,7 +30,7 @@ export default function HomePage() {
         sessionStorage.removeItem("token");
       }
     }
-    // 进入首页时关闭全局loading
+    // Close global loading when entering homepage
     dispatch(hideLoading());
   }, [dispatch]);
 

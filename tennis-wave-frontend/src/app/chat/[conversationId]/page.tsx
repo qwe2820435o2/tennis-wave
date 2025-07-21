@@ -83,12 +83,12 @@ export default function ChatDetailPage() {
         setIsSending(true);
 
         try {
-            // 确保SignalR连接
+            // Ensure SignalR connection
             await signalRService.ensureConnection();
             
-            // 创建临时消息用于立即显示
+            // Create temporary message for immediate display
             const tempMessage = {
-                id: Date.now(), // 临时ID
+                id: Date.now(), // Temporary ID
                 conversationId: Number(conversationId),
                 senderId: user.userId,
                 senderName: user.userName || 'You',
@@ -96,16 +96,16 @@ export default function ChatDetailPage() {
                 content: messageContent,
                 isFromCurrentUser: true,
                 createdAt: new Date().toISOString(),
-                isTemp: true // 标记为临时消息
+                isTemp: true // Mark as temporary message
             };
 
-            // 立即添加到本地状态
+            // Immediately add to local state
             dispatch(addMessage({
                 conversationId: Number(conversationId),
                 message: tempMessage
             }));
 
-            // 通过SignalR发送消息
+            // Send message via SignalR
             await signalRService.sendMessage(conversationId as string, messageContent);
             
             console.log('Message sent successfully');
@@ -113,10 +113,10 @@ export default function ChatDetailPage() {
         } catch (error) {
             console.error('Failed to send message:', error);
             
-            // 恢复输入内容
+            // Restore input content
             setInput(messageContent);
             
-            // 显示错误提示
+            // Show error message
             if (error instanceof Error) {
                 if (error.message.includes('not authenticated')) {
                     toast.error('Please login again to send messages');

@@ -145,7 +145,7 @@ export function PaginationControls<T>({
   );
 }
 
-// 简化版分页组件，用于移动端或紧凑布局
+    // Simplified pagination component for mobile or compact layouts
 export function CompactPaginationControls<T>({
   data,
   onPageChange,

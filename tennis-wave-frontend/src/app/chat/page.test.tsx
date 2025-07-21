@@ -266,7 +266,7 @@ describe("ChatListPage", () => {
             mockChatService.getUnreadCounts.mockResolvedValue({});
             renderWithProvider(<ChatListPage />);
             
-            // 等待组件渲染完成，即使有错误也应该显示空状态
+            // Wait for component to render, should show empty state even with errors
             await waitFor(() => {
                 expect(screen.getByText("No conversations yet")).toBeInTheDocument();
             });
@@ -277,7 +277,7 @@ describe("ChatListPage", () => {
             mockChatService.getUnreadCounts.mockRejectedValue(new Error("Network error"));
             renderWithProvider(<ChatListPage />);
             
-            // 当 getUnreadCounts 失败时，整个 Promise.all 会失败，所以不会显示对话列表
+            // When getUnreadCounts fails, the entire Promise.all fails, so conversation list won't be displayed
             await waitFor(() => {
                 expect(screen.getByText("No conversations yet")).toBeInTheDocument();
             });
@@ -288,7 +288,7 @@ describe("ChatListPage", () => {
             mockChatService.getUnreadCounts.mockRejectedValue(new Error("Network error"));
             renderWithProvider(<ChatListPage />);
             
-            // 等待组件渲染完成，应该显示空状态
+            // Wait for component to render, should show empty state
             await waitFor(() => {
                 expect(screen.getByText("No conversations yet")).toBeInTheDocument();
             });

@@ -301,7 +301,7 @@ describe("ChatDetailPage", () => {
                 fireEvent.click(sendButton);
             });
             
-            // 使用更具体的查询，避免多个 "Sending..." 文本的冲突
+            // Use more specific query to avoid conflicts with multiple "Sending..." texts
             expect(screen.getByRole("button", { name: "Sending..." })).toBeInTheDocument();
             expect(sendButton).toBeDisabled();
         });

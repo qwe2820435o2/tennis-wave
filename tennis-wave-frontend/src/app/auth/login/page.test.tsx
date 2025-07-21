@@ -127,7 +127,7 @@ describe("LoginPage", () => {
       renderWithProviders(<LoginPage />, { preloadedState: mockInitialState });
       
       const passwordInput = screen.getByLabelText("Password");
-      // 查找密码输入框后面的按钮（眼睛图标）
+              // Find the button after the password input field (eye icon)
       const toggleButton = passwordInput.parentElement?.querySelector("button");
       
       expect(toggleButton).toBeInTheDocument();

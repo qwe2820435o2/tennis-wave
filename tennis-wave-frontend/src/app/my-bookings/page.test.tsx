@@ -132,9 +132,9 @@ describe("MyBookingsPage", () => {
       </Provider>
     );
     expect(await screen.findByText(/Delete Me/i)).toBeInTheDocument();
-    // 先点击卡片上的Delete按钮
+    // First click the Delete button on the card
     fireEvent.click(screen.getByRole("button", { name: /Delete/i }));
-    // 再点击弹窗中的Delete按钮
+    // Then click the Delete button in the modal
     const deleteButtons = await screen.findAllByRole("button", { name: /Delete/i });
     expect(deleteButtons.length).toBeGreaterThan(1);
     fireEvent.click(deleteButtons[1]);
@@ -156,9 +156,9 @@ describe("MyBookingsPage", () => {
       </Provider>
     );
     expect(await screen.findByText(/Delete Fail/i)).toBeInTheDocument();
-    // 先点击卡片上的Delete按钮
+    // First click the Delete button on the card
     fireEvent.click(screen.getByRole("button", { name: /Delete/i }));
-    // 再点击弹窗中的Delete按钮
+    // Then click the Delete button in the modal
     const deleteButtons = await screen.findAllByRole("button", { name: /Delete/i });
     expect(deleteButtons.length).toBeGreaterThan(1);
     fireEvent.click(deleteButtons[1]);

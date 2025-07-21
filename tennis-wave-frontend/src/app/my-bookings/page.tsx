@@ -47,7 +47,7 @@ export default function MyBookingsPage() {
         try {
             dispatch(showLoading());
             const data = await tennisBookingService.getMyBookings();
-            // 修复：保证bookings为数组
+            // Fix: ensure bookings is an array
             const anyData = data as any;
             if (Array.isArray(anyData)) {
                 setBookings(anyData);
@@ -57,7 +57,7 @@ export default function MyBookingsPage() {
                 setBookings([]);
             }
         } catch (error: any) {
-            if (error.isAuthError) return; // 已全局处理，无需重复toast
+            if (error.isAuthError) return; // Already handled globally, no need to repeat toast
             console.error("Failed to load bookings:", error);
             toast.error("Failed to load bookings");
         } finally {

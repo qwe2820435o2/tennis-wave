@@ -87,12 +87,12 @@ describe("ProfilePage", () => {
 
     describe("Initial Load", () => {
         it("should render loading state initially", async () => {
-            // 使用一个永远不会 resolve 的 Promise 来模拟 loading 状态
+            // Use a Promise that never resolves to simulate loading state
             mockUserService.getUserById.mockImplementation(() => new Promise(() => {}));
             
             renderWithProvider(<ProfilePage />);
             
-            // 在 loading 状态下，组件应该不渲染任何内容（因为 profile 为 null）
+            // In loading state, component should not render anything (because profile is null)
             expect(screen.queryByText("My Profile")).not.toBeInTheDocument();
         });
 
@@ -315,7 +315,7 @@ describe("ProfilePage", () => {
             const form = screen.getByTestId("profile-form");
             const preventDefault = vi.fn();
             
-            // 模拟表单提交事件
+            // Simulate form submission event
             const submitEvent = new Event('submit', { bubbles: true, cancelable: true });
             Object.defineProperty(submitEvent, 'preventDefault', {
                 value: preventDefault,
